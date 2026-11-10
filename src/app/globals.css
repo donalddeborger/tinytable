@@ -710,6 +710,11 @@ h3 {
   box-shadow: 0 0 0 8px rgba(109, 93, 252, 0.2);
 }
 
+/* OpenStreetMap-kaart iets zachter, passend bij de pastelkleuren */
+.leaflet-tile-pane {
+  filter: saturate(0.75) brightness(1.04) contrast(0.95);
+}
+
 .leaflet-control-attribution {
   font-size: 10px;
   background: rgba(255, 255, 255, 0.75) !important;
