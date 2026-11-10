@@ -56,18 +56,16 @@ export async function getPlace(id: string): Promise<Place | undefined> {
 
 export async function addPlace(input: PlaceInput): Promise<Place> {
   const { data, error } = await getSupabase()
-    .from("places")
-    .insert({
-      name: input.name,
-      type: input.type,
-      address: input.address,
-      city: input.city || "Antwerpen",
-      lat: input.lat,
-      lng: input.lng,
-      amenities: input.amenities,
-      note: input.note || null,
+    .rpc("add_place", {
+      p_name: input.name,
+      p_type: input.type,
+      p_address: input.address,
+      p_city: input.city || "Antwerpen",
+      p_lat: input.lat,
+      p_lng: input.lng,
+      p_amenities: input.amenities,
+      p_note: input.note ?? null,
     })
-    .select(COLUMNS)
     .single();
   if (error) throw error;
   return toPlace(data as PlaceRow);
@@ -77,16 +75,14 @@ export async function updatePlace(
   id: string,
   patch: { amenities: Amenities; note?: string },
 ): Promise<Place | undefined> {
-  const changes: Record<string, unknown> = { amenities: patch.amenities };
-  // Een lege toelichting wist de bestaande niet.
-  if (patch.note) changes.note = patch.note;
-
   const { data, error } = await getSupabase()
-    .from("places")
-    .update(changes)
-    .eq("id", id)
-    .select(COLUMNS)
+    .rpc("update_place", {
+      p_id: id,
+      p_amenities: patch.amenities,
+      p_note: patch.note ?? null,
+    })
     .maybeSingle();
   if (error) throw error;
-  return data ? toPlace(data as PlaceRow) : undefined;
+  const row = data as PlaceRow | null;
+  return row && row.id ? toPlace(row) : undefined;
 }
