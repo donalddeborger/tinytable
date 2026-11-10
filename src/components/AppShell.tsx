@@ -45,8 +45,9 @@ export function AppShell() {
 
   useEffect(() => {
     void fetch("/api/places")
-      .then((response) => response.json())
-      .then((data: Place[]) => setPlaces(data));
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((data: Place[]) => setPlaces(data))
+      .catch(() => setToast("De plekken konden niet worden geladen"));
   }, []);
 
   useEffect(() => {

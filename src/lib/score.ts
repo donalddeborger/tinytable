@@ -39,14 +39,19 @@ const WEIGHTS: Record<AmenityKey, number> = {
   kidsMenu: 2,
 };
 
-export function kidScore(amenities: Amenities): number | null {
-  const known = AMENITIES.filter((item) => amenities[item.key] !== null);
+export function kidScore(
+  amenities: Partial<Amenities> | null | undefined,
+): number | null {
+  if (!amenities) return null;
+  // Zolang niets ingevuld is (alles "?"), is er nog geen score.
+  const known = AMENITIES.filter(
+    (item) => typeof amenities[item.key] === "boolean",
+  );
   if (known.length === 0) return null;
-  const points = AMENITIES.reduce(
-    (sum, item) => sum + (amenities[item.key] ? WEIGHTS[item.key] : 0),
+  return AMENITIES.reduce(
+    (sum, item) => sum + (amenities[item.key] === true ? WEIGHTS[item.key] : 0),
     0,
   );
-  return Math.round((points / 10) * 10);
 }
 
 export function scoreLabel(score: number | null): string {

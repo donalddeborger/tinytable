@@ -451,3 +451,10 @@ button {
     border-radius: 28px 28px 0 0;
   }
 }
+
+.form-error {
+  margin: 4px 0 0;
+  color: #d64545;
+  font-size: 0.9rem;
+  font-weight: 500;
+}

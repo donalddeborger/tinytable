@@ -1,64 +1,92 @@
-import { promises as fs } from "fs";
-import path from "path";
-import type { Place, PlaceInput } from "./types";
+import { getSupabase } from "./supabase";
+import { emptyAmenities } from "./score";
+import type { Amenities, Place, PlaceInput, PlaceType } from "./types";
 
-const FILE = path.join(process.cwd(), "data", "places.json");
+// Zoals de rij in de Supabase-tabel 'places' eruitziet.
+type PlaceRow = {
+  id: string;
+  name: string;
+  type: PlaceType;
+  address: string;
+  city: string;
+  lat: number;
+  lng: number;
+  amenities: Partial<Amenities> | null;
+  note: string | null;
+  created_at: string;
+  updated_at: string;
+};
 
-async function readAll(): Promise<Place[]> {
-  const raw = await fs.readFile(FILE, "utf8");
-  return JSON.parse(raw) as Place[];
-}
+const COLUMNS =
+  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at";
 
-async function writeAll(places: Place[]): Promise<void> {
-  await fs.writeFile(FILE, JSON.stringify(places, null, 2), "utf8");
+function toPlace(row: PlaceRow): Place {
+  return {
+    id: String(row.id),
+    name: row.name,
+    type: row.type,
+    address: row.address,
+    city: row.city,
+    lat: row.lat,
+    lng: row.lng,
+    amenities: { ...emptyAmenities(), ...(row.amenities ?? {}) },
+    updatedAt: row.updated_at,
+    note: row.note ?? undefined,
+  };
 }
 
 export async function listPlaces(): Promise<Place[]> {
-  return readAll();
+  const { data, error } = await getSupabase()
+    .from("places")
+    .select(COLUMNS)
+    .order("created_at", { ascending: true });
+  if (error) throw error;
+  return (data as PlaceRow[]).map(toPlace);
 }
 
 export async function getPlace(id: string): Promise<Place | undefined> {
-  const places = await readAll();
-  return places.find((place) => place.id === id);
+  const { data, error } = await getSupabase()
+    .from("places")
+    .select(COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? toPlace(data as PlaceRow) : undefined;
 }
 
 export async function addPlace(input: PlaceInput): Promise<Place> {
-  const places = await readAll();
-  const place: Place = {
-    id: crypto.randomUUID(),
-    name: input.name.trim(),
-    type: input.type,
-    address: input.address.trim(),
-    city: input.city?.trim() || "Antwerpen",
-    lat: input.lat,
-    lng: input.lng,
-    amenities: input.amenities,
-    updatedAt: new Date().toISOString(),
-    note: input.note?.trim() || undefined,
-  };
-  places.push(place);
-  await writeAll(places);
-  return place;
+  const { data, error } = await getSupabase()
+    .from("places")
+    .insert({
+      name: input.name,
+      type: input.type,
+      address: input.address,
+      city: input.city || "Antwerpen",
+      lat: input.lat,
+      lng: input.lng,
+      amenities: input.amenities,
+      note: input.note || null,
+    })
+    .select(COLUMNS)
+    .single();
+  if (error) throw error;
+  return toPlace(data as PlaceRow);
 }
 
 export async function updatePlace(
   id: string,
-  patch: Partial<Pick<Place, "amenities" | "note" | "name" | "address" | "type">>,
+  patch: { amenities: Amenities; note?: string },
 ): Promise<Place | undefined> {
-  const places = await readAll();
-  const index = places.findIndex((place) => place.id === id);
-  if (index === -1) return undefined;
-  const next: Place = {
-    ...places[index],
-    ...patch,
-    amenities: patch.amenities ?? places[index].amenities,
-    note:
-      patch.note !== undefined
-        ? patch.note.trim() || undefined
-        : places[index].note,
-    updatedAt: new Date().toISOString(),
-  };
-  places[index] = next;
-  await writeAll(places);
-  return next;
+  const changes: Record<string, unknown> = { amenities: patch.amenities };
+  // Een lege toelichting wist de bestaande niet.
+  if (patch.note) changes.note = patch.note;
+
+  const { data, error } = await getSupabase()
+    .from("places")
+    .update(changes)
+    .eq("id", id)
+    .select(COLUMNS)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? toPlace(data as PlaceRow) : undefined;
 }

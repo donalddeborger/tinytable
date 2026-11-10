@@ -1,46 +1,37 @@
 import { NextResponse } from "next/server";
 import { addPlace, listPlaces } from "@/lib/store";
-import type { Amenities, PlaceType } from "@/lib/types";
+import { parsePlaceInput } from "@/lib/validate";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const places = await listPlaces();
-  return NextResponse.json(places);
+  try {
+    return NextResponse.json(await listPlaces());
+  } catch (error) {
+    console.error("Plekken ophalen mislukt:", error);
+    return NextResponse.json(
+      { error: "Plekken konden niet worden geladen" },
+      { status: 500 },
+    );
+  }
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json()) as {
-    name?: string;
-    type?: PlaceType;
-    address?: string;
-    city?: string;
-    lat?: number;
-    lng?: number;
-    amenities?: Amenities;
-    note?: string;
-  };
-
-  if (
-    !body.name?.trim() ||
-    !body.type ||
-    typeof body.lat !== "number" ||
-    typeof body.lng !== "number" ||
-    !body.amenities
-  ) {
-    return NextResponse.json({ error: "Onvolledige gegevens" }, { status: 400 });
+  const body = await request.json().catch(() => null);
+  const parsed = parsePlaceInput(body);
+  if (!parsed.ok) {
+    return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  const place = await addPlace({
-    name: body.name,
-    type: body.type,
-    address: body.address ?? "",
-    city: body.city,
-    lat: body.lat,
-    lng: body.lng,
-    amenities: body.amenities,
-    note: body.note,
-  });
-
-  return NextResponse.json(place, { status: 201 });
+  try {
+    const place = await addPlace(parsed.value);
+    return NextResponse.json(place, { status: 201 });
+  } catch (error) {
+    console.error("Plek toevoegen mislukt:", error);
+    return NextResponse.json(
+      { error: "De plek kon niet worden bewaard" },
+      { status: 500 },
+    );
+  }
 }

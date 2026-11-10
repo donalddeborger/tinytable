@@ -112,14 +112,16 @@ export function MapCanvas({
       />
       <FlyTo target={flyTo} />
       <ClickCatcher enabled={picking} onPick={onPick} />
-      {visible.map((place) => (
-        <Marker
-          key={place.id}
-          position={[place.lat, place.lng]}
-          icon={markerIcon(place, place.id === selectedId)}
-          eventHandlers={{ click: () => onSelect(place) }}
-        />
-      ))}
+      {visible
+        .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng))
+        .map((place) => (
+          <Marker
+            key={place.id}
+            position={[place.lat, place.lng]}
+            icon={markerIcon(place, place.id === selectedId)}
+            eventHandlers={{ click: () => onSelect(place) }}
+          />
+        ))}
       {userLocation ? (
         <Marker
           position={[userLocation.lat, userLocation.lng]}

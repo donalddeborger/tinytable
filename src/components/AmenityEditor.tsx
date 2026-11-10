@@ -12,7 +12,7 @@ export function AmenityEditor({ value, onChange }: Props) {
   return (
     <div className="amenities">
       {AMENITIES.map((item) => {
-        const current = value[item.key];
+        const current = (value ??{})[item.key];
         return (
           <div
             key={item.key}

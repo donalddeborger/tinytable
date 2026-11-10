@@ -191,5 +191,53 @@
       "kidsMenu": null
     },
     "updatedAt": "2026-10-12T10:00:00.000Z"
+  },
+  {
+    "id": "df3ce15b-d04a-471a-be9d-3f2003d45677",
+    "name": "Bar Bruk",
+    "type": "cafe",
+    "address": "Karel De Preterlei 222, 2140 Antwerpen",
+    "city": "Antwerpen",
+    "lat": 51.20023593490327,
+    "lng": 4.449836799220926,
+    "amenities": {
+      "changingTable": false,
+      "highChairs": true,
+      "playCorner": false,
+      "kidsMenu": false
+    },
+    "updatedAt": "2026-10-16T07:06:03.911Z"
+  },
+  {
+    "id": "0ef4681e-87a2-4f6e-a458-5708745033d3",
+    "name": "Bobette",
+    "type": "cafe",
+    "address": "De Leescorfstraat 2, 2140 Borgerhout",
+    "city": "Antwerpen",
+    "lat": 51.20059376667489,
+    "lng": 4.447587461649962,
+    "amenities": {
+      "changingTable": false,
+      "highChairs": false,
+      "playCorner": false,
+      "kidsMenu": false
+    },
+    "updatedAt": "2026-10-16T07:13:20.725Z"
+  },
+  {
+    "id": "6f6b455a-fca9-4ef0-ade2-6416c11592dd",
+    "name": "Aan het Strand Van Oostende",
+    "type": "restaurant",
+    "address": "Antwerpen",
+    "city": "Antwerpen",
+    "lat": 51.20758909004148,
+    "lng": 4.430004025407014,
+    "amenities": {
+      "changingTable": null,
+      "highChairs": true,
+      "playCorner": false,
+      "kidsMenu": true
+    },
+    "updatedAt": "2026-10-16T07:25:42.845Z"
   }
 ]

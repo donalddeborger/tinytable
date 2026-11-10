@@ -19,6 +19,19 @@ function scoreColor(score: number | null): string {
   return "#d64545";
 }
 
+async function sendJson<T>(url: string, method: string, body: unknown): Promise<T> {
+  const response = await fetch(url, {
+    method,
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const data = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new Error(data?.error ?? "Er ging iets mis, probeer het opnieuw");
+  }
+  return data as T;
+}
+
 type Props = {
   place: Place;
   onClose: () => void;
@@ -27,24 +40,30 @@ type Props = {
 
 export function PlaceSheet({ place, onClose, onSaved }: Props) {
   const [editing, setEditing] = useState(
-    Object.values(place.amenities).every((value) => value === null),
+    // Nog niets bekend? Dan meteen het invulformulier tonen.
+    Object.values(place.amenities ?? {}).every((value) => value === null)
   );
   const [amenities, setAmenities] = useState<Amenities>(place.amenities);
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const score = kidScore(place.amenities);
 
   async function save() {
     setSaving(true);
-    const response = await fetch(`/api/places/${place.id}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amenities, note }),
-    });
-    const next = (await response.json()) as Place;
-    setSaving(false);
-    setEditing(false);
-    onSaved(next);
+    setError(null);
+    try {
+      const next = await sendJson<Place>(`/api/places/${place.id}`, "PATCH", {
+        amenities,
+        note,
+      });
+      setEditing(false);
+      onSaved(next);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Er ging iets mis");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -80,6 +99,7 @@ export function PlaceSheet({ place, onClose, onSaved }: Props) {
               placeholder="Bijv. verschoningstafel zit in het toilet"
             />
           </label>
+          {error ? <p className="form-error">{error}</p> : null}
           <div className="actions">
             <button className="ghost-btn" onClick={() => setEditing(false)}>
               Annuleren
@@ -130,14 +150,17 @@ export function AddPlaceModal({
   const [amenities, setAmenities] = useState<Amenities>(emptyAmenities());
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   async function save() {
-    if (!name.trim()) return;
+    if (!name.trim()) {
+      setError("Geef de plek een naam");
+      return;
+    }
     setSaving(true);
-    const response = await fetch("/api/places", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
+    setError(null);
+    try {
+      const place = await sendJson<Place>("/api/places", "POST", {
         name,
         address,
         type,
@@ -145,11 +168,13 @@ export function AddPlaceModal({
         lng: draft.lng,
         amenities,
         note,
-      }),
-    });
-    const place = (await response.json()) as Place;
-    setSaving(false);
-    onSaved(place);
+      });
+      onSaved(place);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Er ging iets mis");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -190,6 +215,7 @@ export function AddPlaceModal({
           onChange={(event) => setNote(event.target.value)}
         />
       </label>
+      {error ? <p className="form-error">{error}</p> : null}
       <div className="actions">
         <button className="ghost-btn" onClick={onClose}>
           Annuleren
