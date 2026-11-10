@@ -18,9 +18,33 @@ type PlaceRow = {
   osm_id: string | null;
 };
 
-export class DuplicatePlaceError extends Error {
-  constructor() {
-    super("Deze zaak staat al in TinyTable");
+// Fout die we veilig aan de bezoeker kunnen tonen, met HTTP-status.
+export class WriteError extends Error {
+  constructor(
+    message: string,
+    public status: number,
+  ) {
+    super(message);
+  }
+}
+
+function apiToken(): string {
+  const token = process.env.TINYTABLE_API_TOKEN;
+  if (!token) throw new Error("TINYTABLE_API_TOKEN ontbreekt");
+  return token;
+}
+
+function toWriteError(error: { code?: string; message?: string }): Error {
+  switch (error.code) {
+    case "23505":
+      return new WriteError("Deze zaak staat al in TinyTable", 409);
+    case "TT400":
+    case "22023":
+      return new WriteError(error.message ?? "Ongeldige gegevens", 400);
+    case "TT429":
+      return new WriteError(error.message ?? "Even te veel aanpassingen", 429);
+    default:
+      return new Error(`${error.code ?? ""} ${error.message ?? "Onbekende fout"}`);
   }
 }
 
@@ -62,9 +86,11 @@ export async function getPlace(id: string): Promise<Place | undefined> {
   return data ? toPlace(data as PlaceRow) : undefined;
 }
 
-export async function addPlace(input: PlaceInput): Promise<Place> {
+export async function addPlace(input: PlaceInput, client: string): Promise<Place> {
   const { data, error } = await getSupabase()
-    .rpc("add_place_v2", {
+    .rpc("add_place_v3", {
+      p_token: apiToken(),
+      p_client: client,
       p_name: input.name,
       p_type: input.type,
       p_address: input.address,
@@ -76,19 +102,19 @@ export async function addPlace(input: PlaceInput): Promise<Place> {
       p_osm_id: input.osmId ?? null,
     })
     .single();
-  if (error) {
-    if (error.code === "23505") throw new DuplicatePlaceError();
-    throw error;
-  }
+  if (error) throw toWriteError(error);
   return toPlace(data as PlaceRow);
 }
 
 export async function updatePlace(
   id: string,
   patch: PlacePatch,
+  client: string,
 ): Promise<Place | undefined> {
   const { data, error } = await getSupabase()
-    .rpc("update_place_v2", {
+    .rpc("update_place_v3", {
+      p_token: apiToken(),
+      p_client: client,
       p_id: id,
       p_amenities: patch.amenities,
       p_note: patch.note ?? null,
@@ -97,7 +123,7 @@ export async function updatePlace(
       p_type: patch.type ?? null,
     })
     .maybeSingle();
-  if (error) throw error;
+  if (error) throw toWriteError(error);
   const row = data as PlaceRow | null;
   return row && row.id ? toPlace(row) : undefined;
 }

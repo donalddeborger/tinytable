@@ -206,3 +206,45 @@ revoke all on function public.add_place_v2(text, text, text, text, double precis
 revoke all on function public.update_place_v2(uuid, jsonb, text, text, text, text) from public;
 grant execute on function public.add_place_v2(text, text, text, text, double precision, double precision, jsonb, text, text) to anon, authenticated;
 grant execute on function public.update_place_v2(uuid, jsonb, text, text, text, text) to anon, authenticated;
+
+-- ---------------------------------------------------------------
+-- Bescherming tegen misbruik (10 nov 2026)
+-- Schrijven kan alleen nog via de website-server: die kent een geheim
+-- token (Vercel-variabele TINYTABLE_API_TOKEN, ook bewaard in
+-- private.settings). Per bezoeker (gehashte IP) geldt een limiet,
+-- links in teksten worden geweigerd en elke wijziging wordt gelogd
+-- in private.place_edits zodat ze teruggedraaid kan worden.
+-- Het token zelf staat NIET in dit bestand.
+-- ---------------------------------------------------------------
+
+create schema if not exists private;
+revoke all on schema private from public, anon, authenticated;
+
+create table if not exists private.settings (key text primary key, value text not null);
+create table if not exists private.write_log (
+  id bigserial primary key,
+  client text not null,
+  action text not null check (action in ('add', 'edit')),
+  created_at timestamptz not null default now()
+);
+create index if not exists write_log_client_time on private.write_log (client, created_at desc);
+create table if not exists private.place_edits (
+  id bigserial primary key,
+  place_id uuid not null,
+  action text not null,
+  client text not null,
+  before jsonb,
+  after jsonb,
+  created_at timestamptz not null default now()
+);
+create index if not exists place_edits_place on private.place_edits (place_id, created_at desc);
+-- insert into private.settings (key, value) values ('api_token', '<geheim token>');
+
+-- private.guard(token, client, action, texts): controleert token, links,
+-- limiet per bezoeker (20 toevoegingen / 40 aanpassingen per uur) en
+-- globaal (100 / 300 per uur), en logt de actie.
+-- public.add_place_v3(p_token, p_client, ...) en
+-- public.update_place_v3(p_token, p_client, p_id, ...) roepen guard aan,
+-- schrijven naar public.places en loggen in private.place_edits.
+-- add_place_v3 aanvaardt enkel locaties in Antwerpen.
+-- (Volledige definities: zie Supabase, migratie van 10 nov 2026.)

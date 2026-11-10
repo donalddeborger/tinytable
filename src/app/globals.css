@@ -1317,3 +1317,11 @@ h3 {
 .link-btn.dark {
   color: var(--brand-ink);
 }
+
+.bot-trap {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}

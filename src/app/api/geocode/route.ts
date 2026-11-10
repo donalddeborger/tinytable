@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ANTWERP_BOUNDS } from "@/lib/antwerp";
 import type { PlaceType, Venue } from "@/lib/types";
+import { NOMINATIM_HEADERS, shortAddress, type NominatimResult } from "@/lib/osm";
 
 export const runtime = "nodejs";
 
@@ -15,40 +16,6 @@ const VENUE_TYPES: Record<string, PlaceType> = {
   pub: "bar",
   biergarten: "bar",
 };
-
-type NominatimResult = {
-  osm_type: string;
-  osm_id: number;
-  lat: string;
-  lon: string;
-  category?: string;
-  type?: string;
-  name?: string;
-  display_name: string;
-  address?: {
-    road?: string;
-    pedestrian?: string;
-    square?: string;
-    house_number?: string;
-    postcode?: string;
-    city?: string;
-    town?: string;
-    village?: string;
-    suburb?: string;
-  };
-};
-
-function shortAddress(item: NominatimResult): { address: string; city: string } {
-  const a = item.address ?? {};
-  const street = a.road ?? a.pedestrian ?? a.square ?? "";
-  const city = a.city ?? a.town ?? a.village ?? "Antwerpen";
-  const line1 = [street, a.house_number].filter(Boolean).join(" ");
-  const line2 = [a.postcode, a.suburb && a.suburb !== city ? a.suburb : city]
-    .filter(Boolean)
-    .join(" ");
-  const address = [line1, line2].filter(Boolean).join(", ");
-  return { address: address || item.display_name.split(",").slice(0, 3).join(","), city };
-}
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -73,10 +40,7 @@ export async function GET(request: Request) {
 
   try {
     const response = await fetch(url, {
-      headers: {
-        "User-Agent": "TinyTable/0.2 (https://www.tinytable.be)",
-        Accept: "application/json",
-      },
+      headers: NOMINATIM_HEADERS,
       next: { revalidate: 3600 },
     });
     if (!response.ok) {
@@ -99,7 +63,17 @@ export async function GET(request: Request) {
       };
     });
 
-    return NextResponse.json(venuesOnly ? venues.filter((v) => v.type !== null) : venues);
+    // Horeca eerst, daarna dubbels (zelfde naam + adres, bv. plein en tramhaltes) eruit.
+    const ordered = [...venues].sort((a, b) => Number(b.type !== null) - Number(a.type !== null));
+    const seen = new Set<string>();
+    const unique = ordered.filter((v) => {
+      const key = `${v.name.toLowerCase()}|${v.address.toLowerCase()}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+    return NextResponse.json(venuesOnly ? unique.filter((v) => v.type !== null) : unique);
   } catch {
     return NextResponse.json([], { status: 502 });
   }

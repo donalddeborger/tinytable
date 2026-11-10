@@ -41,6 +41,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
   );
   const [amenities, setAmenities] = useState<Amenities>(place.amenities);
   const [note, setNote] = useState("");
+  const [trap, setTrap] = useState("");
   const [name, setName] = useState(place.name);
   const [address, setAddress] = useState(place.address);
   const [type, setType] = useState<PlaceType>(place.type);
@@ -70,6 +71,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
         name,
         address,
         type,
+        website: trap,
       });
       setEditing(false);
       onSaved(next);
@@ -132,6 +134,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
               placeholder="Bijv. verschoningstafel zit in het toilet beneden"
             />
           </label>
+          <BotTrap value={trap} onChange={setTrap} />
           {error ? <p className="form-error">{error}</p> : null}
           <div className="actions">
             <button className="btn btn-ghost" onClick={() => setEditing(false)}>
@@ -170,6 +173,23 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
         </>
       )}
     </aside>
+  );
+}
+
+// Onzichtbaar veld: mensen zien het niet, spambots vullen het wel in.
+function BotTrap({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  return (
+    <div className="bot-trap" aria-hidden="true">
+      <label>
+        Website
+        <input
+          tabIndex={-1}
+          autoComplete="off"
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+      </label>
+    </div>
   );
 }
 
@@ -213,6 +233,8 @@ export function AddPlaceModal({
   onSaved: (place: Place) => void;
 }) {
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
+  const [lookingUp, setLookingUp] = useState(false);
+  const [trap, setTrap] = useState("");
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<Venue[]>([]);
   const [searching, setSearching] = useState(false);
@@ -259,6 +281,23 @@ export function AddPlaceModal({
     setVenue(v);
     setType(v.type ?? "restaurant");
     setError(null);
+
+    // Geen huisnummer in OpenStreetMap? Zoek het adres op via de locatie.
+    const street = v.address.split(",")[0] ?? "";
+    if (!/\d/.test(street)) {
+      setLookingUp(true);
+      void fetch(`/api/address?lat=${v.lat}&lng=${v.lng}`)
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data: { address: string; hasNumber: boolean } | null) => {
+          if (data?.hasNumber && data.address) {
+            setVenue((current) =>
+              current && current.osmId === v.osmId ? { ...current, address: data.address } : current,
+            );
+          }
+        })
+        .catch(() => undefined)
+        .finally(() => setLookingUp(false));
+    }
   }
 
   async function save() {
@@ -276,6 +315,7 @@ export function AddPlaceModal({
         amenities,
         note,
         osmId: venue.osmId,
+        website: trap,
       });
       onSaved(place);
     } catch (e) {
@@ -349,7 +389,7 @@ export function AddPlaceModal({
               </span>
               <span className="venue-body">
                 <strong>{venue.name}</strong>
-                <small>{venue.address}</small>
+                <small>{lookingUp ? "Adres opzoeken…" : venue.address}</small>
               </span>
               {initialVenue ? null : (
                 <button className="link-btn dark" onClick={() => setVenue(null)}>
@@ -366,6 +406,7 @@ export function AddPlaceModal({
               <span>Extra toelichting (optioneel)</span>
               <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
             </label>
+            <BotTrap value={trap} onChange={setTrap} />
             {error ? <p className="form-error">{error}</p> : null}
             <div className="actions">
               <button className="btn btn-ghost" onClick={onClose}>

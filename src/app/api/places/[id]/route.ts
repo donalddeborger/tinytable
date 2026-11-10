@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { getPlace, updatePlace } from "@/lib/store";
+import { getPlace, updatePlace, WriteError } from "@/lib/store";
+import { clientId, isBot } from "@/lib/client";
 import { parsePlacePatch } from "@/lib/validate";
 
 export const runtime = "nodejs";
@@ -41,18 +42,25 @@ export async function PATCH(
     return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
   }
 
-  const patch = parsePlacePatch(await request.json().catch(() => null));
+  const body = await request.json().catch(() => null);
+  if (isBot(body)) {
+    return NextResponse.json({ error: "Ongeldige gegevens" }, { status: 400 });
+  }
+  const patch = parsePlacePatch(body);
   if (!patch) {
     return NextResponse.json({ error: "Geen voorzieningen" }, { status: 400 });
   }
 
   try {
-    const place = await updatePlace(id, patch);
+    const place = await updatePlace(id, patch, clientId(request));
     if (!place) {
       return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
     }
     return NextResponse.json(place);
   } catch (error) {
+    if (error instanceof WriteError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
     console.error("Plek bijwerken mislukt:", error);
     return NextResponse.json(
       { error: "De info kon niet worden bewaard" },
