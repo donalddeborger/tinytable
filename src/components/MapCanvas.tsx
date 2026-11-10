@@ -1,16 +1,17 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import {
   MapContainer,
   Marker,
   TileLayer,
   useMap,
   useMapEvents,
+  ZoomControl,
 } from "react-leaflet";
 import L from "leaflet";
 import { ANTWERP } from "@/lib/antwerp";
-import { kidScore } from "@/lib/score";
+import { kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
 import type { AmenityKey, Place } from "@/lib/types";
 import "leaflet/dist/leaflet.css";
 
@@ -25,32 +26,52 @@ type Props = {
   onPick: (lat: number, lng: number) => void;
 };
 
-function scoreColor(score: number | null): string {
-  if (score === null) return "#c4b0a4";
-  if (score >= 8) return "#1f8a7a";
-  if (score >= 5) return "#f4b942";
-  if (score >= 3) return "#ff6b4a";
-  return "#d64545";
-}
-
 function markerIcon(place: Place, selected: boolean) {
-  const score = kidScore(place.amenities);
-  const color = scoreColor(score);
-  const label = score === null ? "?" : String(score);
+  const rating = kidRating(place.amenities);
+  const color = TONE_COLOR[scoreTone(rating)];
+  const label =
+    rating === null
+      ? "?"
+      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="white"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"/></svg>';
   return L.divIcon({
     className: "",
-    iconSize: [36, 36],
-    iconAnchor: [18, 34],
-    html: `<div class="pin" style="background:${color};${selected ? "transform:rotate(-45deg) scale(1.18);" : ""}"><span>${label}</span></div>`,
+    iconSize: [40, 48],
+    iconAnchor: [20, 46],
+    html: `<div class="pin${selected ? " pin-selected" : ""}" style="--pin:${color}"><span>${label}</span></div>`,
   });
 }
+
+const isMobile = () => typeof window !== "undefined" && window.innerWidth < 900;
 
 function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;
-    map.flyTo([target.lat, target.lng], 16, { duration: 0.8 });
+    const zoom = Math.max(map.getZoom(), 15);
+    let center = L.latLng(target.lat, target.lng);
+    if (isMobile()) {
+      // Op gsm bedekt de fiche het onderste deel: zet de pin hoger in beeld.
+      const point = map.project(center, zoom).add([0, map.getSize().y * 0.3]);
+      center = map.unproject(point, zoom);
+    }
+    map.flyTo(center, zoom, { duration: 0.7 });
   }, [map, target]);
+  return null;
+}
+
+function FitToPlaces({ places }: { places: Place[] }) {
+  const map = useMap();
+  const done = useRef(false);
+  useEffect(() => {
+    if (done.current || places.length === 0) return;
+    done.current = true;
+    const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng] as [number, number]));
+    map.fitBounds(bounds, {
+      paddingTopLeft: isMobile() ? [40, 250] : [80, 80],
+      paddingBottomRight: isMobile() ? [40, 110] : [80, 80],
+      maxZoom: 15,
+    });
+  }, [map, places]);
   return null;
 }
 
@@ -94,7 +115,7 @@ export function MapCanvas({
         className: "",
         iconSize: [18, 18],
         iconAnchor: [9, 9],
-        html: `<div style="width:16px;height:16px;border-radius:50%;background:#2a1a12;border:3px solid white;box-shadow:0 0 0 8px rgba(42,26,18,.15)"></div>`,
+        html: `<div class="me-dot"></div>`,
       }),
     [],
   );
@@ -105,12 +126,17 @@ export function MapCanvas({
       center={[ANTWERP.lat, ANTWERP.lng]}
       zoom={ANTWERP.zoom}
       scrollWheelZoom
+      zoomControl={false}
     >
       <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>'
+        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+        subdomains="abcd"
+        maxZoom={20}
       />
+      <ZoomControl position="bottomright" />
       <FlyTo target={flyTo} />
+      <FitToPlaces places={places} />
       <ClickCatcher enabled={picking} onPick={onPick} />
       {visible
         .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng))

@@ -21,6 +21,7 @@ export type Place = {
   amenities: Amenities;
   updatedAt: string;
   note?: string;
+  osmId?: string;
 };
 
 export type PlaceInput = {
@@ -32,4 +33,24 @@ export type PlaceInput = {
   lng: number;
   amenities: Amenities;
   note?: string;
+  osmId?: string;
+};
+
+export type PlacePatch = {
+  amenities: Amenities;
+  note?: string;
+  name?: string;
+  address?: string;
+  type?: PlaceType;
+};
+
+// Een zoekresultaat uit OpenStreetMap.
+export type Venue = {
+  osmId: string;
+  name: string;
+  address: string;
+  city: string;
+  lat: number;
+  lng: number;
+  type: PlaceType | null; // null = geen horecazaak (bv. een straat)
 };

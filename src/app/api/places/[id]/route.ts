@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getPlace, updatePlace } from "@/lib/store";
-import { parseAmenities, parseNote } from "@/lib/validate";
+import { parsePlacePatch } from "@/lib/validate";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -41,19 +41,13 @@ export async function PATCH(
     return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
   }
 
-  const body = (await request.json().catch(() => null)) as
-    | { amenities?: unknown; note?: unknown }
-    | null;
-  const amenities = parseAmenities(body?.amenities);
-  if (!amenities) {
+  const patch = parsePlacePatch(await request.json().catch(() => null));
+  if (!patch) {
     return NextResponse.json({ error: "Geen voorzieningen" }, { status: 400 });
   }
 
   try {
-    const place = await updatePlace(id, {
-      amenities,
-      note: parseNote(body?.note),
-    });
+    const place = await updatePlace(id, patch);
     if (!place) {
       return NextResponse.json({ error: "Niet gevonden" }, { status: 404 });
     }

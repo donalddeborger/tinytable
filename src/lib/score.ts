@@ -8,13 +8,13 @@ export const AMENITIES: {
 }[] = [
   {
     key: "changingTable",
-    label: "Verschoningstafel",
+    label: "Verschonings\u00ADtafel",
     short: "Verschonen",
     hint: "Een tafel of kamer om de baby te verschonen",
   },
   {
     key: "highChairs",
-    label: "Kinderstoelen",
+    label: "Kinder\u00ADstoelen",
     short: "Stoelen",
     hint: "Hoogstoelen of kinderstoelen aan tafel",
   },
@@ -26,7 +26,7 @@ export const AMENITIES: {
   },
   {
     key: "kidsMenu",
-    label: "Kindermenu",
+    label: "Kinder\u00ADmenu",
     short: "Menu",
     hint: "Aangepast kindermenu of kindergerechten",
   },
@@ -54,12 +54,26 @@ export function kidScore(
   );
 }
 
-export function scoreLabel(score: number | null): string {
-  if (score === null) return "Nog geen score";
-  if (score >= 8) return "Heel kindvriendelijk";
-  if (score >= 5) return "Redelijk kindvriendelijk";
-  if (score >= 3) return "Beperkt kindvriendelijk";
+// Score op 5 (in halve stappen), afgeleid van de punten op 10.
+export function kidRating(
+  amenities: Partial<Amenities> | null | undefined,
+): number | null {
+  const points = kidScore(amenities);
+  if (points === null) return null;
+  return Math.round(points) / 2;
+}
+
+export function scoreLabel(rating: number | null): string {
+  if (rating === null) return "Nog niet beoordeeld";
+  if (rating >= 4) return "Heel kindvriendelijk";
+  if (rating >= 2.5) return "Redelijk kindvriendelijk";
+  if (rating >= 1.5) return "Beperkt kindvriendelijk";
   return "Weinig voorzieningen";
+}
+
+export function ratingText(rating: number | null): string {
+  if (rating === null) return "nog niet beoordeeld";
+  return `${String(rating).replace(".", ",")} op 5`;
 }
 
 export function emptyAmenities(): Amenities {
@@ -70,3 +84,22 @@ export function emptyAmenities(): Amenities {
     kidsMenu: null,
   };
 }
+
+export type ScoreTone = "great" | "good" | "fair" | "low" | "none";
+
+export function scoreTone(rating: number | null): ScoreTone {
+  if (rating === null) return "none";
+  if (rating >= 4) return "great";
+  if (rating >= 2.5) return "good";
+  if (rating >= 1.5) return "fair";
+  return "low";
+}
+
+// Kleur per toon, ook gebruikt in de kaartpins (die geen CSS-variabelen zien).
+export const TONE_COLOR: Record<ScoreTone, string> = {
+  great: "#3CC497",
+  good: "#F6B84A",
+  fair: "#FF9466",
+  low: "#EE7177",
+  none: "#B9B2C4",
+};

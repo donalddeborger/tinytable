@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { addPlace, listPlaces } from "@/lib/store";
+import { addPlace, DuplicatePlaceError, listPlaces } from "@/lib/store";
 import { parsePlaceInput } from "@/lib/validate";
 
 export const runtime = "nodejs";
@@ -28,6 +28,9 @@ export async function POST(request: Request) {
     const place = await addPlace(parsed.value);
     return NextResponse.json(place, { status: 201 });
   } catch (error) {
+    if (error instanceof DuplicatePlaceError) {
+      return NextResponse.json({ error: error.message }, { status: 409 });
+    }
     console.error("Plek toevoegen mislukt:", error);
     return NextResponse.json(
       { error: "De plek kon niet worden bewaard" },

@@ -130,3 +130,79 @@ insert into public.places (name, type, address, city, lat, lng, amenities) value
   ('Aan het Strand Van Oostende', 'restaurant', 'Antwerpen', 'Antwerpen',
    51.20758909004148, 4.430004025407014,
    '{"changingTable":null,"highChairs":true,"playCorner":false,"kidsMenu":true}');
+
+-- ---------------------------------------------------------------
+-- Uitbreiding (10 nov 2026): OpenStreetMap-koppeling en bewerken
+-- van naam/adres/soort. Nieuwe functies naast de oude (de oude
+-- add_place/update_place mogen weg zodra niets ze nog gebruikt).
+-- ---------------------------------------------------------------
+
+alter table public.places add column if not exists osm_id text check (char_length(osm_id) <= 40);
+create unique index if not exists places_osm_id_key on public.places (osm_id) where osm_id is not null;
+
+create or replace function public.add_place_v2(
+  p_name text, p_type text, p_address text, p_city text,
+  p_lat double precision, p_lng double precision,
+  p_amenities jsonb, p_note text default null, p_osm_id text default null
+)
+returns public.places
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  result public.places;
+begin
+  if coalesce(btrim(p_name), '') = '' then
+    raise exception 'Geef de plek een naam' using errcode = '22023';
+  end if;
+
+  insert into public.places (name, type, address, city, lat, lng, amenities, note, osm_id)
+  values (
+    left(btrim(p_name), 120),
+    case when p_type in ('restaurant', 'bar', 'cafe') then p_type else 'restaurant' end,
+    left(coalesce(btrim(p_address), ''), 300),
+    coalesce(nullif(left(btrim(p_city), 80), ''), 'Antwerpen'),
+    p_lat, p_lng,
+    public.clean_amenities(p_amenities),
+    nullif(left(btrim(p_note), 500), ''),
+    nullif(left(btrim(p_osm_id), 40), '')
+  )
+  returning * into result;
+  return result;
+end;
+$$;
+
+create or replace function public.update_place_v2(
+  p_id uuid,
+  p_amenities jsonb,
+  p_note text default null,
+  p_name text default null,
+  p_address text default null,
+  p_type text default null
+)
+returns public.places
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  result public.places;
+begin
+  update public.places
+     set amenities  = public.clean_amenities(p_amenities),
+         note       = coalesce(nullif(left(btrim(p_note), 500), ''), note),
+         name       = coalesce(nullif(left(btrim(p_name), 120), ''), name),
+         address    = coalesce(nullif(left(btrim(p_address), 300), ''), address),
+         type       = case when p_type in ('restaurant', 'bar', 'cafe') then p_type else type end,
+         updated_at = now()
+   where id = p_id
+  returning * into result;
+  return result;
+end;
+$$;
+
+revoke all on function public.add_place_v2(text, text, text, text, double precision, double precision, jsonb, text, text) from public;
+revoke all on function public.update_place_v2(uuid, jsonb, text, text, text, text) from public;
+grant execute on function public.add_place_v2(text, text, text, text, double precision, double precision, jsonb, text, text) to anon, authenticated;
+grant execute on function public.update_place_v2(uuid, jsonb, text, text, text, text) to anon, authenticated;

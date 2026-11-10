@@ -1,6 +1,6 @@
 import { getSupabase } from "./supabase";
 import { emptyAmenities } from "./score";
-import type { Amenities, Place, PlaceInput, PlaceType } from "./types";
+import type { Amenities, Place, PlaceInput, PlacePatch, PlaceType } from "./types";
 
 // Zoals de rij in de Supabase-tabel 'places' eruitziet.
 type PlaceRow = {
@@ -15,10 +15,17 @@ type PlaceRow = {
   note: string | null;
   created_at: string;
   updated_at: string;
+  osm_id: string | null;
 };
 
+export class DuplicatePlaceError extends Error {
+  constructor() {
+    super("Deze zaak staat al in TinyTable");
+  }
+}
+
 const COLUMNS =
-  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at";
+  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at, osm_id";
 
 function toPlace(row: PlaceRow): Place {
   return {
@@ -32,6 +39,7 @@ function toPlace(row: PlaceRow): Place {
     amenities: { ...emptyAmenities(), ...(row.amenities ?? {}) },
     updatedAt: row.updated_at,
     note: row.note ?? undefined,
+    osmId: row.osm_id ?? undefined,
   };
 }
 
@@ -56,7 +64,7 @@ export async function getPlace(id: string): Promise<Place | undefined> {
 
 export async function addPlace(input: PlaceInput): Promise<Place> {
   const { data, error } = await getSupabase()
-    .rpc("add_place", {
+    .rpc("add_place_v2", {
       p_name: input.name,
       p_type: input.type,
       p_address: input.address,
@@ -65,21 +73,28 @@ export async function addPlace(input: PlaceInput): Promise<Place> {
       p_lng: input.lng,
       p_amenities: input.amenities,
       p_note: input.note ?? null,
+      p_osm_id: input.osmId ?? null,
     })
     .single();
-  if (error) throw error;
+  if (error) {
+    if (error.code === "23505") throw new DuplicatePlaceError();
+    throw error;
+  }
   return toPlace(data as PlaceRow);
 }
 
 export async function updatePlace(
   id: string,
-  patch: { amenities: Amenities; note?: string },
+  patch: PlacePatch,
 ): Promise<Place | undefined> {
   const { data, error } = await getSupabase()
-    .rpc("update_place", {
+    .rpc("update_place_v2", {
       p_id: id,
       p_amenities: patch.amenities,
       p_note: patch.note ?? null,
+      p_name: patch.name ?? null,
+      p_address: patch.address ?? null,
+      p_type: patch.type ?? null,
     })
     .maybeSingle();
   if (error) throw error;

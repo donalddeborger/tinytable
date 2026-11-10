@@ -1,5 +1,5 @@
 import { AMENITIES } from "./score";
-import type { Amenities, PlaceInput, PlaceType } from "./types";
+import type { Amenities, PlaceInput, PlacePatch, PlaceType } from "./types";
 
 const TYPES: PlaceType[] = ["restaurant", "bar", "cafe"];
 
@@ -20,6 +20,26 @@ export function parseAmenities(value: unknown): Amenities | null {
 
 export function parseNote(value: unknown): string | undefined {
   return text(value, 500) || undefined;
+}
+
+const OSM_ID = /^(node|way|relation)\/\d{1,15}$/;
+
+export function parseOsmId(value: unknown): string | undefined {
+  return typeof value === "string" && OSM_ID.test(value) ? value : undefined;
+}
+
+export function parsePlacePatch(body: unknown): PlacePatch | null {
+  if (!body || typeof body !== "object") return null;
+  const b = body as Record<string, unknown>;
+  const amenities = parseAmenities(b.amenities);
+  if (!amenities) return null;
+  return {
+    amenities,
+    note: parseNote(b.note),
+    name: text(b.name, 120) || undefined,
+    address: text(b.address, 300) || undefined,
+    type: TYPES.includes(b.type as PlaceType) ? (b.type as PlaceType) : undefined,
+  };
 }
 
 export function parsePlaceInput(
@@ -60,6 +80,7 @@ export function parsePlaceInput(
       lng,
       amenities,
       note: parseNote(b.note),
+      osmId: parseOsmId(b.osmId),
     },
   };
 }
