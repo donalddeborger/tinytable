@@ -4,7 +4,6 @@ import { useEffect, useMemo, useRef } from "react";
 import {
   MapContainer,
   Marker,
-  TileLayer,
   useMap,
   useMapEvents,
   ZoomControl,
@@ -14,6 +13,10 @@ import { ANTWERP } from "@/lib/antwerp";
 import { kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
 import type { AmenityKey, Place } from "@/lib/types";
 import "leaflet/dist/leaflet.css";
+import "maplibre-gl/dist/maplibre-gl.css";
+import { setWorkerUrl } from "maplibre-gl";
+import { maplibreGL } from "@maplibre/maplibre-gl-leaflet";
+import { BASE_STYLE_URL, MAP_ATTRIBUTION, pastelize } from "@/lib/mapStyle";
 
 type Props = {
   places: Place[];
@@ -39,6 +42,43 @@ function markerIcon(place: Place, selected: boolean) {
     iconAnchor: [20, 46],
     html: `<div class="pin${selected ? " pin-selected" : ""}" style="--pin:${color}"><span>${label}</span></div>`,
   });
+}
+
+// De worker wordt bij het bouwen naar public/ gekopieerd (zie scripts/).
+setWorkerUrl("/maplibre/maplibre-gl-worker.mjs");
+
+// Zachte vectorkaart (OpenFreeMap). Lukt dat niet, dan gewone OSM-tegels.
+function BaseMap() {
+  const map = useMap();
+  useEffect(() => {
+    let layer: L.Layer | null = null;
+    let cancelled = false;
+
+    function fallback() {
+      if (cancelled) return;
+      layer = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution:
+          '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      }).addTo(map);
+    }
+
+    fetch(BASE_STYLE_URL)
+      .then((response) => (response.ok ? response.json() : Promise.reject()))
+      .then((style) => {
+        if (cancelled) return;
+        layer = maplibreGL({ style: pastelize(style) }).addTo(map);
+        map.attributionControl?.addAttribution(MAP_ATTRIBUTION);
+      })
+      .catch(fallback);
+
+    return () => {
+      cancelled = true;
+      layer?.remove();
+      map.attributionControl?.removeAttribution(MAP_ATTRIBUTION);
+    };
+  }, [map]);
+  return null;
 }
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 900;
@@ -128,11 +168,7 @@ export function MapCanvas({
       scrollWheelZoom
       zoomControl={false}
     >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-        maxZoom={19}
-      />
+      <BaseMap />
       <ZoomControl position="bottomright" />
       <FlyTo target={flyTo} />
       <FitToPlaces places={places} />
