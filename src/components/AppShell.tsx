@@ -6,7 +6,6 @@ import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
   AMENITY_ICON,
-  ChairMark,
   CloseIcon,
   ListIcon,
   LocateIcon,
@@ -18,6 +17,7 @@ import {
 } from "@/components/Icons";
 import { AMENITIES, isWelcome } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
+import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
 import type { AmenityKey, Place, Venue } from "@/lib/types";
@@ -50,10 +50,10 @@ function LangSwitch() {
   const { lang, setLang, t } = useI18n();
   return (
     <div className="lang-switch" role="group" aria-label={t.switchTo}>
-      <button className={lang === "nl" ? "on" : ""} onClick={() => setLang("nl")} lang="nl">
+      <button className={lang === "nl" ? "on" : ""} onClick={() => { setLang("nl"); track("Taal", { taal: "nl" }); }} lang="nl">
         NL
       </button>
-      <button className={lang === "en" ? "on" : ""} onClick={() => setLang("en")} lang="en">
+      <button className={lang === "en" ? "on" : ""} onClick={() => { setLang("en"); track("Taal", { taal: "en" }); }} lang="en">
         EN
       </button>
     </div>
@@ -139,6 +139,7 @@ function Shell() {
             }));
           setHits([...local, ...extra].slice(0, 8));
           setSearchedFor(trimmed);
+          track("Gezocht", { resultaten: local.length + extra.length });
         })
         .catch(() => undefined);
     }, 500);
@@ -184,6 +185,7 @@ function Shell() {
   }
 
   function selectPlace(place: Place) {
+    track("Zaak bekeken", { zaak: place.name });
     setSelected(place);
     setAdding(null);
     setFlyTo({ lat: place.lat, lng: place.lng });
@@ -301,19 +303,16 @@ function Shell() {
             >
               {t.all}
             </button>
-            <button
-              className={`chip chip-welcome ${filter === "welcome" ? "on" : ""}`}
-              onClick={() => setFilter(filter === "welcome" ? "all" : "welcome")}
-            >
-              <ChairMark size={16} chair="var(--ink)" /> {t.welcome}
-            </button>
             {AMENITIES.map((item) => {
               const Icon = AMENITY_ICON[item.key];
               return (
                 <button
                   key={item.key}
                   className={`chip am-${item.key} ${filter === item.key ? "on" : ""}`}
-                  onClick={() => setFilter(filter === item.key ? "all" : item.key)}
+                  onClick={() => {
+                    if (filter !== item.key) track("Filter", { filter: item.key });
+                    setFilter(filter === item.key ? "all" : item.key);
+                  }}
                 >
                   <Icon size={16} /> {amenity(item.key).label}
                 </button>
@@ -382,6 +381,7 @@ function Shell() {
               setPlaces((current) => current.map((item) => (item.id === place.id ? place : item)));
               setSelected(place);
               setToast(t.updated);
+              track("Info aangepast", { zaak: place.name });
             }}
           />
         ) : null}
@@ -409,6 +409,7 @@ function Shell() {
           onSubmitted={() => {
             setAdding(null);
             setToast(t.submitted);
+            track("Zaak ingestuurd (handmatig)");
           }}
           onSaved={(place) => {
             setPlaces((current) => [...current, place]);
@@ -416,6 +417,7 @@ function Shell() {
             setSelected(place);
             setFlyTo({ lat: place.lat, lng: place.lng });
             setToast(t.added);
+            track("Zaak toegevoegd", { zaak: place.name });
           }}
         />
       ) : null}
