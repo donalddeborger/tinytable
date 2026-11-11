@@ -1835,6 +1835,32 @@ h3 {
   font-size: 1.05rem;
 }
 
+.seo-card-score,
+.zaak-hearts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 2px;
+}
+
+.seo-card .amenity-dots {
+  margin-top: 4px;
+}
+
+.town-list {
+  list-style: none;
+  margin: 16px 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.town-card {
+  height: 100%;
+}
+
 .seo-footer {
   max-width: 640px;
   margin: 24px auto 0;

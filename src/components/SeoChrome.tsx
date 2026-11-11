@@ -2,6 +2,8 @@ import Link from "next/link";
 import { AMENITY_PAGES, seoPlaces, towns } from "@/lib/seo";
 import { isSuperWelcome, isWelcome } from "@/lib/score";
 import type { SeoPlace } from "@/lib/seo";
+import { HeartRow, nlRatingLabel } from "@/components/HeartRow";
+import { AMENITY_ICON } from "@/components/Icons";
 
 const TYPE_NL = { restaurant: "Restaurant", cafe: "Café", bar: "Koffiebar" } as const;
 
@@ -67,9 +69,29 @@ export function PlaceCards({ places }: { places: SeoPlace[] }) {
             <span className="muted small">
               {TYPE_NL[p.type]} · {p.address}
             </span>
-            <span className="small">
-              {p.rating === null ? "Nog niet beoordeeld" : `${String(p.rating).replace(".", ",")} van de 5 hartjes`}
-              {isSuperWelcome(p.amenities) ? " · Super kindvriendelijk" : isWelcome(p.amenities) ? " · Kindvriendelijk" : ""}
+            <span className="seo-card-score">
+              <HeartRow rating={p.rating} label={nlRatingLabel(p.rating)} />
+              {isSuperWelcome(p.amenities) ? (
+                <span className="welcome-badge is-super">Super kindvriendelijk</span>
+              ) : isWelcome(p.amenities) ? (
+                <span className="welcome-badge">Kindvriendelijk</span>
+              ) : null}
+            </span>
+            <span className="amenity-dots">
+              {AMENITY_PAGES.map((a) => {
+                const Icon = AMENITY_ICON[a.key];
+                const value = p.amenities[a.key];
+                const state = value === true ? "yes" : value === false ? "no" : "unknown";
+                return (
+                  <span
+                    key={a.key}
+                    className={`dot dot-${state} am-${a.key}`}
+                    title={`${a.label}: ${value === true ? "ja" : value === false ? "nee" : "onbekend"}`}
+                  >
+                    <Icon size={15} />
+                  </span>
+                );
+              })}
             </span>
           </Link>
         </li>

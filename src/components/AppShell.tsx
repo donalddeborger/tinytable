@@ -94,6 +94,7 @@ function SiteMenu() {
       </button>
       {open ? (
         <nav className="menu-panel" aria-label={t.menu}>
+          <a href="/gemeenten">{t.menuTowns}</a>
           <a href="/over">{t.menuAbout}</a>
           <a href="/over#hartjes">{t.menuHearts}</a>
           <a href="/over#contact">{t.menuContact}</a>

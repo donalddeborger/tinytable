@@ -6,6 +6,7 @@ import { placeSlugs, placeTown, SITE_URL, slugify } from "@/lib/slug";
 import { isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { routeUrl } from "@/lib/geo";
 import { SeoFooter } from "@/components/SeoChrome";
+import { HeartRow, nlRatingLabel } from "@/components/HeartRow";
 import type { AmenityKey, Place } from "@/lib/types";
 
 // Elk uur opnieuw opbouwen, zodat nieuwe info ook bij Google terechtkomt.
@@ -127,9 +128,9 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
         {place.openingHours ? <p className="muted small">Openingsuren: {place.openingHours}</p> : null}
 
         <div className="zaak-score">
-          <p>
-            <strong>{rating === null ? "Nog niet beoordeeld" : `${String(rating).replace(".", ",")} van de 5 hartjes`}</strong>
-            {rating === null ? null : " · op basis van wat ouders invulden"}
+          <p className="zaak-hearts">
+            <HeartRow rating={rating} size={22} label={nlRatingLabel(rating)} />
+            {rating === null ? <span className="muted small">Nog niet beoordeeld</span> : null}
           </p>
           {welcome ? (
             <p className={`welcome-badge${superWelcome ? " is-super" : ""}`}>
