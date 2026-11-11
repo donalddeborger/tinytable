@@ -43,8 +43,8 @@ async function overpass(query: string): Promise<Element[]> {
         method: "POST",
         headers: { ...NOMINATIM_HEADERS, "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ data: query }),
-        signal: AbortSignal.timeout(60000),
-        next: { revalidate: 86400 },
+        signal: AbortSignal.timeout(17000),
+        cache: "no-store",
       });
       if (!response.ok) throw new Error(`${url} ${response.status}`);
       const data = (await response.json()) as { elements?: Element[] };
@@ -78,10 +78,35 @@ function amenitiesFrom(tags: Record<string, string>): Amenities {
   };
 }
 
-export async function GET() {
-  const query = `[out:json][timeout:90];
-area["boundary"="administrative"]["admin_level"="8"]["name"="Antwerpen"]->.a;
-nwr["amenity"~"^(restaurant|cafe|bar|pub|fast_food|ice_cream|biergarten|food_court)$"](area.a);
+// Postcodes van Antwerpen-stad en districten.
+const CITY_POSTCODES = new Set(["2000", "2018", "2020", "2030", "2040", "2050", "2060", "2100", "2140", "2170", "2180", "2600", "2610", "2660"]);
+
+export async function GET(request: Request) {
+  const ids = new URL(request.url).searchParams.get("ids");
+  // ?ids=node/1,way/2 → alleen openingsuren van die zaken.
+  if (ids) {
+    const parts = ids
+      .split(",")
+      .map((id) => id.trim().match(/^(node|way|relation)\/(\d{1,15})$/))
+      .filter((m): m is RegExpMatchArray => Boolean(m))
+      .slice(0, 200);
+    const query = `[out:json][timeout:15];(${parts.map((m) => `${m[1]}(${m[2]});`).join("")});out tags;`;
+    try {
+      const elements = await overpass(query);
+      return NextResponse.json({
+        hours: Object.fromEntries(
+          elements.filter((e) => e.tags?.opening_hours).map((e) => [`${e.type}/${e.id}`, e.tags!.opening_hours]),
+        ),
+      });
+    } catch (error) {
+      console.error("OpenStreetMap ophalen mislukt:", error);
+      return NextResponse.json({ error: "OpenStreetMap niet bereikbaar" }, { status: 502 });
+    }
+  }
+
+  // Alleen zaken met kindgegevens, binnen het kader rond Antwerpen; daarna op postcode.
+  const query = `[out:json][timeout:15];
+nwr["amenity"~"^(restaurant|cafe|bar|pub|fast_food|ice_cream|biergarten|food_court)$"][~"^(changing_table|highchair|kids_area|menu:kids|kids_menu|stroller)"~"."](51.13,4.20,51.40,4.52);
 out tags center;`;
   try {
     const elements = await overpass(query);
@@ -113,12 +138,15 @@ out tags center;`;
           kidTags,
         };
       });
-    const withKids = all.filter((p) => Object.values(p.amenities).some((v) => v === true));
+    const withKids = all.filter(
+      (p) =>
+        Object.values(p.amenities).some((v) => v === true) &&
+        (p.postcode ? CITY_POSTCODES.has(p.postcode.trim().slice(0, 4)) : true),
+    );
     return NextResponse.json({
       total: all.length,
       withKidInfo: withKids.length,
       places: withKids,
-      hours: Object.fromEntries(all.filter((p) => p.openingHours).map((p) => [p.osmId, p.openingHours])),
     });
   } catch (error) {
     console.error("OpenStreetMap ophalen mislukt:", error);
