@@ -1,26 +1,36 @@
 import type { MetadataRoute } from "next";
-import { listPlaces } from "@/lib/store";
-import { placeSlugs, SITE_URL } from "@/lib/slug";
+import { AMENITY_PAGES, seoPlaces, towns } from "@/lib/seo";
+import { SITE_URL } from "@/lib/slug";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const home: MetadataRoute.Sitemap = [
+  const fixed: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
+    { url: `${SITE_URL}/over`, changeFrequency: "monthly", priority: 0.4 },
+    ...AMENITY_PAGES.map((a) => ({
+      url: `${SITE_URL}/met/${a.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.7,
+    })),
   ];
   try {
-    const places = await listPlaces();
-    const slugs = placeSlugs(places);
+    const places = await seoPlaces();
     return [
-      ...home,
-      ...places.map((place) => ({
-        url: `${SITE_URL}/zaak/${slugs.get(place.id)}`,
-        lastModified: place.updatedAt ? new Date(place.updatedAt) : undefined,
+      ...fixed,
+      ...towns(places).map((t) => ({
+        url: `${SITE_URL}/kindvriendelijk/${t.slug}`,
         changeFrequency: "weekly" as const,
         priority: 0.8,
       })),
+      ...places.map((place) => ({
+        url: `${SITE_URL}/zaak/${place.slug}`,
+        lastModified: place.updatedAt ? new Date(place.updatedAt) : undefined,
+        changeFrequency: "weekly" as const,
+        priority: 0.6,
+      })),
     ];
   } catch {
-    return home;
+    return fixed;
   }
 }

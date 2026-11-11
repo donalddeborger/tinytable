@@ -31,6 +31,8 @@
   --butter-soft: #fff1c7;
   --lilac: #8a64d6;
   --lilac-soft: #efe7ff;
+  --rose: #d1527f;
+  --rose-soft: #ffe4ee;
   --radius: 18px;
   --radius-lg: 26px;
   --shadow-sm: 0 1px 2px rgba(23, 23, 31, 0.06), 0 2px 8px rgba(23, 23, 31, 0.06);
@@ -48,6 +50,7 @@
 .am-playCorner { --am: var(--sky); --am-soft: var(--sky-soft); }
 .am-kidsMenu { --am: var(--butter); --am-soft: var(--butter-soft); }
 .am-playground { --am: var(--lilac); --am-soft: var(--lilac-soft); }
+.am-stroller { --am: var(--rose); --am-soft: var(--rose-soft); }
 
 html,
 body {
@@ -1758,4 +1761,238 @@ h3 {
 
 .updated a {
   color: var(--brand-ink);
+}
+
+/* ---------- Klopt dit nog? ---------- */
+
+.confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  margin: 4px 0 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--line);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 6px;
+}
+
+.confirm-buttons .btn {
+  box-shadow: none;
+}
+
+.open-state {
+  margin: 4px 0 0;
+}
+
+.open-state .is-open {
+  color: var(--yes);
+}
+
+.open-state .is-closed {
+  color: var(--no);
+}
+
+.chip-type span {
+  font-size: 0.95rem;
+}
+
+.chip.chip-open svg {
+  color: var(--yes);
+}
+
+/* ---------- Overzichtspagina's, over-pagina ---------- */
+
+.zaak-card p {
+  line-height: 1.55;
+}
+
+.prose ul {
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.prose a,
+.zaak-card a:not(.btn):not(.seo-card) {
+  color: var(--brand-ink);
+}
+
+.seo-cards {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 10px;
+}
+
+.seo-card {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--bg);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.seo-card:hover {
+  border-color: var(--brand);
+}
+
+.seo-card strong {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.seo-footer {
+  max-width: 640px;
+  margin: 24px auto 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.seo-footer h2 {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin: 18px 0 8px;
+}
+
+.seo-footer ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+}
+
+.seo-footer a {
+  color: var(--brand-ink);
+}
+
+.contact-form .btn {
+  margin-top: 4px;
+}
+
+.form-ok {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--yes-soft);
+  color: var(--yes);
+  font-weight: 700;
+}
+
+/* ---------- Sticker met QR-code ---------- */
+
+.sticker-page {
+  min-height: 100dvh;
+  padding: 24px 16px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  overflow-y: auto;
+}
+
+.sticker-tools {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.sticker {
+  width: 105mm;
+  min-height: 148mm;
+  box-sizing: border-box;
+  padding: 10mm 8mm;
+  border-radius: 8mm;
+  background: #ffffff;
+  border: 2.5px solid var(--ink);
+  box-shadow: 4px 4px 0 var(--brand);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 3mm;
+}
+
+.sticker .wordmark {
+  font-size: 2.2rem;
+}
+
+.sticker-label {
+  margin: 0;
+  padding: 4px 14px;
+  border-radius: 999px;
+  background: var(--sun);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.15rem;
+}
+
+.sticker.is-super .sticker-label {
+  background: linear-gradient(120deg, #ffe9a8, #ffc9dc);
+}
+
+.sticker-hearts {
+  margin: 0;
+  display: flex;
+  gap: 2px;
+}
+
+.sticker h1 {
+  margin: 2mm 0 0;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.15;
+}
+
+.sticker-qr {
+  width: 42mm;
+  height: 42mm;
+  margin-top: 2mm;
+}
+
+.sticker-qr svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sticker-cta {
+  margin: 0;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.sticker-url {
+  margin: 0;
+  color: var(--brand-ink);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+
+@media print {
+  .sticker-tools {
+    display: none;
+  }
+  .sticker-page {
+    padding: 0;
+    background: #ffffff;
+  }
+  .sticker {
+    box-shadow: none;
+  }
 }

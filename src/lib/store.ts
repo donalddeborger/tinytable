@@ -17,6 +17,10 @@ type PlaceRow = {
   updated_at: string;
   osm_id: string | null;
   manual?: boolean | null;
+  source?: string | null;
+  confirm_count?: number | null;
+  last_confirmed_at?: string | null;
+  opening_hours?: string | null;
 };
 
 // Fout die we veilig aan de bezoeker kunnen tonen, met HTTP-status.
@@ -50,7 +54,7 @@ function toWriteError(error: { code?: string; message?: string }): Error {
 }
 
 const COLUMNS =
-  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at, osm_id, manual";
+  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at, osm_id, manual, source, confirm_count, last_confirmed_at, opening_hours";
 
 function toPlace(row: PlaceRow): Place {
   return {
@@ -66,6 +70,10 @@ function toPlace(row: PlaceRow): Place {
     note: row.note ?? undefined,
     osmId: row.osm_id ?? undefined,
     locked: Boolean(row.osm_id) || Boolean(row.manual),
+    source: row.source === "osm" ? "osm" : "user",
+    confirmCount: row.confirm_count ?? 0,
+    lastConfirmedAt: row.last_confirmed_at ?? undefined,
+    openingHours: row.opening_hours ?? undefined,
   };
 }
 
@@ -145,4 +153,14 @@ export async function addManualPlace(input: PlaceInput, client: string): Promise
     p_note: input.note ?? null,
   });
   if (error) throw toWriteError(error);
+}
+
+// "Klopt dit nog?" → Ja: telt als bevestiging door een ouder.
+export async function confirmPlace(id: string, client: string): Promise<Place | undefined> {
+  const { data, error } = await getSupabase()
+    .rpc("confirm_place_v1", { p_token: apiToken(), p_client: client, p_id: id })
+    .maybeSingle();
+  if (error) throw toWriteError(error);
+  const row = data as PlaceRow | null;
+  return row && row.id ? toPlace(row) : undefined;
 }

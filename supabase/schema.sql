@@ -286,3 +286,9 @@ comment on column public.places.type is 'restaurant | cafe (Belgisch café) | ba
 -- 11 nov 2026: hele provincie Antwerpen (migratie province_antwerp_bounds, live)
 --   add_place_v3 en add_place_manual_v1: lat 50.95–51.51, lng 4.10–5.30
 --   (app filtert daarnaast op postcode 2000–2999)
+
+-- 11 nov 2026 (migratie stroller_confirmations_osm_hours, live)
+--   clean_amenities: 6de sleutel 'stroller' (kinderwagenvriendelijk)
+--   places: source ('user'|'osm'), confirm_count, last_confirmed_at, opening_hours
+--   confirm_place_v1(p_token, p_client, p_id): "Klopt dit nog?" → Ja
+--   update_place_v3: telt ook als bevestiging (confirm_count + 1)

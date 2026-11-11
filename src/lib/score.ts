@@ -36,9 +36,26 @@ export const AMENITIES: {
     short: "Speeltuin",
     hint: "Een speeltuin buiten, bij of vlak naast de zaak",
   },
+  {
+    key: "stroller",
+    label: "Kinderwagen\u00ADvriendelijk",
+    short: "Kinderwagen",
+    hint: "Vlot binnen en genoeg plaats voor een kinderwagen",
+  },
 ];
 
-// Score op 5: elk aanwezige voorziening is één hartje.
+// Gewicht per voorziening: de vier basisvoorzieningen tellen voor een heel
+// hartje, buitenspeeltuin en kinderwagen voor een half. Samen maximaal 5.
+export const AMENITY_WEIGHT: Record<AmenityKey, number> = {
+  changingTable: 1,
+  highChairs: 1,
+  playCorner: 1,
+  kidsMenu: 1,
+  playground: 0.5,
+  stroller: 0.5,
+};
+
+// Score op 5 hartjes (halve hartjes mogelijk).
 export function kidRating(
   amenities: Partial<Amenities> | null | undefined,
 ): number | null {
@@ -46,7 +63,10 @@ export function kidRating(
   // Zolang niets ingevuld is (alles "?"), is er nog geen score.
   const known = AMENITIES.filter((item) => typeof amenities[item.key] === "boolean");
   if (known.length === 0) return null;
-  return AMENITIES.filter((item) => amenities[item.key] === true).length;
+  return AMENITIES.reduce(
+    (sum, item) => sum + (amenities[item.key] === true ? AMENITY_WEIGHT[item.key] : 0),
+    0,
+  );
 }
 
 export function scoreLabel(rating: number | null): string {
@@ -69,6 +89,7 @@ export function emptyAmenities(): Amenities {
     playCorner: null,
     kidsMenu: null,
     playground: null,
+    stroller: null,
   };
 }
 
@@ -91,9 +112,9 @@ export const TONE_COLOR: Record<ScoreTone, string> = {
   none: "#B9B2C4",
 };
 
-// Labels: "Kindvriendelijk" bij 3 of 4 hartjes, "Super kindvriendelijk" bij 5.
+// Labels: "Kindvriendelijk" bij 3 hartjes, "Super kindvriendelijk" vanaf 4 hartjes.
 export const WELCOME_MIN = 3;
-export const SUPER_MIN = 5;
+export const SUPER_MIN = 4;
 
 export function isWelcome(amenities: Partial<Amenities> | null | undefined): boolean {
   return (kidRating(amenities) ?? 0) >= WELCOME_MIN;

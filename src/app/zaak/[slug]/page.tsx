@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { listPlaces } from "@/lib/store";
-import { placeSlugs, placeTown, SITE_URL } from "@/lib/slug";
+import { placeSlugs, placeTown, SITE_URL, slugify } from "@/lib/slug";
 import { isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { routeUrl } from "@/lib/geo";
+import { SeoFooter } from "@/components/SeoChrome";
 import type { AmenityKey, Place } from "@/lib/types";
 
 // Elk uur opnieuw opbouwen, zodat nieuwe info ook bij Google terechtkomt.
@@ -16,6 +17,7 @@ const AMENITY_NL: { key: AmenityKey; label: string; schema: string }[] = [
   { key: "playCorner", label: "Speelhoek", schema: "Speelhoek" },
   { key: "kidsMenu", label: "Kindermenu", schema: "Kindermenu" },
   { key: "playground", label: "Buitenspeeltuin", schema: "Buitenspeeltuin" },
+  { key: "stroller", label: "Kinderwagenvriendelijk", schema: "Kinderwagenvriendelijk" },
 ];
 
 const TYPE_NL: Record<Place["type"], { label: string; lower: string; this: string; schema: string }> = {
@@ -122,10 +124,11 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
         </p>
         <h1>{place.name}</h1>
         <p className="muted">{place.address}</p>
+        {place.openingHours ? <p className="muted small">Openingsuren: {place.openingHours}</p> : null}
 
         <div className="zaak-score">
           <p>
-            <strong>{rating === null ? "Nog niet beoordeeld" : `${rating} van de 5 voorzieningen`}</strong>
+            <strong>{rating === null ? "Nog niet beoordeeld" : `${String(rating).replace(".", ",")} van de 5 hartjes`}</strong>
             {rating === null ? null : " · op basis van wat ouders invulden"}
           </p>
           {welcome ? (
@@ -159,9 +162,18 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           </a>
         </div>
         <p className="muted small">
-          Klopt er iets niet? Pas de info aan via de kaart. TinyTable wordt ingevuld door ouders.
+          {place.source === "osm" && !place.confirmCount
+            ? "Deze info komt uit OpenStreetMap en is nog niet bevestigd door ouders. Klopt ze? Bevestig of pas aan via de kaart."
+            : "Klopt er iets niet? Pas de info aan via de kaart. TinyTable wordt ingevuld door ouders."}
+        </p>
+        <p className="small">
+          <Link href={`/kindvriendelijk/${slugify(town)}`}>Meer kindvriendelijke zaken in {town}</Link>
+        </p>
+        <p className="muted small">
+          Is dit jouw zaak? <Link href={`/zaak/${slug}/sticker`}>Druk je TinyTable-sticker met QR-code af</Link>.
         </p>
       </article>
+      <SeoFooter />
     </main>
   );
 }

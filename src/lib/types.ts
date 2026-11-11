@@ -6,7 +6,8 @@ export type AmenityKey =
   | "highChairs"
   | "playCorner"
   | "kidsMenu"
-  | "playground";
+  | "playground"
+  | "stroller";
 
 export type AmenityValue = boolean | null;
 
@@ -26,6 +27,11 @@ export type Place = {
   osmId?: string;
   // Naam en adres liggen vast (opgezocht of nagekeken).
   locked?: boolean;
+  // "osm" = overgenomen uit OpenStreetMap, nog niet door ouders ingevuld.
+  source?: "user" | "osm";
+  confirmCount?: number;
+  lastConfirmedAt?: string;
+  openingHours?: string;
 };
 
 export type PlaceInput = {

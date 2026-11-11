@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description:
     "Kindvriendelijke restaurants, cafés en koffiebars in Antwerpen en de provincie. Zie in één oogopslag of er een verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin is.",
   alternates: { canonical: "/" },
+  appleWebApp: { capable: true, title: "TinyTable", statusBarStyle: "default" },
   openGraph: {
     title: "TinyTable – kindvriendelijk eten & drinken in Antwerpen",
     description:

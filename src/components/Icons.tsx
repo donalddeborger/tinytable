@@ -132,12 +132,29 @@ export const PlaygroundIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const ClockIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 7.5V12l3 2" />
+  </Svg>
+);
+
+export const StrollerIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 5h3l2 9h9l2-6H8" />
+    <path d="M14 5a5 5 0 0 1 5 3" />
+    <circle cx="9" cy="19" r="1.8" />
+    <circle cx="17" cy="19" r="1.8" />
+  </Svg>
+);
+
 export const AMENITY_ICON: Record<AmenityKey, (p: IconProps) => React.JSX.Element> = {
   changingTable: ChangingTableIcon,
   highChairs: HighChairIcon,
   playCorner: PlayCornerIcon,
   kidsMenu: KidsMenuIcon,
   playground: PlaygroundIcon,
+  stroller: StrollerIcon,
 };
 
 export const TYPE_LABEL: Record<PlaceType, string> = {

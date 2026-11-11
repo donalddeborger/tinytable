@@ -5,6 +5,7 @@ import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
 import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI } from "@/components/Icons";
 import { useI18n } from "@/lib/i18n";
+import { isOpenAt } from "@/lib/hours";
 import { emptyAmenities, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
@@ -29,9 +30,10 @@ type Props = {
   origin: LatLng | null;
   onClose: () => void;
   onSaved: (place: Place) => void;
+  onConfirmed: (place: Place) => void;
 };
 
-export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props) {
+export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfirmed }: Props) {
   const { t, typeLabel, ratingText, formatDistance, formatDate, serverError } = useI18n();
   const [editing, setEditing] = useState(
     // Nog niets bekend? Dan meteen het invulformulier tonen.
@@ -53,6 +55,22 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props)
     setAddress(place.address);
     setType(place.type);
     setEditing(true);
+  }
+
+  const [confirming, setConfirming] = useState(false);
+  const [confirmed, setConfirmed] = useState(false);
+
+  async function confirm() {
+    setConfirming(true);
+    try {
+      const next = await sendJson<Place>(`/api/places/${place.id}/confirm`, "POST", { website: "" });
+      setConfirmed(true);
+      onConfirmed(next);
+    } catch {
+      setConfirmed(true);
+    } finally {
+      setConfirming(false);
+    }
   }
 
   // Zaken die via de zoekfunctie zijn toegevoegd: naam en adres liggen vast.
@@ -97,6 +115,7 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props)
         </span>
         <h2>{place.name}</h2>
         <p className="muted">{place.address}</p>
+        {place.openingHours ? <OpenState hours={place.openingHours} /> : null}
       </div>
 
       <div className="score-card">
@@ -105,7 +124,10 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props)
           <p className="muted small">
             {rating === null
               ? t.helpParents
-              : `${ratingText(rating)} · ${t.basedOnParents}`}
+              : place.source === "osm" && !place.confirmCount
+                ? `${ratingText(rating)} · ${t.fromOsm}`
+                : `${ratingText(rating)} · ${t.confirmedBy(place.confirmCount ?? 1)}`}
+            {place.lastConfirmedAt && place.confirmCount ? ` · ${formatDate(place.lastConfirmedAt)}` : ""}
           </p>
         </div>
       </div>
@@ -181,6 +203,22 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props)
             </button>
           </div>
 
+          {rating !== null ? (
+            <div className="confirm-row">
+              <span>{confirmed ? t.thanksConfirm : t.stillCorrect}</span>
+              {confirmed ? null : (
+                <span className="confirm-buttons">
+                  <button className="btn btn-soft btn-compact" onClick={confirm} disabled={confirming}>
+                    {t.yes}
+                  </button>
+                  <button className="btn btn-ghost btn-compact" onClick={startEditing}>
+                    {t.noChange}
+                  </button>
+                </span>
+              )}
+            </div>
+          ) : null}
+
           <AmenityGlance amenities={place.amenities} />
 
           {place.note ? <p className="note">“{place.note}”</p> : null}
@@ -193,6 +231,22 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props)
         </>
       )}
     </aside>
+  );
+}
+
+function OpenState({ hours }: { hours: string }) {
+  const { t } = useI18n();
+  const open = isOpenAt(hours, new Date());
+  return (
+    <p className="open-state small">
+      {open === null ? null : (
+        <strong className={open ? "is-open" : "is-closed"}>{open ? t.openNowState : t.closedNow}</strong>
+      )}
+      <span className="muted" title={hours}>
+        {open === null ? "" : " · "}
+        {t.hoursLabel}: {hours}
+      </span>
+    </p>
   );
 }
 
