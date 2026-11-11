@@ -250,7 +250,7 @@ function Shell() {
                       }
                     }}
                   >
-                    <span className={`result-icon ${hit.source}`}>
+                    <span className={`result-icon result-${hit.source}`}>
                       {hit.source === "local" ? <LogoMark size={22} /> : <PinIcon size={18} />}
                     </span>
                     <span>

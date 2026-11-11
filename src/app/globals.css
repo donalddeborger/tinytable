@@ -372,7 +372,7 @@ h3 {
   color: var(--muted);
 }
 
-.result-icon.local {
+.result-icon.result-local {
   background: transparent;
 }
 

@@ -112,6 +112,14 @@ async function searchNominatim(q: string): Promise<Venue[]> {
     .filter((v) => v.type !== null);
 }
 
+function fold(text: string): string {
+  return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function matchesName(name: string, q: string): boolean {
+  return fold(name).includes(fold(q));
+}
+
 function dedupe(venues: Venue[]): Venue[] {
   const seen = new Set<string>();
   return venues.filter((v) => {
@@ -132,20 +140,28 @@ export async function GET(request: Request) {
   }
 
   let venues: Venue[] = [];
+  let photonFailed = false;
   try {
     venues = await searchPhoton(q);
   } catch (error) {
+    photonFailed = true;
     console.warn("Photon niet beschikbaar, terugval op Nominatim:", error);
   }
 
-  if (venues.length === 0) {
+  // Photon zoekt "vaag" (Thyme → Thamel). Zit de gezochte naam er niet echt
+  // tussen, vraag het dan ook aan Nominatim.
+  if (!venues.some((v) => matchesName(v.name, q))) {
     try {
-      venues = await searchNominatim(q);
+      venues = [...(await searchNominatim(q)), ...venues];
     } catch (error) {
       console.error("Zoeken mislukt:", error);
-      return NextResponse.json([], { status: 502 });
+      if (photonFailed) return NextResponse.json([], { status: 502 });
     }
   }
 
-  return NextResponse.json(dedupe(venues).slice(0, 15));
+  // Zaken waarvan de naam echt overeenkomt eerst.
+  const sorted = [...venues].sort(
+    (a, b) => Number(matchesName(b.name, q)) - Number(matchesName(a.name, q)),
+  );
+  return NextResponse.json(dedupe(sorted).slice(0, 15));
 }
