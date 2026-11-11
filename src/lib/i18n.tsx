@@ -32,8 +32,8 @@ const TYPE_TEXT: Record<Lang, Record<PlaceType, string>> = {
 };
 
 const nl = {
-  tagline: "Kindvriendelijk eten in Antwerpen",
-  pageTitle: "TinyTable — kindvriendelijk eten in Antwerpen",
+  tagline: "Kindvriendelijk eten en drinken in Antwerpen",
+  pageTitle: "TinyTable — kindvriendelijk eten en drinken in Antwerpen",
   add: "Toevoegen",
   searchPlaceholder: "Zoek een restaurant, café of koffiebar",
   search: "Zoeken",
@@ -125,8 +125,8 @@ const nl = {
 export type Dict = typeof nl;
 
 const en: Dict = {
-  tagline: "Kid-friendly dining in Antwerp",
-  pageTitle: "TinyTable — kid-friendly dining in Antwerp",
+  tagline: "Kid-friendly food and drinks in Antwerp",
+  pageTitle: "TinyTable — kid-friendly food and drinks in Antwerp",
   add: "Add",
   searchPlaceholder: "Search a restaurant, pub or coffee bar",
   search: "Search",

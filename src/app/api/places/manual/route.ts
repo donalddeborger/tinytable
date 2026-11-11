@@ -3,6 +3,7 @@ import { ANTWERP_POSTCODES, isAntwerpAddress, isInAntwerp, POSTCODE_OPTIONS } fr
 import { clientId, isBot } from "@/lib/client";
 import { geocodeAddress } from "@/lib/osm";
 import { addManualPlace, WriteError } from "@/lib/store";
+import { notifyManualPlace } from "@/lib/notify";
 import { parseAmenities, parseNote } from "@/lib/validate";
 import type { PlaceType } from "@/lib/types";
 
@@ -51,20 +52,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    await addManualPlace(
-      {
-        name,
-        type,
-        // Het adres zoals ingevuld (met huisnummer), de locatie van de kaart.
-        address: `${street}, ${(POSTCODE_OPTIONS.find((o) => o.code === postcode)?.label ?? postcode).replace(/ \(.*\)$/, "")}`,
-        city: "Antwerpen",
-        lat: found.lat,
-        lng: found.lng,
-        amenities,
-        note: parseNote(body.note),
-      },
-      clientId(request),
-    );
+    const input = {
+      name,
+      type,
+      // Het adres zoals ingevuld (met huisnummer), de locatie van de kaart.
+      address: `${street}, ${(POSTCODE_OPTIONS.find((o) => o.code === postcode)?.label ?? postcode).replace(/ \(.*\)$/, "")}`,
+      city: "Antwerpen",
+      lat: found.lat,
+      lng: found.lng,
+      amenities,
+      note: parseNote(body.note),
+    };
+    await addManualPlace(input, clientId(request));
+    await notifyManualPlace(input);
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (error) {
     if (error instanceof WriteError) {
