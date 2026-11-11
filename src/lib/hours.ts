@@ -47,7 +47,9 @@ export function isOpenAt(hours: string | undefined, date: Date): boolean | null 
   let state: boolean | null = false;
   let understood = false;
 
-  for (const raw of text.split(";")) {
+  // Regels staan achter elkaar met ";" of soms met ", " vóór een nieuwe dag.
+  const rules = text.split(/;|,\s+(?=(?:Mo|Tu|We|Th|Fr|Sa|Su|PH)\b)/);
+  for (const raw of rules) {
     const rule = raw.trim();
     if (!rule) continue;
     if (/^PH\b/.test(rule)) continue; // feestdagen negeren
