@@ -152,7 +152,7 @@ export const TYPE_EMOJI: Record<PlaceType, string> = {
   bar: "☕",
 };
 
-// Kinderstoel met hartje, uit het label "Kleine gasten welkom".
+// Kinderstoel met hartje, uit het label "Kindvriendelijk".
 export function ChairMark({
   size = 24,
   chair = "currentColor",

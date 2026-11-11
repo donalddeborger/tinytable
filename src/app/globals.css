@@ -811,7 +811,7 @@ h3 {
 }
 
 .score-card p {
-  margin: 2px 0 0;
+  margin: 6px 0 0;
 }
 
 .actions {
@@ -1351,7 +1351,7 @@ h3 {
   font-weight: 700;
 }
 
-/* ---------- Label "Kleine gasten welkom" ---------- */
+/* ---------- Label "Kindvriendelijk" / "Family friendly" ---------- */
 
 .welcome-badge {
   justify-self: start;
@@ -1418,4 +1418,51 @@ h3 {
   border-radius: 50%;
   background: var(--sun);
   border: 2px solid #ffffff;
+}
+
+/* ---------- Taalknop NL / EN ---------- */
+
+.brand-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lang-switch {
+  display: inline-flex;
+  padding: 3px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+.lang-switch button {
+  border: 0;
+  min-width: 34px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.02em;
+  padding: 6px 8px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.lang-switch button.on {
+  background: var(--brand);
+  color: #ffffff;
+}
+
+.brand {
+  min-width: 0;
+}
+
+.brand small {
+  white-space: normal;
+}
+
+.brand svg {
+  flex: none;
 }

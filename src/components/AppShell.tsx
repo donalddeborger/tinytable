@@ -17,6 +17,7 @@ import {
   SearchIcon,
 } from "@/components/Icons";
 import { AMENITIES, isWelcome } from "@/lib/score";
+import { LangProvider, useI18n } from "@/lib/i18n";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
 import type { AmenityKey, Place, Venue } from "@/lib/types";
@@ -38,6 +39,29 @@ type SearchHit = {
 };
 
 export function AppShell() {
+  return (
+    <LangProvider>
+      <Shell />
+    </LangProvider>
+  );
+}
+
+function LangSwitch() {
+  const { lang, setLang, t } = useI18n();
+  return (
+    <div className="lang-switch" role="group" aria-label={t.switchTo}>
+      <button className={lang === "nl" ? "on" : ""} onClick={() => setLang("nl")} lang="nl">
+        NL
+      </button>
+      <button className={lang === "en" ? "on" : ""} onClick={() => setLang("en")} lang="en">
+        EN
+      </button>
+    </div>
+  );
+}
+
+function Shell() {
+  const { t, amenity } = useI18n();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [query, setQuery] = useState("");
@@ -55,7 +79,7 @@ export function AppShell() {
     void fetch("/api/places")
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((data: Place[]) => setPlaces(data))
-      .catch(() => setToast("De plekken konden niet worden geladen"))
+      .catch(() => setToast(t.loadFailed))
       .finally(() => setLoaded(true));
   }, []);
 
@@ -136,7 +160,7 @@ export function AppShell() {
 
   function locate(then?: () => void) {
     if (!navigator.geolocation) {
-      setToast("Je browser kan je locatie niet bepalen");
+      setToast(t.noGeo);
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -146,12 +170,12 @@ export function AppShell() {
         if (isInAntwerp(next.lat, next.lng)) {
           setFlyTo(next);
         } else {
-          setToast("TinyTable start in Antwerpen — andere steden volgen.");
+          setToast(t.outsideAntwerp);
           setFlyTo(ANTWERP);
         }
         then?.();
       },
-      () => setToast("Locatie kon niet worden bepaald"),
+      () => setToast(t.geoFailed),
       { enableHighAccuracy: true, timeout: 10000 },
     );
   }
@@ -179,12 +203,15 @@ export function AppShell() {
               <LogoMark size={34} />
               <span>
                 <strong>TinyTable</strong>
-                <small>Kindvriendelijk eten in Antwerpen</small>
+                <small>{t.tagline}</small>
               </span>
             </a>
-            <button className="btn btn-primary desktop-only" onClick={() => startAdding()}>
-              <PlusIcon size={18} /> Toevoegen
-            </button>
+            <div className="brand-actions">
+              <button className="btn btn-primary desktop-only" onClick={() => startAdding()}>
+                <PlusIcon size={18} /> {t.add}
+              </button>
+              <LangSwitch />
+            </div>
           </div>
 
           <div className="search">
@@ -192,12 +219,12 @@ export function AppShell() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Zoek een restaurant, café of koffiebar"
-              aria-label="Zoeken"
+              placeholder={t.searchPlaceholder}
+              aria-label={t.search}
               enterKeyHint="search"
             />
             {query ? (
-              <button className="icon-btn ghost" onClick={() => setQuery("")} aria-label="Wissen">
+              <button className="icon-btn ghost" onClick={() => setQuery("")} aria-label={t.clear}>
                 <CloseIcon size={16} />
               </button>
             ) : null}
@@ -230,10 +257,10 @@ export function AppShell() {
                       <strong>{hit.name}</strong>
                       <small>
                         {hit.source === "local"
-                          ? "In TinyTable"
+                          ? t.inTinyTable
                           : hit.source === "venue"
-                            ? "Nog geen info · tik om toe te voegen"
-                            : "Toon op de kaart"}
+                            ? t.noInfoYet
+                            : t.showOnMap}
                         {" · "}
                         {hit.address}
                       </small>
@@ -244,18 +271,18 @@ export function AppShell() {
             ) : null}
           </div>
 
-          <div className="chips" role="group" aria-label="Filter op voorziening">
+          <div className="chips" role="group" aria-label={t.filterLabel}>
             <button
               className={`chip ${filter === "all" ? "on" : ""}`}
               onClick={() => setFilter("all")}
             >
-              Alles
+              {t.all}
             </button>
             <button
               className={`chip chip-welcome ${filter === "welcome" ? "on" : ""}`}
               onClick={() => setFilter(filter === "welcome" ? "all" : "welcome")}
             >
-              <ChairMark size={16} chair="var(--ink)" /> Kleine gasten welkom
+              <ChairMark size={16} chair="var(--ink)" /> {t.welcome}
             </button>
             {AMENITIES.map((item) => {
               const Icon = AMENITY_ICON[item.key];
@@ -265,7 +292,7 @@ export function AppShell() {
                   className={`chip am-${item.key} ${filter === item.key ? "on" : ""}`}
                   onClick={() => setFilter(filter === item.key ? "all" : item.key)}
                 >
-                  <Icon size={16} /> {item.label}
+                  <Icon size={16} /> {amenity(item.key).label}
                 </button>
               );
             })}
@@ -290,7 +317,7 @@ export function AppShell() {
               selectedId={selectedPlace?.id ?? null}
             />
           ) : (
-            <div className="skeletons" aria-label="Laden">
+            <div className="skeletons" aria-label={t.loading}>
               <div className="skeleton" />
               <div className="skeleton" />
               <div className="skeleton" />
@@ -312,10 +339,10 @@ export function AppShell() {
         />
 
         <div className="map-buttons">
-          <button className="icon-btn floating" onClick={() => locate()} aria-label="Mijn locatie">
+          <button className="icon-btn floating" onClick={() => locate()} aria-label={t.myLocation}>
             <LocateIcon size={20} />
           </button>
-          <button className="fab mobile-only" onClick={() => startAdding()} aria-label="Plek toevoegen">
+          <button className="fab mobile-only" onClick={() => startAdding()} aria-label={t.addPlace}>
             <PlusIcon size={24} />
           </button>
         </div>
@@ -331,18 +358,18 @@ export function AppShell() {
             onSaved={(place) => {
               setPlaces((current) => current.map((item) => (item.id === place.id ? place : item)));
               setSelected(place);
-              setToast("Bedankt! De info is bijgewerkt.");
+              setToast(t.updated);
             }}
           />
         ) : null}
       </main>
 
-      <div className="view-toggle mobile-only" role="group" aria-label="Weergave">
+      <div className="view-toggle mobile-only" role="group" aria-label={t.view}>
         <button className={view === "map" ? "on" : ""} onClick={() => setView("map")}>
-          <MapIcon size={18} /> Kaart
+          <MapIcon size={18} /> {t.map}
         </button>
         <button className={view === "list" ? "on" : ""} onClick={() => setView("list")}>
-          <ListIcon size={18} /> Lijst
+          <ListIcon size={18} /> {t.list}
         </button>
       </div>
 
@@ -351,7 +378,7 @@ export function AppShell() {
           initialVenue={adding.venue}
           existing={places}
           onOpenExisting={(place) => {
-            setToast("Deze zaak staat al in TinyTable");
+            setToast(t.alreadyIn);
             selectPlace(place);
           }}
           onClose={() => setAdding(null)}
@@ -360,7 +387,7 @@ export function AppShell() {
             setAdding(null);
             setSelected(place);
             setFlyTo({ lat: place.lat, lng: place.lng });
-            setToast("Plek toegevoegd — bedankt voor het delen!");
+            setToast(t.added);
           }}
         />
       ) : null}

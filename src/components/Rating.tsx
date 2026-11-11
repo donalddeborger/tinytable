@@ -1,4 +1,5 @@
-import { ratingText, scoreTone, WELCOME_MIN } from "@/lib/score";
+import { scoreTone, WELCOME_MIN } from "@/lib/score";
+import { useI18n } from "@/lib/i18n";
 import { ChairMark } from "@/components/Icons";
 
 // Wissel hier het symbool (bv. naar een ster) als je iets anders wilt.
@@ -30,11 +31,12 @@ export function Hearts({
   rating: number | null;
   size?: number;
 }) {
+  const { t, ratingText } = useI18n();
   return (
     <span
       className={`hearts tone-${scoreTone(rating)}`}
       role="img"
-      aria-label={`Kindvriendelijkheid: ${ratingText(rating)}`}
+      aria-label={`${t.kidFriendliness}: ${ratingText(rating)}`}
       title={ratingText(rating)}
     >
       {[1, 2, 3, 4, 5].map((n) => {
@@ -45,8 +47,9 @@ export function Hearts({
   );
 }
 
-// Label "Kleine gasten welkom" (vanaf 3 hartjes).
+// Label "Kindvriendelijk" / "Family friendly" (vanaf 3 hartjes).
 export function WelcomeBadge({ large = false }: { large?: boolean }) {
+  const { t } = useI18n();
   if (large) {
     return (
       <div className="welcome-banner">
@@ -54,8 +57,8 @@ export function WelcomeBadge({ large = false }: { large?: boolean }) {
           <ChairMark size={40} chair="var(--ink)" />
         </span>
         <span>
-          <strong>Kleine gasten welkom</strong>
-          <small>TinyTable-label: minstens {WELCOME_MIN} van de 5 voorzieningen</small>
+          <strong>{t.welcome}</strong>
+          <small>{t.welcomeRule(WELCOME_MIN)}</small>
         </span>
       </div>
     );
@@ -63,7 +66,7 @@ export function WelcomeBadge({ large = false }: { large?: boolean }) {
   return (
     <span className="welcome-badge">
       <ChairMark size={15} chair="var(--ink)" />
-      Kleine gasten welkom
+      {t.welcome}
     </span>
   );
 }

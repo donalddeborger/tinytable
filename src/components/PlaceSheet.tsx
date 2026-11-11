@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
-import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI, TYPE_LABEL } from "@/components/Icons";
-import { emptyAmenities, isWelcome, kidRating, ratingText, scoreLabel } from "@/lib/score";
-import { distanceKm, formatDistance, routeUrl, type LatLng } from "@/lib/geo";
+import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI } from "@/components/Icons";
+import { useI18n } from "@/lib/i18n";
+import { emptyAmenities, isWelcome, kidRating } from "@/lib/score";
+import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
 
 async function sendJson<T>(url: string, method: string, body: unknown): Promise<T> {
@@ -16,15 +17,9 @@ async function sendJson<T>(url: string, method: string, body: unknown): Promise<
   });
   const data = await response.json().catch(() => null);
   if (!response.ok) {
-    throw new Error(data?.error ?? "Er ging iets mis, probeer het opnieuw");
+    throw new Error(data?.error ?? "");
   }
   return data as T;
-}
-
-function updatedLabel(iso: string): string {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "";
-  return date.toLocaleDateString("nl-BE", { day: "numeric", month: "long", year: "numeric" });
 }
 
 type Props = {
@@ -35,6 +30,7 @@ type Props = {
 };
 
 export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
+  const { t, typeLabel, ratingText, formatDistance, formatDate, serverError } = useI18n();
   const [editing, setEditing] = useState(
     // Nog niets bekend? Dan meteen het invulformulier tonen.
     Object.values(place.amenities ?? {}).every((value) => value === null),
@@ -62,7 +58,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
 
   async function save() {
     if (!locked && !name.trim()) {
-      setError("Geef de plek een naam");
+      setError(t.needName);
       return;
     }
     setSaving(true);
@@ -79,7 +75,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
       setEditing(false);
       onSaved(next);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Er ging iets mis");
+      setError(serverError(e instanceof Error ? e.message : undefined));
     } finally {
       setSaving(false);
     }
@@ -88,13 +84,13 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
   return (
     <aside className="sheet" aria-label={place.name}>
       <div className="grabber" aria-hidden />
-      <button className="icon-btn close" onClick={onClose} aria-label="Sluiten">
+      <button className="icon-btn close" onClick={onClose} aria-label={t.close}>
         <CloseIcon size={18} />
       </button>
 
       <div className="sheet-head">
         <span className="chip-static">
-          {TYPE_EMOJI[place.type]} {TYPE_LABEL[place.type]}
+          {TYPE_EMOJI[place.type]} {typeLabel(place.type)}
           {origin ? ` · ${formatDistance(distanceKm(origin, place))}` : ""}
         </span>
         <h2>{place.name}</h2>
@@ -104,11 +100,10 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
       <div className="score-card">
         <div>
           <Hearts rating={rating} size={26} />
-          <strong>{scoreLabel(rating)}</strong>
           <p className="muted small">
             {rating === null
-              ? "Help andere ouders en vul in wat er is"
-              : `${ratingText(rating)} · op basis van wat ouders invulden`}
+              ? t.helpParents
+              : `${ratingText(rating)} · ${t.basedOnParents}`}
           </p>
         </div>
       </div>
@@ -117,7 +112,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
 
       {editing ? (
         <div className="edit-block">
-          <h3>Gegevens</h3>
+          <h3>{t.details}</h3>
           {locked ? (
             <div className="venue picked locked">
               <span className={`type-tile small type-${type}`} aria-hidden>
@@ -127,41 +122,41 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
                 <strong>{place.name}</strong>
                 <small>{place.address}</small>
               </span>
-              <span className="lock-note">Vast</span>
+              <span className="lock-note">{t.locked}</span>
             </div>
           ) : (
             <>
               <label className="field">
-                <span>Naam</span>
+                <span>{t.name}</span>
                 <input value={name} onChange={(event) => setName(event.target.value)} />
               </label>
               <label className="field">
-                <span>Adres</span>
+                <span>{t.address}</span>
                 <input value={address} onChange={(event) => setAddress(event.target.value)} />
               </label>
             </>
           )}
           <TypePicker value={type} onChange={setType} />
 
-          <h3>Wat is er voor kinderen?</h3>
+          <h3>{t.whatForKids}</h3>
           <AmenityEditor value={amenities} onChange={setAmenities} />
           <label className="field">
-            <span>Extra toelichting (optioneel)</span>
+            <span>{t.note}</span>
             <textarea
               rows={2}
               value={note}
               onChange={(event) => setNote(event.target.value)}
-              placeholder="Bijv. verschoningstafel zit in het toilet beneden"
+              placeholder={t.notePlaceholder}
             />
           </label>
           <BotTrap value={trap} onChange={setTrap} />
           {error ? <p className="form-error">{error}</p> : null}
           <div className="actions">
             <button className="btn btn-ghost" onClick={() => setEditing(false)}>
-              Annuleren
+              {t.cancel}
             </button>
             <button className="btn btn-primary" onClick={save} disabled={saving}>
-              {saving ? "Bewaren…" : "Bewaren"}
+              {saving ? t.saving : t.save}
             </button>
           </div>
         </div>
@@ -174,13 +169,13 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <RouteIcon size={18} /> Route
+              <RouteIcon size={18} /> {t.route}
             </a>
             <button
               className="btn btn-soft"
               onClick={startEditing}
             >
-              <EditIcon size={18} /> Info aanpassen
+              <EditIcon size={18} /> {t.editInfo}
             </button>
           </div>
 
@@ -188,7 +183,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
 
           {place.note ? <p className="note">“{place.note}”</p> : null}
           {place.updatedAt ? (
-            <p className="muted small updated">Laatst bijgewerkt op {updatedLabel(place.updatedAt)}</p>
+            <p className="muted small updated">{t.lastUpdated} {formatDate(place.updatedAt)}</p>
           ) : null}
         </>
       )}
@@ -220,18 +215,19 @@ function TypePicker({
   value: PlaceType;
   onChange: (type: PlaceType) => void;
 }) {
+  const { t, typeLabel } = useI18n();
   return (
     <div className="field">
-      <span>Soort zaak</span>
-      <div className="segmented" role="group" aria-label="Soort zaak">
-        {(["restaurant", "cafe", "bar"] as PlaceType[]).map((t) => (
+      <span>{t.type}</span>
+      <div className="segmented" role="group" aria-label={t.type}>
+        {(["restaurant", "cafe", "bar"] as PlaceType[]).map((pt) => (
           <button
-            key={t}
+            key={pt}
             type="button"
-            className={value === t ? "on" : ""}
-            onClick={() => onChange(t)}
+            className={value === pt ? "on" : ""}
+            onClick={() => onChange(pt)}
           >
-            {TYPE_EMOJI[t]} {TYPE_LABEL[t]}
+            {TYPE_EMOJI[pt]} {typeLabel(pt)}
           </button>
         ))}
       </div>
@@ -252,6 +248,7 @@ export function AddPlaceModal({
   onClose: () => void;
   onSaved: (place: Place) => void;
 }) {
+  const { t, serverError } = useI18n();
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
   const [lookingUp, setLookingUp] = useState(false);
   const [trap, setTrap] = useState("");
@@ -339,7 +336,7 @@ export function AddPlaceModal({
       });
       onSaved(place);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Er ging iets mis");
+      setError(serverError(e instanceof Error ? e.message : undefined));
     } finally {
       setSaving(false);
     }
@@ -350,22 +347,22 @@ export function AddPlaceModal({
       <div
         className="sheet dialog"
         role="dialog"
-        aria-label="Plek toevoegen"
+        aria-label={t.addPlace}
         onClick={(event) => event.stopPropagation()}
       >
         <div className="grabber" aria-hidden />
-        <button className="icon-btn close" onClick={onClose} aria-label="Sluiten">
+        <button className="icon-btn close" onClick={onClose} aria-label={t.close}>
           <CloseIcon size={18} />
         </button>
         <div className="sheet-head">
-          <span className="chip-static">Nieuwe plek · geen account nodig</span>
-          <h2>Plek toevoegen</h2>
+          <span className="chip-static">{t.newPlace}</span>
+          <h2>{t.addPlace}</h2>
         </div>
 
         {!venue ? (
           <>
             <p className="muted small step-hint">
-              Zoek de zaak op naam en kies ze uit de lijst.
+              {t.findHint}
             </p>
             <div className="search search-inline">
               <SearchIcon size={18} />
@@ -373,15 +370,15 @@ export function AddPlaceModal({
                 autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="Naam van het restaurant, café of bar"
-                aria-label="Zaak zoeken"
+                placeholder={t.venuePlaceholder}
+                aria-label={t.findVenue}
               />
             </div>
             <div className="venue-results">
-              {searching ? <p className="muted small">Zoeken…</p> : null}
+              {searching ? <p className="muted small">{t.searching}</p> : null}
               {!searching && query.trim().length >= 3 && results.length === 0 ? (
                 <p className="muted small">
-                  Niets gevonden in Antwerpen. Probeer een andere schrijfwijze of voeg de straat toe.
+                  {t.nothingFound}
                 </p>
               ) : null}
               {results.map((v) => {
@@ -395,7 +392,7 @@ export function AddPlaceModal({
                       <strong>{v.name}</strong>
                       <small>{v.address}</small>
                     </span>
-                    {already ? <span className="badge">Al in TinyTable</span> : null}
+                    {already ? <span className="badge">{t.alreadyBadge}</span> : null}
                   </button>
                 );
               })}
@@ -409,31 +406,31 @@ export function AddPlaceModal({
               </span>
               <span className="venue-body">
                 <strong>{venue.name}</strong>
-                <small>{lookingUp ? "Adres opzoeken…" : venue.address}</small>
+                <small>{lookingUp ? t.lookingUp : venue.address}</small>
               </span>
               {initialVenue ? null : (
                 <button className="link-btn dark" onClick={() => setVenue(null)}>
-                  Wijzig
+                  {t.change}
                 </button>
               )}
             </div>
 
             <TypePicker value={type} onChange={setType} />
 
-            <h3>Wat is er voor kinderen?</h3>
+            <h3>{t.whatForKids}</h3>
             <AmenityEditor value={amenities} onChange={setAmenities} />
             <label className="field">
-              <span>Extra toelichting (optioneel)</span>
+              <span>{t.note}</span>
               <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
             </label>
             <BotTrap value={trap} onChange={setTrap} />
             {error ? <p className="form-error">{error}</p> : null}
             <div className="actions">
               <button className="btn btn-ghost" onClick={onClose}>
-                Annuleren
+                {t.cancel}
               </button>
               <button className="btn btn-primary" onClick={save} disabled={saving}>
-                {saving ? "Bewaren…" : "Publiceren"}
+                {saving ? t.saving : t.publish}
               </button>
             </div>
           </>

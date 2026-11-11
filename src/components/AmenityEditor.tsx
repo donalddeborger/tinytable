@@ -3,6 +3,7 @@
 import { AMENITIES } from "@/lib/score";
 import type { Amenities } from "@/lib/types";
 import { AMENITY_ICON } from "@/components/Icons";
+import { useI18n } from "@/lib/i18n";
 
 type Props = {
   value: Amenities;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export function AmenityEditor({ value, onChange }: Props) {
+  const { t, amenity } = useI18n();
   return (
     <div className="amenity-editor">
       {AMENITIES.map((item) => {
@@ -21,29 +23,29 @@ export function AmenityEditor({ value, onChange }: Props) {
               <Icon size={20} />
             </span>
             <span className="editor-label">
-              <strong>{item.label}</strong>
-              <small>{item.hint}</small>
+              <strong>{amenity(item.key).label}</strong>
+              <small>{amenity(item.key).hint}</small>
             </span>
-            <span className="tri" role="group" aria-label={item.label}>
+            <span className="tri" role="group" aria-label={amenity(item.key).label}>
               <button
                 type="button"
                 className={current === true ? "on-yes" : ""}
                 onClick={() => onChange({ ...value, [item.key]: true })}
               >
-                Ja
+                {t.yes}
               </button>
               <button
                 type="button"
                 className={current === false ? "on-no" : ""}
                 onClick={() => onChange({ ...value, [item.key]: false })}
               >
-                Nee
+                {t.no}
               </button>
               <button
                 type="button"
                 className={current === null ? "on-unknown" : ""}
                 onClick={() => onChange({ ...value, [item.key]: null })}
-                aria-label="Weet ik niet"
+                aria-label={t.dontKnow}
               >
                 ?
               </button>
@@ -56,6 +58,7 @@ export function AmenityEditor({ value, onChange }: Props) {
 }
 
 export function AmenityGlance({ amenities }: { amenities: Amenities }) {
+  const { t, amenity } = useI18n();
   return (
     <div className="amenity-grid">
       {AMENITIES.map((item) => {
@@ -68,8 +71,8 @@ export function AmenityGlance({ amenities }: { amenities: Amenities }) {
               <Icon size={22} />
             </span>
             <span>
-              <strong>{item.label}</strong>
-              <small>{state === "yes" ? "Ja" : state === "no" ? "Nee" : "Onbekend"}</small>
+              <strong>{amenity(item.key).label}</strong>
+              <small>{state === "yes" ? t.yes : state === "no" ? t.no : t.unknown}</small>
             </span>
           </div>
         );

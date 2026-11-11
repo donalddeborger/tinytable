@@ -1,9 +1,10 @@
 "use client";
 
-import { AMENITIES, isWelcome, kidRating, scoreLabel } from "@/lib/score";
-import { distanceKm, formatDistance, type LatLng } from "@/lib/geo";
+import { AMENITIES, isWelcome, kidRating } from "@/lib/score";
+import { useI18n } from "@/lib/i18n";
+import { distanceKm, type LatLng } from "@/lib/geo";
 import type { Place } from "@/lib/types";
-import { AMENITY_ICON, LocateIcon, TYPE_EMOJI, TYPE_LABEL } from "@/components/Icons";
+import { AMENITY_ICON, LocateIcon, TYPE_EMOJI } from "@/components/Icons";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
 
 export type SortMode = "score" | "distance";
@@ -37,6 +38,7 @@ export function sortPlaces(
 }
 
 export function AmenityDots({ place }: { place: Place }) {
+  const { t, amenity } = useI18n();
   return (
     <span className="amenity-dots">
       {AMENITIES.map((item) => {
@@ -47,7 +49,7 @@ export function AmenityDots({ place }: { place: Place }) {
           <span
             key={item.key}
             className={`dot dot-${state} am-${item.key}`}
-            title={`${item.label}: ${value === true ? "ja" : value === false ? "nee" : "onbekend"}`}
+            title={`${amenity(item.key).label.replace(/\u00AD/g, "")}: ${value === true ? t.yes : value === false ? t.no : t.unknown}`}
           >
             <Icon size={15} />
           </span>
@@ -67,35 +69,36 @@ export function PlaceList({
   selectedId,
 }: Props) {
   const sorted = sortPlaces(places, sort, origin);
+  const { t, typeLabel, formatDistance } = useI18n();
 
   return (
     <div className="place-list">
       <div className="list-head">
         <p className="list-count">
           <strong>{places.length}</strong>{" "}
-          {places.length === 1 ? "plek" : "plekken"}
+          {places.length === 1 ? t.place : t.places}
         </p>
-        <div className="segmented small" role="group" aria-label="Sorteren">
+        <div className="segmented small" role="group" aria-label={t.sort}>
           <button
             className={sort === "score" ? "on" : ""}
             onClick={() => onSortChange("score")}
           >
-            Beste score
+            {t.bestScore}
           </button>
           <button
             className={sort === "distance" ? "on" : ""}
             onClick={() => onSortChange("distance")}
           >
-            <LocateIcon size={14} /> Dichtbij
+            <LocateIcon size={14} /> {t.nearby}
           </button>
         </div>
       </div>
 
       {sorted.length === 0 ? (
         <div className="empty">
-          <p>Nog geen plekken die hieraan voldoen.</p>
+          <p>{t.emptyList}</p>
           <button className="btn btn-primary" onClick={onAdd}>
-            Voeg de eerste toe
+            {t.addFirst}
           </button>
         </div>
       ) : (
@@ -115,11 +118,10 @@ export function PlaceList({
                     <span className="card-title">{place.name}</span>
                     <span className="card-rating">
                       <Hearts rating={rating} size={16} />
-                      <small>{scoreLabel(rating)}</small>
+                      {isWelcome(place.amenities) ? <WelcomeBadge /> : null}
                     </span>
-                    {isWelcome(place.amenities) ? <WelcomeBadge /> : null}
                     <span className="card-meta">
-                      {TYPE_LABEL[place.type]}
+                      {typeLabel(place.type)}
                       {origin ? ` · ${formatDistance(distanceKm(origin, place))}` : ""}
                       {" · "}
                       {place.address.split(",")[0]}

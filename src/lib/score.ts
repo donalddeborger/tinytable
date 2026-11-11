@@ -91,7 +91,7 @@ export const TONE_COLOR: Record<ScoreTone, string> = {
   none: "#B9B2C4",
 };
 
-// Label "Kleine gasten welkom": minstens 3 van de 5 voorzieningen (3 hartjes).
+// Label "Kindvriendelijk" / "Family friendly": minstens 3 van de 5 voorzieningen (3 hartjes).
 export const WELCOME_MIN = 3;
 
 export function isWelcome(amenities: Partial<Amenities> | null | undefined): boolean {

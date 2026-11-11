@@ -4,7 +4,6 @@ import "@fontsource-variable/fredoka";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "TinyTable — kindvriendelijk eten in Antwerpen",
   description:
     "Zie in één oogopslag of een restaurant, café of bar een verschoningstafel, kinderstoelen, speelhoek of kindermenu heeft.",
 };
