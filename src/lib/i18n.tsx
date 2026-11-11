@@ -107,6 +107,19 @@ const nl = {
   scoreFair: "Beperkt kindvriendelijk",
   scoreLow: "Weinig voorzieningen",
   switchTo: "Switch to English",
+  notFoundQ: "Zaak niet gevonden?",
+  addManually: "Voeg ze zelf toe",
+  manualHint: "Vul de gegevens zelf in. We kijken de zaak na voor ze op de kaart verschijnt.",
+  streetNr: "Straat en huisnummer",
+  streetPlaceholder: "Bijv. Kloosterstraat 12",
+  postcode: "Postcode",
+  choose: "Kies…",
+  back: "Terug",
+  sendForReview: "Insturen",
+  sending: "Insturen…",
+  submitted: "Bedankt! We kijken de zaak na; na goedkeuring verschijnt ze op de kaart.",
+  needStreet: "Vul straat en huisnummer in",
+  needPostcode: "Kies een postcode",
 };
 
 export type Dict = typeof nl;
@@ -187,6 +200,19 @@ const en: Dict = {
   scoreFair: "Somewhat kid-friendly",
   scoreLow: "Few facilities",
   switchTo: "Overschakelen naar Nederlands",
+  notFoundQ: "Can't find the place?",
+  addManually: "Add it yourself",
+  manualHint: "Fill in the details yourself. We'll review the place before it appears on the map.",
+  streetNr: "Street and number",
+  streetPlaceholder: "E.g. Kloosterstraat 12",
+  postcode: "Postcode",
+  choose: "Choose…",
+  back: "Back",
+  sendForReview: "Submit",
+  sending: "Submitting…",
+  submitted: "Thanks! We'll review the place; once approved it will appear on the map.",
+  needStreet: "Fill in the street and house number",
+  needPostcode: "Choose a postcode",
 };
 
 const DICTS: Record<Lang, Dict> = { nl, en };
@@ -202,6 +228,9 @@ const SERVER_ERRORS_EN: Record<string, string> = {
   "Niet gevonden": "Not found",
   "De plek kon niet worden bewaard": "The place could not be saved",
   "De info kon niet worden bewaard": "The info could not be saved",
+  "Adres niet gevonden": "Address not found — check the street and number",
+  "Vul straat en huisnummer in": "Fill in the street and house number",
+  "TinyTable werkt voorlopig alleen in Antwerpen": "TinyTable only covers Antwerp for now",
 };
 
 export type I18n = {

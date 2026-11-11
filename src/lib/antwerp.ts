@@ -45,3 +45,21 @@ export function isInAntwerp(lat: number, lng: number): boolean {
     lng <= ANTWERP_BOUNDS.east
   );
 }
+
+// Keuzelijst bij handmatig toevoegen.
+export const POSTCODE_OPTIONS: { code: string; label: string }[] = [
+  { code: "2000", label: "2000 Antwerpen" },
+  { code: "2018", label: "2018 Antwerpen" },
+  { code: "2020", label: "2020 Antwerpen" },
+  { code: "2030", label: "2030 Antwerpen (haven)" },
+  { code: "2040", label: "2040 Berendrecht-Zandvliet-Lillo" },
+  { code: "2050", label: "2050 Linkeroever" },
+  { code: "2060", label: "2060 Antwerpen-Noord" },
+  { code: "2100", label: "2100 Deurne" },
+  { code: "2140", label: "2140 Borgerhout" },
+  { code: "2170", label: "2170 Merksem" },
+  { code: "2180", label: "2180 Ekeren" },
+  { code: "2600", label: "2600 Berchem" },
+  { code: "2610", label: "2610 Wilrijk" },
+  { code: "2660", label: "2660 Hoboken" },
+];

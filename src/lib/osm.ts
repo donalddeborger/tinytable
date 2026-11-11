@@ -94,3 +94,37 @@ export function photonToPlace(feature: PhotonFeature): {
     rawCity: p.city,
   };
 }
+
+// ---------------------------------------------------------------------------
+// Adres opzoeken (straat + huisnummer + postcode) → locatie op de kaart.
+
+export async function geocodeAddress(
+  street: string,
+  postcode: string,
+): Promise<{ lat: number; lng: number; address: string; city: string; postcode?: string } | null> {
+  const url = new URL("https://nominatim.openstreetmap.org/search");
+  url.searchParams.set("format", "jsonv2");
+  url.searchParams.set("street", street);
+  url.searchParams.set("postalcode", postcode);
+  url.searchParams.set("country", "België");
+  url.searchParams.set("countrycodes", "be");
+  url.searchParams.set("addressdetails", "1");
+  url.searchParams.set("limit", "1");
+  url.searchParams.set("accept-language", "nl");
+
+  const response = await fetch(url, {
+    headers: NOMINATIM_HEADERS,
+    signal: AbortSignal.timeout(6000),
+  });
+  if (!response.ok) throw new Error(`Nominatim ${response.status}`);
+  const [item] = (await response.json()) as NominatimResult[];
+  if (!item) return null;
+  const { address, city } = shortAddress(item);
+  return {
+    lat: Number(item.lat),
+    lng: Number(item.lon),
+    address,
+    city,
+    postcode: item.address?.postcode,
+  };
+}

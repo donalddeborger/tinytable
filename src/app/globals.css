@@ -1260,6 +1260,7 @@ h3 {
   gap: 8px;
   margin-top: 12px;
   min-height: 120px;
+  align-content: start;
 }
 
 .venue-results > * {
@@ -1465,4 +1466,36 @@ h3 {
 
 .brand svg {
   flex: none;
+}
+
+/* ---------- Handmatig toevoegen ---------- */
+
+.manual-cta {
+  margin: 14px 0 4px;
+  font-size: 0.88rem;
+  color: var(--muted);
+}
+
+.manual-cta .link-btn {
+  padding: 0;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.field select {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: var(--surface);
+  font: inherit;
+  font-size: 1rem;
+  color: var(--ink);
+  outline: none;
+}
+
+.field select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }

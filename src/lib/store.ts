@@ -16,6 +16,7 @@ type PlaceRow = {
   created_at: string;
   updated_at: string;
   osm_id: string | null;
+  manual?: boolean | null;
 };
 
 // Fout die we veilig aan de bezoeker kunnen tonen, met HTTP-status.
@@ -49,7 +50,7 @@ function toWriteError(error: { code?: string; message?: string }): Error {
 }
 
 const COLUMNS =
-  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at, osm_id";
+  "id, name, type, address, city, lat, lng, amenities, note, created_at, updated_at, osm_id, manual";
 
 function toPlace(row: PlaceRow): Place {
   return {
@@ -64,6 +65,7 @@ function toPlace(row: PlaceRow): Place {
     updatedAt: row.updated_at,
     note: row.note ?? undefined,
     osmId: row.osm_id ?? undefined,
+    locked: Boolean(row.osm_id) || Boolean(row.manual),
   };
 }
 
@@ -126,4 +128,21 @@ export async function updatePlace(
   if (error) throw toWriteError(error);
   const row = data as PlaceRow | null;
   return row && row.id ? toPlace(row) : undefined;
+}
+
+// Handmatig toegevoegd (niet gevonden in de zoekfunctie): wacht op goedkeuring.
+export async function addManualPlace(input: PlaceInput, client: string): Promise<void> {
+  const { error } = await getSupabase().rpc("add_place_manual_v1", {
+    p_token: apiToken(),
+    p_client: client,
+    p_name: input.name,
+    p_type: input.type,
+    p_address: input.address,
+    p_city: input.city || "Antwerpen",
+    p_lat: input.lat,
+    p_lng: input.lng,
+    p_amenities: input.amenities,
+    p_note: input.note ?? null,
+  });
+  if (error) throw toWriteError(error);
 }

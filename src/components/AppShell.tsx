@@ -85,7 +85,7 @@ function Shell() {
 
   useEffect(() => {
     if (!toast) return;
-    const timer = window.setTimeout(() => setToast(null), 3200);
+    const timer = window.setTimeout(() => setToast(null), Math.max(3200, toast.length * 60));
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -382,6 +382,10 @@ function Shell() {
             selectPlace(place);
           }}
           onClose={() => setAdding(null)}
+          onSubmitted={() => {
+            setAdding(null);
+            setToast(t.submitted);
+          }}
           onSaved={(place) => {
             setPlaces((current) => [...current, place]);
             setAdding(null);

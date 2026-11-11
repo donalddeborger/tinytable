@@ -8,6 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { emptyAmenities, isWelcome, kidRating } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
+import { POSTCODE_OPTIONS } from "@/lib/antwerp";
 
 async function sendJson<T>(url: string, method: string, body: unknown): Promise<T> {
   const response = await fetch(url, {
@@ -54,7 +55,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
   }
 
   // Zaken die via de zoekfunctie zijn toegevoegd: naam en adres liggen vast.
-  const locked = Boolean(place.osmId);
+  const locked = Boolean(place.locked ?? place.osmId);
 
   async function save() {
     if (!locked && !name.trim()) {
@@ -241,14 +242,20 @@ export function AddPlaceModal({
   onOpenExisting,
   onClose,
   onSaved,
+  onSubmitted,
 }: {
   initialVenue: Venue | null;
   existing: Place[];
   onOpenExisting: (place: Place) => void;
   onClose: () => void;
   onSaved: (place: Place) => void;
+  onSubmitted: () => void;
 }) {
   const { t, serverError } = useI18n();
+  const [manual, setManual] = useState(false);
+  const [manualName, setManualName] = useState("");
+  const [street, setStreet] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [venue, setVenue] = useState<Venue | null>(initialVenue);
   const [lookingUp, setLookingUp] = useState(false);
   const [trap, setTrap] = useState("");
@@ -298,7 +305,16 @@ export function AddPlaceModal({
     setVenue(v);
     setType(v.type ?? "restaurant");
     setError(null);
+    completeAddress(v);
+  }
 
+  // Gekozen via de zoekbalk bovenaan: ook dan het huisnummer aanvullen.
+  useEffect(() => {
+    if (initialVenue) completeAddress(initialVenue);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function completeAddress(v: Venue) {
     // Geen huisnummer in OpenStreetMap? Zoek het adres op via de locatie.
     const street = v.address.split(",")[0] ?? "";
     if (!/\d/.test(street)) {
@@ -314,6 +330,38 @@ export function AddPlaceModal({
         })
         .catch(() => undefined)
         .finally(() => setLookingUp(false));
+    }
+  }
+
+  function startManual() {
+    setManualName(query.trim());
+    setType("restaurant");
+    setAmenities(emptyAmenities());
+    setError(null);
+    setManual(true);
+  }
+
+  async function submitManual() {
+    if (manualName.trim().length < 2) return setError(t.needName);
+    if (!/\d/.test(street)) return setError(t.needStreet);
+    if (!postcode) return setError(t.needPostcode);
+    setSaving(true);
+    setError(null);
+    try {
+      await sendJson<{ ok: boolean }>("/api/places/manual", "POST", {
+        name: manualName,
+        street,
+        postcode,
+        type,
+        amenities,
+        note,
+        website: trap,
+      });
+      onSubmitted();
+    } catch (e) {
+      setError(serverError(e instanceof Error ? e.message : undefined));
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -359,7 +407,53 @@ export function AddPlaceModal({
           <h2>{t.addPlace}</h2>
         </div>
 
-        {!venue ? (
+        {manual ? (
+          <>
+            <p className="muted small step-hint">{t.manualHint}</p>
+            <label className="field">
+              <span>{t.name}</span>
+              <input value={manualName} onChange={(event) => setManualName(event.target.value)} maxLength={120} />
+            </label>
+            <label className="field">
+              <span>{t.streetNr}</span>
+              <input
+                value={street}
+                onChange={(event) => setStreet(event.target.value)}
+                placeholder={t.streetPlaceholder}
+                autoComplete="street-address"
+                maxLength={200}
+              />
+            </label>
+            <label className="field">
+              <span>{t.postcode}</span>
+              <select value={postcode} onChange={(event) => setPostcode(event.target.value)}>
+                <option value="">{t.choose}</option>
+                {POSTCODE_OPTIONS.map((o) => (
+                  <option key={o.code} value={o.code}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <TypePicker value={type} onChange={setType} />
+            <h3>{t.whatForKids}</h3>
+            <AmenityEditor value={amenities} onChange={setAmenities} />
+            <label className="field">
+              <span>{t.note}</span>
+              <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+            </label>
+            <BotTrap value={trap} onChange={setTrap} />
+            {error ? <p className="form-error">{error}</p> : null}
+            <div className="actions">
+              <button className="btn btn-ghost" onClick={() => setManual(false)}>
+                {t.back}
+              </button>
+              <button className="btn btn-primary" onClick={submitManual} disabled={saving}>
+                {saving ? t.sending : t.sendForReview}
+              </button>
+            </div>
+          </>
+        ) : !venue ? (
           <>
             <p className="muted small step-hint">
               {t.findHint}
@@ -397,6 +491,14 @@ export function AddPlaceModal({
                 );
               })}
             </div>
+            {!searching && query.trim().length >= 3 ? (
+              <p className="manual-cta">
+                {t.notFoundQ}{" "}
+                <button type="button" className="link-btn dark" onClick={startManual}>
+                  {t.addManually}
+                </button>
+              </p>
+            ) : null}
           </>
         ) : (
           <>

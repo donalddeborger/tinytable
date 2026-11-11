@@ -24,6 +24,8 @@ export type Place = {
   updatedAt: string;
   note?: string;
   osmId?: string;
+  // Naam en adres liggen vast (opgezocht of nagekeken).
+  locked?: boolean;
 };
 
 export type PlaceInput = {

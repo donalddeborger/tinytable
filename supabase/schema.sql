@@ -273,3 +273,12 @@ comment on column public.places.type is 'restaurant | cafe (Belgisch café) | ba
 -- 11 nov 2026: update_place_v3 laat naam en adres ongemoeid voor zaken met
 -- een osm_id (opgezocht via de zoekfunctie); alleen zaken zonder osm_id
 -- kunnen nog van naam/adres veranderen.
+
+-- ---------------------------------------------------------------------------
+-- 11 nov 2026: handmatig toevoegen met goedkeuring
+-- (migratie manual_places_with_review, live)
+--   places.approved (default true) en places.manual (default false)
+--   leesbeleid "Iedereen mag plekken lezen": using (approved)
+--   add_place_manual_v1(...): voegt toe met approved = false, manual = true
+--   update_place_v3: alleen goedgekeurde zaken; naam/adres vast bij osm_id of manual
+-- Goedkeuren: in Supabase Table Editor → places → filter approved = false → zet op true.
