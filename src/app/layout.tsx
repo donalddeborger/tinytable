@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/plus-jakarta-sans";
+import "@fontsource-variable/fredoka";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -12,7 +13,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#ffffff",
+  themeColor: "#fbf8ef",
 };
 
 export default function RootLayout({

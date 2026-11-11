@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ANTWERP, ANTWERP_BOUNDS } from "@/lib/antwerp";
+import { ANTWERP, ANTWERP_BOUNDS, isAntwerpAddress } from "@/lib/antwerp";
 import type { PlaceType, Venue } from "@/lib/types";
 import {
   NOMINATIM_HEADERS,
@@ -49,6 +49,7 @@ async function searchPhoton(q: string): Promise<Venue[]> {
   for (const feature of data.features ?? []) {
     const item = photonToPlace(feature);
     if (!item || item.key !== "amenity") continue;
+    if (!isAntwerpAddress(item.postcode, item.rawCity)) continue;
     const type = VENUE_TYPES[item.value];
     if (!type) continue;
     venues.push({
@@ -88,6 +89,12 @@ async function searchNominatim(q: string): Promise<Venue[]> {
   const results = (await response.json()) as NominatimResult[];
 
   return results
+    .filter((item) =>
+      isAntwerpAddress(
+        item.address?.postcode,
+        item.address?.city ?? item.address?.town ?? item.address?.village,
+      ),
+    )
     .map((item) => {
       const { address, city } = shortAddress(item);
       const type =
@@ -116,7 +123,7 @@ function dedupe(venues: Venue[]): Venue[] {
   });
 }
 
-// Zoekt horecazaken in Antwerpen op naam. (Straten en pleinen worden niet getoond.)
+// Zoekt horecazaken in Antwerpen en haar districten op naam (geen straten).
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim().slice(0, 100);

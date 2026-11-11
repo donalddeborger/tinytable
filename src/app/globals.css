@@ -4,19 +4,22 @@
   --brand: #7b6cf6;
   --brand-ink: #5a4bd6;
   --brand-soft: #eeebff;
-  --sun: #ffd166;
-  --bg: #fdf8f4;
+  --sun: #ffe9a8;
+  --sun-ink: #8a6a12;
+  --heart: #ff7aa2;
+  --display: "Fredoka Variable", "Plus Jakarta Sans Variable", system-ui, sans-serif;
+  --bg: #fbf8ef;
   --surface: #ffffff;
-  --ink: #2a2438;
+  --ink: #2b2238;
   --muted: #7a7288;
-  --line: #f0e9e4;
+  --line: #efe8da;
   --yes: #2a9d78;
   --yes-soft: #dcf5ea;
   --no: #d9666b;
   --no-soft: #fdeeee;
   --unknown: #b3acbd;
   --unknown-soft: #f5f2f7;
-  --plum: #3a3150;
+  --plum: #2b2238;
   /* zachte kleur per voorziening */
   --peach: #e8794a;
   --peach-soft: #ffe7da;
@@ -75,7 +78,9 @@ a {
 
 h2,
 h3 {
-  letter-spacing: -0.02em;
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .muted {
@@ -269,8 +274,10 @@ h3 {
 
 .brand strong {
   display: block;
-  font-size: 1.15rem;
-  letter-spacing: -0.03em;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.3rem;
+  letter-spacing: -0.01em;
   line-height: 1.1;
 }
 
@@ -504,9 +511,10 @@ h3 {
 }
 
 .card-title {
-  font-weight: 700;
-  font-size: 1rem;
-  letter-spacing: -0.01em;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0;
 }
 
 .card-meta {
@@ -1341,4 +1349,73 @@ h3 {
   padding: 4px 9px;
   font-size: 0.72rem;
   font-weight: 700;
+}
+
+/* ---------- Label "Kleine gasten welkom" ---------- */
+
+.welcome-badge {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--sun);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 3px 10px 3px 6px;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 0.78rem;
+  line-height: 1.3;
+}
+
+.welcome-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0 0;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: var(--sun);
+  color: var(--ink);
+}
+
+.welcome-banner .welcome-mark {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.welcome-banner strong {
+  display: block;
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.welcome-banner small {
+  display: block;
+  color: var(--ink);
+  opacity: 0.72;
+  font-size: 0.8rem;
+}
+
+.chip.chip-welcome.on {
+  background: var(--sun);
+  border-color: #e9c95a;
+}
+
+.pin-welcome::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--sun);
+  border: 2px solid #ffffff;
 }

@@ -1,4 +1,5 @@
-import { ratingText, scoreTone } from "@/lib/score";
+import { ratingText, scoreTone, WELCOME_MIN } from "@/lib/score";
+import { ChairMark } from "@/components/Icons";
 
 // Wissel hier het symbool (bv. naar een ster) als je iets anders wilt.
 const HEART =
@@ -40,6 +41,29 @@ export function Hearts({
         const fill = rating === null ? 0 : rating >= n ? 1 : rating >= n - 0.5 ? 0.5 : 0;
         return <Symbol key={n} fill={fill} size={size} />;
       })}
+    </span>
+  );
+}
+
+// Label "Kleine gasten welkom" (vanaf 3 hartjes).
+export function WelcomeBadge({ large = false }: { large?: boolean }) {
+  if (large) {
+    return (
+      <div className="welcome-banner">
+        <span className="welcome-mark">
+          <ChairMark size={40} chair="var(--ink)" />
+        </span>
+        <span>
+          <strong>Kleine gasten welkom</strong>
+          <small>TinyTable-label: minstens {WELCOME_MIN} van de 5 voorzieningen</small>
+        </span>
+      </div>
+    );
+  }
+  return (
+    <span className="welcome-badge">
+      <ChairMark size={15} chair="var(--ink)" />
+      Kleine gasten welkom
     </span>
   );
 }

@@ -152,20 +152,38 @@ export const TYPE_EMOJI: Record<PlaceType, string> = {
   bar: "☕",
 };
 
-export function LogoMark({ size = 32 }: { size?: number }) {
-  // Ouder en kind aan tafel
+// Kinderstoel met hartje, uit het label "Kleine gasten welkom".
+export function ChairMark({
+  size = 24,
+  chair = "currentColor",
+  heart = "var(--heart)",
+  seat = "var(--brand)",
+}: {
+  size?: number;
+  chair?: string;
+  heart?: string;
+  seat?: string;
+}) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden>
-      <rect width="32" height="32" rx="10" fill="var(--brand)" />
-      <circle cx="12" cy="10" r="3.2" fill="white" />
-      <circle cx="21.5" cy="12.5" r="2.4" fill="var(--sun)" />
-      <path
-        d="M6 18.5h20M9 18.5v7M23 18.5v7"
-        stroke="white"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-        fill="none"
-      />
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
+      <rect x="33" y="8" width="54" height="48" rx="16" fill="#ffffff" stroke={chair} strokeWidth="7"></rect>
+      <path d="M60 42s-9.5-5.8-11.8-11.6c-1.7-4.2 1-8.6 5.5-8.6 2.5 0 4.5 1.4 6.3 3.7 1.8-2.3 3.8-3.7 6.3-3.7 4.5 0 7.2 4.4 5.5 8.6C69.5 36.2 60 42 60 42Z" fill={heart}></path>
+      <rect x="20" y="56" width="80" height="13" rx="6.5" fill={seat} stroke={chair} strokeWidth="7"></rect>
+      <path d="M38 69 30 111M82 69l8 42M34 93h52" stroke={chair} strokeWidth="7" strokeLinecap="round" fill="none"></path>
+    </svg>
+  );
+}
+
+export function LogoMark({ size = 32 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
+      <rect width="120" height="120" rx="36" fill="var(--brand)" />
+      <g transform="translate(14 12) scale(0.77)">
+        <rect x="33" y="8" width="54" height="48" rx="16" fill="#ffffff" />
+        <path d="M60 42s-9.5-5.8-11.8-11.6c-1.7-4.2 1-8.6 5.5-8.6 2.5 0 4.5 1.4 6.3 3.7 1.8-2.3 3.8-3.7 6.3-3.7 4.5 0 7.2 4.4 5.5 8.6C69.5 36.2 60 42 60 42Z" fill="var(--heart)" />
+        <rect x="20" y="58" width="80" height="12" rx="6" fill="var(--sun)" />
+        <path d="M38 70 30 110M82 70l8 40M34 92h52" stroke="#ffffff" strokeWidth="9" strokeLinecap="round" fill="none" />
+      </g>
     </svg>
   );
 }

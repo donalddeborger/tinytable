@@ -70,6 +70,8 @@ export function photonToPlace(feature: PhotonFeature): {
   lng: number;
   key: string;
   value: string;
+  postcode?: string;
+  rawCity?: string;
 } | null {
   const p = feature.properties ?? {};
   const coords = feature.geometry?.coordinates;
@@ -88,5 +90,7 @@ export function photonToPlace(feature: PhotonFeature): {
     lng: coords[0],
     key: p.osm_key ?? "",
     value: p.osm_value ?? "",
+    postcode: p.postcode,
+    rawCity: p.city,
   };
 }

@@ -1,10 +1,10 @@
 "use client";
 
-import { AMENITIES, kidRating, scoreLabel } from "@/lib/score";
+import { AMENITIES, isWelcome, kidRating, scoreLabel } from "@/lib/score";
 import { distanceKm, formatDistance, type LatLng } from "@/lib/geo";
 import type { Place } from "@/lib/types";
 import { AMENITY_ICON, LocateIcon, TYPE_EMOJI, TYPE_LABEL } from "@/components/Icons";
-import { Hearts } from "@/components/Rating";
+import { Hearts, WelcomeBadge } from "@/components/Rating";
 
 export type SortMode = "score" | "distance";
 
@@ -117,6 +117,7 @@ export function PlaceList({
                       <Hearts rating={rating} size={16} />
                       <small>{scoreLabel(rating)}</small>
                     </span>
+                    {isWelcome(place.amenities) ? <WelcomeBadge /> : null}
                     <span className="card-meta">
                       {TYPE_LABEL[place.type]}
                       {origin ? ` · ${formatDistance(distanceKm(origin, place))}` : ""}

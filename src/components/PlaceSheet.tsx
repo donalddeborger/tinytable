@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
-import { Hearts } from "@/components/Rating";
+import { Hearts, WelcomeBadge } from "@/components/Rating";
 import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI, TYPE_LABEL } from "@/components/Icons";
-import { emptyAmenities, kidRating, ratingText, scoreLabel } from "@/lib/score";
+import { emptyAmenities, isWelcome, kidRating, ratingText, scoreLabel } from "@/lib/score";
 import { distanceKm, formatDistance, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
 
@@ -112,6 +112,8 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
           </p>
         </div>
       </div>
+
+      {isWelcome(place.amenities) ? <WelcomeBadge large /> : null}
 
       {editing ? (
         <div className="edit-block">

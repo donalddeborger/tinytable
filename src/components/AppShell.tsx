@@ -6,6 +6,7 @@ import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
   AMENITY_ICON,
+  ChairMark,
   CloseIcon,
   ListIcon,
   LocateIcon,
@@ -15,7 +16,7 @@ import {
   PlusIcon,
   SearchIcon,
 } from "@/components/Icons";
-import { AMENITIES } from "@/lib/score";
+import { AMENITIES, isWelcome } from "@/lib/score";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
 import type { AmenityKey, Place, Venue } from "@/lib/types";
@@ -42,7 +43,7 @@ export function AppShell() {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [selected, setSelected] = useState<Place | null>(null);
-  const [filter, setFilter] = useState<AmenityKey | "all">("all");
+  const [filter, setFilter] = useState<AmenityKey | "all" | "welcome">("all");
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
@@ -120,7 +121,11 @@ export function AppShell() {
 
   const filtered = useMemo(
     () =>
-      filter === "all" ? places : places.filter((place) => place.amenities[filter] === true),
+      filter === "all"
+        ? places
+        : filter === "welcome"
+          ? places.filter((place) => isWelcome(place.amenities))
+          : places.filter((place) => place.amenities[filter] === true),
     [places, filter],
   );
 
@@ -245,6 +250,12 @@ export function AppShell() {
               onClick={() => setFilter("all")}
             >
               Alles
+            </button>
+            <button
+              className={`chip chip-welcome ${filter === "welcome" ? "on" : ""}`}
+              onClick={() => setFilter(filter === "welcome" ? "all" : "welcome")}
+            >
+              <ChairMark size={16} chair="var(--ink)" /> Kleine gasten welkom
             </button>
             {AMENITIES.map((item) => {
               const Icon = AMENITY_ICON[item.key];

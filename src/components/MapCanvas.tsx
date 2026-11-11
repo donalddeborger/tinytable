@@ -10,7 +10,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { ANTWERP } from "@/lib/antwerp";
-import { kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
+import { isWelcome, kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
 import type { AmenityKey, Place } from "@/lib/types";
 import "leaflet/dist/leaflet.css";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -40,7 +40,7 @@ function markerIcon(place: Place, selected: boolean) {
     className: "",
     iconSize: [40, 48],
     iconAnchor: [20, 46],
-    html: `<div class="pin${selected ? " pin-selected" : ""}" style="--pin:${color}"><span>${label}</span></div>`,
+    html: `<div class="pin${selected ? " pin-selected" : ""}${isWelcome(place.amenities) ? " pin-welcome" : ""}" style="--pin:${color}"><span>${label}</span></div>`,
   });
 }
 
