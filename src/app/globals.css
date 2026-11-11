@@ -702,6 +702,13 @@ h3 {
   color: white;
   font-weight: 800;
   font-size: 0.85rem;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+}
+
+.pin span svg {
+  display: block;
 }
 
 .pin-m,
