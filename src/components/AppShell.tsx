@@ -16,6 +16,7 @@ import {
 } from "@/components/Icons";
 import { AMENITIES, isWelcome } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
+import { placeSlugs } from "@/lib/slug";
 import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
@@ -91,7 +92,19 @@ function Shell() {
   useEffect(() => {
     void fetch("/api/places")
       .then((response) => (response.ok ? response.json() : Promise.reject()))
-      .then((data: Place[]) => setPlaces(data))
+      .then((data: Place[]) => {
+        setPlaces(data);
+        // Link naar een zaak (/?zaak=…): meteen openen.
+        const wanted = new URLSearchParams(window.location.search).get("zaak");
+        if (wanted) {
+          const slugs = placeSlugs(data);
+          const match = data.find((p) => slugs.get(p.id) === wanted);
+          if (match) {
+            setSelected(match);
+            setFlyTo({ lat: match.lat, lng: match.lng });
+          }
+        }
+      })
       .catch(() => setToast(t.loadFailed))
       .finally(() => setLoaded(true));
   }, []);
@@ -168,6 +181,8 @@ function Shell() {
           : places.filter((place) => place.amenities[filter] === true),
     [places, filter],
   );
+
+  const slugs = useMemo(() => placeSlugs(places), [places]);
 
   const selectedPlace = useMemo(
     () => places.find((place) => place.id === selected?.id) ?? selected,
@@ -387,6 +402,7 @@ function Shell() {
           <PlaceSheet
             key={selectedPlace.id + selectedPlace.updatedAt}
             place={selectedPlace}
+            pageHref={`/zaak/${slugs.get(selectedPlace.id) ?? ""}`}
             origin={userLocation}
             onClose={() => setSelected(null)}
             onSaved={(place) => {

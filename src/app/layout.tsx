@@ -5,8 +5,19 @@ import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.tinytable.be"),
   description:
-    "Zie in één oogopslag of een restaurant, café of bar een verschoningstafel, kinderstoelen, speelhoek of kindermenu heeft.",
+    "Kindvriendelijke restaurants, cafés en koffiebars in Antwerpen en de provincie. Zie in één oogopslag of er een verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin is.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "TinyTable – kindvriendelijk eten & drinken in Antwerpen",
+    description:
+      "Vind restaurants, cafés en koffiebars met verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin.",
+    url: "https://www.tinytable.be",
+    siteName: "TinyTable",
+    locale: "nl_BE",
+    type: "website",
+  },
 };
 
 export const viewport: Viewport = {

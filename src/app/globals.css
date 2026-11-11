@@ -1654,3 +1654,108 @@ h3 {
   background: #ffd34d;
   box-shadow: 0 0 0 2px #ff7aa2;
 }
+
+/* ---------- Pagina per zaak (/zaak/…) ---------- */
+
+.zaak-page {
+  min-height: 100dvh;
+  box-sizing: border-box;
+  padding: 20px 16px 48px;
+  background:
+    radial-gradient(420px 220px at 0% 0%, rgba(255, 210, 190, 0.55), transparent 70%),
+    radial-gradient(420px 240px at 100% 0%, rgba(200, 190, 255, 0.5), transparent 70%),
+    var(--bg);
+  overflow-y: auto;
+}
+
+.zaak-top,
+.zaak-card {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.zaak-top {
+  margin-bottom: 20px;
+}
+
+.zaak-top .brand {
+  text-decoration: none;
+}
+
+.zaak-card {
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 24px 20px;
+}
+
+.zaak-card h1 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 1.15;
+  margin: 4px 0 6px;
+}
+
+.zaak-card h2 {
+  font-size: 1.1rem;
+  margin: 22px 0 10px;
+}
+
+.zaak-type {
+  margin: 0;
+  color: var(--brand-ink);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.zaak-score {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--radius);
+  background: linear-gradient(120deg, #fff1e8, #f1edff 60%, #e6f6ef);
+}
+
+.zaak-score p {
+  margin: 0;
+}
+
+.zaak-score .welcome-badge {
+  padding: 4px 12px;
+}
+
+.zaak-amenities {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.zaak-amenities li {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--unknown-soft);
+}
+
+.zaak-amenities li.state-yes {
+  background: var(--yes-soft);
+}
+
+.zaak-amenities li.state-yes strong {
+  color: var(--yes);
+}
+
+.zaak-amenities li.state-no strong {
+  color: var(--no);
+}
+
+.updated a {
+  color: var(--brand-ink);
+}

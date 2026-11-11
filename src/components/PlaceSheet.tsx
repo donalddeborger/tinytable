@@ -25,12 +25,13 @@ async function sendJson<T>(url: string, method: string, body: unknown): Promise<
 
 type Props = {
   place: Place;
+  pageHref: string;
   origin: LatLng | null;
   onClose: () => void;
   onSaved: (place: Place) => void;
 };
 
-export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
+export function PlaceSheet({ place, pageHref, origin, onClose, onSaved }: Props) {
   const { t, typeLabel, ratingText, formatDistance, formatDate, serverError } = useI18n();
   const [editing, setEditing] = useState(
     // Nog niets bekend? Dan meteen het invulformulier tonen.
@@ -184,7 +185,10 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
 
           {place.note ? <p className="note">“{place.note}”</p> : null}
           {place.updatedAt ? (
-            <p className="muted small updated">{t.lastUpdated} {formatDate(place.updatedAt)}</p>
+            <p className="muted small updated">
+              {t.lastUpdated} {formatDate(place.updatedAt)} ·{" "}
+              <a href={pageHref}>{t.placePage}</a>
+            </p>
           ) : null}
         </>
       )}
