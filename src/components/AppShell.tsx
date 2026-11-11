@@ -1,12 +1,13 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
   AMENITY_ICON,
   ClockIcon,
+  MenuIcon,
   CloseIcon,
   ListIcon,
   LocateIcon,
@@ -58,6 +59,51 @@ function HeartTile() {
         fill="var(--heart)"
       />
     </svg>
+  );
+}
+
+// Menu rechtsboven: over-pagina, uitleg, contact en privacy.
+function SiteMenu() {
+  const { t } = useI18n();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onClick = (event: MouseEvent) => {
+      if (ref.current && !ref.current.contains(event.target as Node)) setOpen(false);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="site-menu" ref={ref}>
+      <button
+        className="menu-btn"
+        aria-label={t.menu}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        onClick={() => setOpen(!open)}
+      >
+        {open ? <CloseIcon size={20} /> : <MenuIcon size={20} />}
+      </button>
+      {open ? (
+        <nav className="menu-panel" aria-label={t.menu}>
+          <a href="/over">{t.menuAbout}</a>
+          <a href="/over#hartjes">{t.menuHearts}</a>
+          <a href="/over#contact">{t.menuContact}</a>
+          <a href="/over#privacy">{t.menuPrivacy}</a>
+        </nav>
+      ) : null}
+    </div>
   );
 }
 
@@ -246,6 +292,7 @@ function Shell() {
             </a>
             <div className="brand-actions">
               <LangSwitch />
+              <SiteMenu />
             </div>
           </div>
 

@@ -31,14 +31,14 @@ export default function AboutPage() {
           Zaken die niet in de zoekfunctie staan, worden eerst nagekeken voor ze op de kaart verschijnen.
         </p>
 
-        <h2>Hoe werken de hartjes?</h2>
+        <h2 id="hartjes">Hoe werken de hartjes?</h2>
         <ul>
           <li>Verschoningstafel, kinderstoelen, speelhoek en kindermenu: elk 1 hartje.</li>
           <li>Buitenspeeltuin en kinderwagenvriendelijk: elk een half hartje.</li>
           <li>Met 3 hartjes krijgt een zaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
         </ul>
 
-        <h2>Contact</h2>
+        <h2 id="contact">Contact</h2>
         <p>Een fout gezien, een idee of een vraag? Laat het ons weten.</p>
         <ContactForm />
 
