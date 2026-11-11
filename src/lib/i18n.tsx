@@ -54,7 +54,7 @@ const nl = {
   loadFailed: "De plekken konden niet worden geladen",
   noGeo: "Je browser kan je locatie niet bepalen",
   geoFailed: "Locatie kon niet worden bepaald",
-  outsideAntwerp: "TinyTable start in Antwerpen — andere steden volgen.",
+  outsideAntwerp: "TinyTable werkt voorlopig in de provincie Antwerpen.",
   updated: "Bedankt! De info is bijgewerkt.",
   alreadyIn: "Deze zaak staat al in TinyTable",
   added: "Plek toegevoegd — bedankt voor het delen!",
@@ -94,7 +94,7 @@ const nl = {
   venuePlaceholder: "Naam van het restaurant, café of koffiebar",
   findVenue: "Zaak zoeken",
   searching: "Zoeken…",
-  nothingFound: "Niets gevonden in Antwerpen. Probeer een andere schrijfwijze.",
+  nothingFound: "Niets gevonden in de provincie Antwerpen. Probeer een andere schrijfwijze.",
   alreadyBadge: "Al in TinyTable",
   lookingUp: "Adres opzoeken…",
   change: "Wijzig",
@@ -113,13 +113,13 @@ const nl = {
   streetNr: "Straat en huisnummer",
   streetPlaceholder: "Bijv. Kloosterstraat 12",
   postcode: "Postcode",
-  choose: "Kies…",
+  postcodePlaceholder: "Bijv. 2800",
   back: "Terug",
   sendForReview: "Insturen",
   sending: "Insturen…",
   submitted: "Bedankt! We kijken de zaak na; na goedkeuring verschijnt ze op de kaart.",
   needStreet: "Vul straat en huisnummer in",
-  needPostcode: "Kies een postcode",
+  needPostcode: "Geef een postcode uit de provincie Antwerpen (2000–2999)",
 };
 
 export type Dict = typeof nl;
@@ -147,7 +147,7 @@ const en: Dict = {
   loadFailed: "The places could not be loaded",
   noGeo: "Your browser can't determine your location",
   geoFailed: "Your location could not be determined",
-  outsideAntwerp: "TinyTable starts in Antwerp — other cities will follow.",
+  outsideAntwerp: "TinyTable covers the province of Antwerp for now.",
   updated: "Thanks! The info has been updated.",
   alreadyIn: "This place is already in TinyTable",
   added: "Place added — thanks for sharing!",
@@ -187,7 +187,7 @@ const en: Dict = {
   venuePlaceholder: "Name of the restaurant, pub or coffee bar",
   findVenue: "Find a place",
   searching: "Searching…",
-  nothingFound: "Nothing found in Antwerp. Try a different spelling.",
+  nothingFound: "Nothing found in the province of Antwerp. Try a different spelling.",
   alreadyBadge: "Already in TinyTable",
   lookingUp: "Looking up address…",
   change: "Change",
@@ -206,13 +206,13 @@ const en: Dict = {
   streetNr: "Street and number",
   streetPlaceholder: "E.g. Kloosterstraat 12",
   postcode: "Postcode",
-  choose: "Choose…",
+  postcodePlaceholder: "E.g. 2800",
   back: "Back",
   sendForReview: "Submit",
   sending: "Submitting…",
   submitted: "Thanks! We'll review the place; once approved it will appear on the map.",
   needStreet: "Fill in the street and house number",
-  needPostcode: "Choose a postcode",
+  needPostcode: "Enter a postcode in the province of Antwerp (2000–2999)",
 };
 
 const DICTS: Record<Lang, Dict> = { nl, en };
@@ -230,7 +230,8 @@ const SERVER_ERRORS_EN: Record<string, string> = {
   "De info kon niet worden bewaard": "The info could not be saved",
   "Adres niet gevonden": "Address not found — check the street and number",
   "Vul straat en huisnummer in": "Fill in the street and house number",
-  "TinyTable werkt voorlopig alleen in Antwerpen": "TinyTable only covers Antwerp for now",
+  "TinyTable werkt voorlopig alleen in de provincie Antwerpen": "TinyTable only covers the province of Antwerp for now",
+  "Geen postcode uit de provincie Antwerpen": "Not a postcode in the province of Antwerp",
 };
 
 export type I18n = {
@@ -289,7 +290,6 @@ const I18nContext = createContext<I18n>(build("nl", () => undefined));
 export function LangProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>("nl");
 
-  // Eerste bezoek: taal van de browser; daarna de gekozen taal.
   useEffect(() => {
     let stored: string | null = null;
     try {
@@ -297,11 +297,8 @@ export function LangProvider({ children }: { children: ReactNode }) {
     } catch {
       stored = null;
     }
-    if (stored === "nl" || stored === "en") {
-      setLangState(stored);
-    } else if (!navigator.language.toLowerCase().startsWith("nl")) {
-      setLangState("en");
-    }
+    // Standaard Nederlands; Engels alleen als de bezoeker daar zelf voor koos.
+    if (stored === "en") setLangState("en");
   }, []);
 
   useEffect(() => {

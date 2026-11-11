@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ANTWERP_POSTCODES, isAntwerpAddress, isInAntwerp, POSTCODE_OPTIONS } from "@/lib/antwerp";
+import { isAntwerpAddress, isInAntwerp, isProvincePostcode } from "@/lib/antwerp";
 import { clientId, isBot } from "@/lib/client";
 import { geocodeAddress } from "@/lib/osm";
 import { addManualPlace, WriteError } from "@/lib/store";
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
   const type = TYPES.includes(body.type as PlaceType) ? (body.type as PlaceType) : "restaurant";
 
   if (name.length < 2) return NextResponse.json({ error: "Geef de plek een naam" }, { status: 400 });
-  if (!/\d/.test(street) || !ANTWERP_POSTCODES.has(postcode)) {
+  if (!/\d/.test(street) || !isProvincePostcode(postcode)) {
     return NextResponse.json({ error: "Vul straat en huisnummer in" }, { status: 400 });
   }
   if (!amenities) return NextResponse.json({ error: "Geen voorzieningen" }, { status: 400 });
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   if (
     !found ||
     !isInAntwerp(found.lat, found.lng) ||
-    (found.postcode && !isAntwerpAddress(found.postcode))
+    !isAntwerpAddress(found.postcode, found.lat, found.lng)
   ) {
     return NextResponse.json({ error: "Adres niet gevonden" }, { status: 400 });
   }
@@ -56,8 +56,8 @@ export async function POST(request: Request) {
       name,
       type,
       // Het adres zoals ingevuld (met huisnummer), de locatie van de kaart.
-      address: `${street}, ${(POSTCODE_OPTIONS.find((o) => o.code === postcode)?.label ?? postcode).replace(/ \(.*\)$/, "")}`,
-      city: "Antwerpen",
+      address: `${street}, ${postcode} ${found.city}`,
+      city: found.city,
       lat: found.lat,
       lng: found.lng,
       amenities,

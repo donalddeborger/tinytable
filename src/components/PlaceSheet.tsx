@@ -8,7 +8,7 @@ import { useI18n } from "@/lib/i18n";
 import { emptyAmenities, isWelcome, kidRating } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
-import { POSTCODE_OPTIONS } from "@/lib/antwerp";
+import { isProvincePostcode } from "@/lib/antwerp";
 
 async function sendJson<T>(url: string, method: string, body: unknown): Promise<T> {
   const response = await fetch(url, {
@@ -346,7 +346,7 @@ export function AddPlaceModal({
   async function submitManual() {
     if (manualName.trim().length < 2) return setError(t.needName);
     if (!/\d/.test(street)) return setError(t.needStreet);
-    if (!postcode) return setError(t.needPostcode);
+    if (!isProvincePostcode(postcode)) return setError(t.needPostcode);
     setSaving(true);
     setError(null);
     try {
@@ -428,14 +428,14 @@ export function AddPlaceModal({
             </label>
             <label className="field">
               <span>{t.postcode}</span>
-              <select value={postcode} onChange={(event) => setPostcode(event.target.value)}>
-                <option value="">{t.choose}</option>
-                {POSTCODE_OPTIONS.map((o) => (
-                  <option key={o.code} value={o.code}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
+              <input
+                value={postcode}
+                onChange={(event) => setPostcode(event.target.value.replace(/\D/g, "").slice(0, 4))}
+                placeholder={t.postcodePlaceholder}
+                inputMode="numeric"
+                autoComplete="postal-code"
+                maxLength={4}
+              />
             </label>
             <TypePicker value={type} onChange={setType} />
             <h3>{t.whatForKids}</h3>

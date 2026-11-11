@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   MapContainer,
   Marker,
@@ -29,19 +29,65 @@ type Props = {
   onPick: (lat: number, lng: number) => void;
 };
 
-function markerIcon(place: Place, selected: boolean) {
+// Grootte van de pin hangt af van het zoomniveau, zodat de kaart bij
+// uitzoomen niet volloopt. Zaken met het label blijven zichtbaarder.
+type PinSize = "l" | "m" | "s" | "dot";
+
+const PIN_PX: Record<Exclude<PinSize, "dot">, { box: number; heart: number }> = {
+  l: { box: 34, heart: 15 },
+  m: { box: 26, heart: 12 },
+  s: { box: 20, heart: 9 },
+};
+
+function pinSize(zoom: number, place: Place, selected: boolean): PinSize {
+  if (selected || zoom >= 15) return "l";
+  const welcome = isWelcome(place.amenities);
+  if (zoom >= 13) return welcome ? "l" : "m";
+  if (zoom >= 12) return welcome ? "m" : "s";
+  return welcome ? "s" : "dot";
+}
+
+function markerIcon(place: Place, selected: boolean, zoom: number) {
   const rating = kidRating(place.amenities);
   const color = TONE_COLOR[scoreTone(rating)];
+  const size = pinSize(zoom, place, selected);
+
+  if (size === "dot") {
+    return L.divIcon({
+      className: "",
+      iconSize: [12, 12],
+      iconAnchor: [6, 6],
+      html: `<div class="pin-dot" style="--pin:${color}"></div>`,
+    });
+  }
+
+  const { box, heart } = PIN_PX[size];
   const label =
     rating === null
       ? "?"
-      : '<svg viewBox="0 0 24 24" width="17" height="17" fill="white"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"/></svg>';
+      : `<svg viewBox="0 0 24 24" width="${heart}" height="${heart}" fill="white"><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"/></svg>`;
+  const classes = [
+    "pin",
+    `pin-${size}`,
+    selected ? "pin-selected" : "",
+    isWelcome(place.amenities) ? "pin-welcome" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+  // Een gedraaid vierkant met zijde box is ~1,2 × box hoog; punt onderaan.
   return L.divIcon({
     className: "",
-    iconSize: [40, 48],
-    iconAnchor: [20, 46],
-    html: `<div class="pin${selected ? " pin-selected" : ""}${isWelcome(place.amenities) ? " pin-welcome" : ""}" style="--pin:${color}"><span>${label}</span></div>`,
+    iconSize: [box, box * 1.2],
+    iconAnchor: [box / 2, box * 1.2 - 2],
+    html: `<div class="${classes}" style="--pin:${color};--box:${box}px"><span>${label}</span></div>`,
   });
+}
+
+// Houdt het zoomniveau bij om de pins aan te passen.
+function ZoomWatcher({ onZoom }: { onZoom: (zoom: number) => void }) {
+  const map = useMapEvents({ zoomend: () => onZoom(map.getZoom()) });
+  useEffect(() => onZoom(map.getZoom()), [map, onZoom]);
+  return null;
 }
 
 // De worker wordt bij het bouwen naar public/ gekopieerd (zie scripts/).
@@ -149,6 +195,8 @@ export function MapCanvas({
     [places, filter],
   );
 
+  const [zoom, setZoom] = useState<number>(ANTWERP.zoom);
+
   const userIcon = useMemo(
     () =>
       L.divIcon({
@@ -173,13 +221,16 @@ export function MapCanvas({
       <FlyTo target={flyTo} />
       <FitToPlaces places={places} />
       <ClickCatcher enabled={picking} onPick={onPick} />
+      <ZoomWatcher onZoom={setZoom} />
       {visible
         .filter((place) => Number.isFinite(place.lat) && Number.isFinite(place.lng))
         .map((place) => (
           <Marker
             key={place.id}
             position={[place.lat, place.lng]}
-            icon={markerIcon(place, place.id === selectedId)}
+            icon={markerIcon(place, place.id === selectedId, zoom)}
+            // Beste zaken bovenaan als pins overlappen.
+            zIndexOffset={place.id === selectedId ? 1000 : (kidRating(place.amenities) ?? 0) * 100}
             eventHandlers={{ click: () => onSelect(place) }}
           />
         ))}

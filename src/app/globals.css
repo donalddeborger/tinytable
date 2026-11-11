@@ -688,13 +688,13 @@ h3 {
 
 .pin {
   position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50% 50% 50% 8px;
+  width: var(--box, 34px);
+  height: var(--box, 34px);
+  border-radius: 50% 50% 50% 6px;
   transform: rotate(-45deg);
   background: var(--pin);
-  border: 3px solid white;
-  box-shadow: 0 6px 14px rgba(23, 23, 31, 0.28);
+  border: 2.5px solid white;
+  box-shadow: 0 4px 10px rgba(23, 23, 31, 0.25);
   display: grid;
   place-items: center;
   transition: transform 0.15s ease;
@@ -705,6 +705,34 @@ h3 {
   color: white;
   font-weight: 800;
   font-size: 0.85rem;
+}
+
+.pin-m,
+.pin-s {
+  border-width: 2px;
+  box-shadow: 0 3px 7px rgba(23, 23, 31, 0.22);
+}
+
+.pin-s.pin-welcome::after {
+  width: 9px;
+  height: 9px;
+  top: -3px;
+  right: -3px;
+  border-width: 1.5px;
+}
+
+.pin-m.pin-welcome::after {
+  width: 11px;
+  height: 11px;
+}
+
+.pin-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--pin);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(23, 23, 31, 0.3);
 }
 
 .pin-selected {

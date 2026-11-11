@@ -30,7 +30,7 @@ async function searchPhoton(q: string): Promise<Venue[]> {
   url.searchParams.set("q", q);
   url.searchParams.set("lat", String(ANTWERP.lat));
   url.searchParams.set("lon", String(ANTWERP.lng));
-  url.searchParams.set("limit", "20");
+  url.searchParams.set("limit", "30");
   url.searchParams.set(
     "bbox",
     `${ANTWERP_BOUNDS.west},${ANTWERP_BOUNDS.south},${ANTWERP_BOUNDS.east},${ANTWERP_BOUNDS.north}`,
@@ -49,7 +49,7 @@ async function searchPhoton(q: string): Promise<Venue[]> {
   for (const feature of data.features ?? []) {
     const item = photonToPlace(feature);
     if (!item || item.key !== "amenity") continue;
-    if (!isAntwerpAddress(item.postcode, item.rawCity)) continue;
+    if (!isAntwerpAddress(item.postcode, item.lat, item.lng)) continue;
     const type = VENUE_TYPES[item.value];
     if (!type) continue;
     venues.push({
@@ -90,10 +90,7 @@ async function searchNominatim(q: string): Promise<Venue[]> {
 
   return results
     .filter((item) =>
-      isAntwerpAddress(
-        item.address?.postcode,
-        item.address?.city ?? item.address?.town ?? item.address?.village,
-      ),
+      isAntwerpAddress(item.address?.postcode, Number(item.lat), Number(item.lon)),
     )
     .map((item) => {
       const { address, city } = shortAddress(item);

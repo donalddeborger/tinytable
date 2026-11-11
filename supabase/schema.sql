@@ -282,3 +282,7 @@ comment on column public.places.type is 'restaurant | cafe (Belgisch café) | ba
 --   add_place_manual_v1(...): voegt toe met approved = false, manual = true
 --   update_place_v3: alleen goedgekeurde zaken; naam/adres vast bij osm_id of manual
 -- Goedkeuren: in Supabase Table Editor → places → filter approved = false → zet op true.
+
+-- 11 nov 2026: hele provincie Antwerpen (migratie province_antwerp_bounds, live)
+--   add_place_v3 en add_place_manual_v1: lat 50.95–51.51, lng 4.10–5.30
+--   (app filtert daarnaast op postcode 2000–2999)
