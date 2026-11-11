@@ -72,7 +72,8 @@ function Shell() {
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
   const [flyTo, setFlyTo] = useState<LatLng | null>(null);
-  const [adding, setAdding] = useState<{ venue: Venue | null } | null>(null);
+  const [adding, setAdding] = useState<{ venue: Venue | null; manualName?: string } | null>(null);
+  const [searchedFor, setSearchedFor] = useState("");
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
@@ -93,6 +94,7 @@ function Shell() {
     const trimmed = query.trim();
     if (trimmed.length < 2) {
       setHits([]);
+      setSearchedFor("");
       return;
     }
 
@@ -136,6 +138,7 @@ function Shell() {
               venue: item,
             }));
           setHits([...local, ...extra].slice(0, 8));
+          setSearchedFor(trimmed);
         })
         .catch(() => undefined);
     }, 500);
@@ -228,7 +231,7 @@ function Shell() {
                 <CloseIcon size={16} />
               </button>
             ) : null}
-            {hits.length > 0 ? (
+            {hits.length > 0 || (searchedFor && searchedFor === query.trim()) ? (
               <div className="results">
                 {hits.map((hit) => (
                   <button
@@ -267,6 +270,26 @@ function Shell() {
                     </span>
                   </button>
                 ))}
+                {searchedFor && searchedFor === query.trim() ? (
+                  <button
+                    className="result result-manual"
+                    onClick={() => {
+                      const name = query.trim();
+                      setQuery("");
+                      setHits([]);
+                      setSelected(null);
+                      setAdding({ venue: null, manualName: name });
+                    }}
+                  >
+                    <span className="result-icon">
+                      <PlusIcon size={18} />
+                    </span>
+                    <span>
+                      <strong>{t.notFoundQ}</strong>
+                      <small>{t.addManually}</small>
+                    </span>
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -376,6 +399,7 @@ function Shell() {
       {adding ? (
         <AddPlaceModal
           initialVenue={adding.venue}
+          initialManualName={adding.manualName}
           existing={places}
           onOpenExisting={(place) => {
             setToast(t.alreadyIn);

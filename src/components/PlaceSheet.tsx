@@ -238,6 +238,7 @@ function TypePicker({
 
 export function AddPlaceModal({
   initialVenue,
+  initialManualName,
   existing,
   onOpenExisting,
   onClose,
@@ -245,6 +246,7 @@ export function AddPlaceModal({
   onSubmitted,
 }: {
   initialVenue: Venue | null;
+  initialManualName?: string;
   existing: Place[];
   onOpenExisting: (place: Place) => void;
   onClose: () => void;
@@ -252,8 +254,8 @@ export function AddPlaceModal({
   onSubmitted: () => void;
 }) {
   const { t, serverError } = useI18n();
-  const [manual, setManual] = useState(false);
-  const [manualName, setManualName] = useState("");
+  const [manual, setManual] = useState(initialManualName !== undefined);
+  const [manualName, setManualName] = useState(initialManualName ?? "");
   const [street, setStreet] = useState("");
   const [postcode, setPostcode] = useState("");
   const [venue, setVenue] = useState<Venue | null>(initialVenue);

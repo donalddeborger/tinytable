@@ -116,8 +116,14 @@ function fold(text: string): string {
   return text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+// Elk gezocht woord moet in de naam voorkomen (ook als begin van een woord:
+// "peerde" → De Peerdestal). "Thyme" geeft dus geen "Thamel".
 function matchesName(name: string, q: string): boolean {
-  return fold(name).includes(fold(q));
+  const target = fold(name);
+  return fold(q)
+    .split(/[^a-z0-9]+/)
+    .filter(Boolean)
+    .every((word) => target.includes(word));
 }
 
 function dedupe(venues: Venue[]): Venue[] {
@@ -159,9 +165,6 @@ export async function GET(request: Request) {
     }
   }
 
-  // Zaken waarvan de naam echt overeenkomt eerst.
-  const sorted = [...venues].sort(
-    (a, b) => Number(matchesName(b.name, q)) - Number(matchesName(a.name, q)),
-  );
-  return NextResponse.json(dedupe(sorted).slice(0, 15));
+  // Alleen zaken waarvan de naam echt overeenkomt.
+  return NextResponse.json(dedupe(venues.filter((v) => matchesName(v.name, q))).slice(0, 15));
 }
