@@ -245,9 +245,6 @@ function Shell() {
               <small>{t.tagline}</small>
             </a>
             <div className="brand-actions">
-              <button className="btn btn-primary btn-compact desktop-only" onClick={() => startAdding()}>
-                <PlusIcon size={16} /> {t.add}
-              </button>
               <LangSwitch />
             </div>
           </div>
@@ -426,6 +423,10 @@ function Shell() {
             <PlusIcon size={24} />
           </button>
         </div>
+
+        <button className="fab fab-desktop desktop-only" onClick={() => startAdding()} aria-label={t.addPlace}>
+          <PlusIcon size={22} /> <span>{t.add}</span>
+        </button>
 
         {toast ? <div className="toast" role="status">{toast}</div> : null}
 

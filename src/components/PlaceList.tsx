@@ -138,6 +138,9 @@ export function PlaceList({
           })}
         </ul>
       )}
+      <p className="list-footer">
+        <a href="/over">{t.aboutLink}</a>
+      </p>
     </div>
   );
 }

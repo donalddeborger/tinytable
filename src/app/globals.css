@@ -1996,3 +1996,42 @@ h3 {
     box-shadow: none;
   }
 }
+
+.list-footer {
+  margin: 18px 0 8px;
+  text-align: center;
+  font-size: 0.82rem;
+}
+
+.list-footer a {
+  color: var(--muted);
+}
+
+/* ---------- Toevoegen-knop rechtsonder op de kaart (desktop) ---------- */
+
+@media (min-width: 900px) {
+  .fab.fab-desktop {
+    position: absolute;
+    z-index: 500;
+    right: 20px;
+    bottom: 24px;
+    width: auto;
+    height: 52px;
+    padding: 0 20px 0 16px;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  /* Zoomknoppen boven de toevoegen-knop */
+  .leaflet-bottom.leaflet-right {
+    bottom: 84px;
+  }
+
+  .app[data-overlay="1"] .fab.fab-desktop {
+    display: none !important;
+  }
+}
