@@ -442,7 +442,7 @@ export function AddPlaceModal({
             <AmenityEditor value={amenities} onChange={setAmenities} />
             <label className="field">
               <span>{t.note}</span>
-              <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+              <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} placeholder={t.notePlaceholder} />
             </label>
             <BotTrap value={trap} onChange={setTrap} />
             {error ? <p className="form-error">{error}</p> : null}
@@ -525,7 +525,7 @@ export function AddPlaceModal({
             <AmenityEditor value={amenities} onChange={setAmenities} />
             <label className="field">
               <span>{t.note}</span>
-              <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} />
+              <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} placeholder={t.notePlaceholder} />
             </label>
             <BotTrap value={trap} onChange={setTrap} />
             {error ? <p className="form-error">{error}</p> : null}
