@@ -2096,3 +2096,56 @@ h3 {
 .menu-panel a:focus-visible {
   background: var(--brand-soft);
 }
+
+.menu-install {
+  margin-top: 6px;
+  padding: 11px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.92rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.install-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px 16px calc(16px + var(--safe-bottom));
+  background: rgba(23, 23, 31, 0.35);
+}
+
+.install-help {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: var(--shadow-lg);
+}
+
+.install-help h2 {
+  margin: 0 0 10px;
+  font-family: var(--display);
+  font-size: 1.15rem;
+}
+
+.install-help ol {
+  margin: 0 0 16px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.install-help .btn {
+  width: 100%;
+}

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
@@ -59,10 +60,81 @@ function HeartTile() {
   );
 }
 
+// ---------- Zet op beginscherm (alleen gsm) ----------
+type InstallPromptEvent = Event & { prompt: () => Promise<void>; userChoice: Promise<{ outcome: string }> };
+
+// Android/Chrome stuurt dit signaal soms vóór React klaar is: daarom meteen opvangen.
+let deferredInstall: InstallPromptEvent | null = null;
+if (typeof window !== "undefined") {
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstall = event as InstallPromptEvent;
+  });
+  window.addEventListener("appinstalled", () => {
+    deferredInstall = null;
+  });
+}
+
+type InstallMode = "hidden" | "ios" | "android";
+
+function useInstallMode(): InstallMode {
+  const [mode, setMode] = useState<InstallMode>("hidden");
+  useEffect(() => {
+    const nav = window.navigator as Navigator & { standalone?: boolean };
+    const installed = window.matchMedia("(display-mode: standalone)").matches || nav.standalone === true;
+    const ua = nav.userAgent;
+    const ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && nav.maxTouchPoints > 1);
+    const mobile = ios || /Android|Mobi/i.test(ua);
+    if (installed || !mobile) return;
+    setMode(ios ? "ios" : "android");
+  }, []);
+  return mode;
+}
+
+function InstallHelp({ mode, onClose }: { mode: InstallMode; onClose: () => void }) {
+  const { t } = useI18n();
+  return createPortal(
+    <div className="install-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="install-help"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="install-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="install-title">{t.installTitle}</h2>
+        <ol>
+          {(mode === "ios" ? t.installStepsIos : t.installStepsAndroid).map((step) => (
+            <li key={step}>{step}</li>
+          ))}
+        </ol>
+        <button className="btn btn-primary" onClick={onClose}>
+          {t.installOk}
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 // Menu rechtsboven: over-pagina, uitleg, contact en privacy.
 function SiteMenu() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
+  const installMode = useInstallMode();
+  const [showHelp, setShowHelp] = useState(false);
+
+  const install = async () => {
+    setOpen(false);
+    track("install_click");
+    if (installMode === "android" && deferredInstall) {
+      const prompt = deferredInstall;
+      deferredInstall = null;
+      await prompt.prompt();
+      return;
+    }
+    setShowHelp(true);
+  };
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,8 +171,14 @@ function SiteMenu() {
           <a href="/over#hartjes">{t.menuHearts}</a>
           <a href="/over#contact">{t.menuContact}</a>
           <a href="/over#privacy">{t.menuPrivacy}</a>
+          {installMode !== "hidden" ? (
+            <button className="menu-install" onClick={install}>
+              {t.menuInstall}
+            </button>
+          ) : null}
         </nav>
       ) : null}
+      {showHelp ? <InstallHelp mode={installMode} onClose={() => setShowHelp(false)} /> : null}
     </div>
   );
 }
