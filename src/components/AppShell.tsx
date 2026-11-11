@@ -6,7 +6,6 @@ import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
   AMENITY_ICON,
-  ClockIcon,
   MenuIcon,
   CloseIcon,
   ListIcon,
@@ -15,7 +14,6 @@ import {
   PinIcon,
   PlusIcon,
   SearchIcon,
-  TYPE_EMOJI,
 } from "@/components/Icons";
 import { AMENITIES, isWelcome } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
@@ -23,8 +21,7 @@ import { placeSlugs } from "@/lib/slug";
 import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
-import type { AmenityKey, Place, PlaceType, Venue } from "@/lib/types";
-import { isOpenAt } from "@/lib/hours";
+import type { AmenityKey, Place, Venue } from "@/lib/types";
 
 const MapCanvas = dynamic(
   () => import("@/components/MapCanvas").then((mod) => mod.MapCanvas),
@@ -123,15 +120,13 @@ function LangSwitch() {
 }
 
 function Shell() {
-  const { t, amenity, typeLabel } = useI18n();
+  const { t, amenity } = useI18n();
   const [places, setPlaces] = useState<Place[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [selected, setSelected] = useState<Place | null>(null);
   const [filter, setFilter] = useState<AmenityKey | "all" | "welcome">("all");
-  const [typeFilter, setTypeFilter] = useState<PlaceType | null>(null);
-  const [openNow, setOpenNow] = useState(false);
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
@@ -224,15 +219,12 @@ function Shell() {
   }, [query, places]);
 
   const filtered = useMemo(() => {
-    const now = new Date();
     return places.filter(
       (place) =>
-        (filter === "all" ||
-          (filter === "welcome" ? isWelcome(place.amenities) : place.amenities[filter] === true)) &&
-        (!typeFilter || place.type === typeFilter) &&
-        (!openNow || isOpenAt(place.openingHours, now) === true),
+        filter === "all" ||
+        (filter === "welcome" ? isWelcome(place.amenities) : place.amenities[filter] === true),
     );
-  }, [places, filter, typeFilter, openNow]);
+  }, [places, filter]);
 
   const slugs = useMemo(() => placeSlugs(places), [places]);
 
@@ -375,36 +367,11 @@ function Shell() {
 
           <div className="chips" role="group" aria-label={t.filterLabel}>
             <button
-              className={`chip chip-all ${filter === "all" && !typeFilter && !openNow ? "on" : ""}`}
-              onClick={() => {
-                setFilter("all");
-                setTypeFilter(null);
-                setOpenNow(false);
-              }}
+              className={`chip chip-all ${filter === "all" ? "on" : ""}`}
+              onClick={() => setFilter("all")}
             >
               {t.all}
             </button>
-            <button
-              className={`chip chip-open ${openNow ? "on" : ""}`}
-              onClick={() => {
-                if (!openNow) track("Filter", { filter: "nu open" });
-                setOpenNow(!openNow);
-              }}
-            >
-              <ClockIcon size={16} /> {t.openNow}
-            </button>
-            {(["restaurant", "cafe", "bar"] as PlaceType[]).map((pt) => (
-              <button
-                key={pt}
-                className={`chip chip-type ${typeFilter === pt ? "on" : ""}`}
-                onClick={() => {
-                  if (typeFilter !== pt) track("Filter", { filter: pt });
-                  setTypeFilter(typeFilter === pt ? null : pt);
-                }}
-              >
-                <span aria-hidden="true">{TYPE_EMOJI[pt]}</span> {typeLabel(pt)}
-              </button>
-            ))}
             {AMENITIES.map((item) => {
               const Icon = AMENITY_ICON[item.key];
               return (
