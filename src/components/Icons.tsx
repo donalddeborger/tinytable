@@ -123,23 +123,33 @@ export const KidsMenuIcon = (p: IconProps) => (
   </Svg>
 );
 
+export const PlaygroundIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M4 21V9l4-4 4 4v12" />
+    <path d="M4 13h8" />
+    <path d="M12 9c3 0 5 2 6 5l2 7" />
+    <path d="M17 21h4" />
+  </Svg>
+);
+
 export const AMENITY_ICON: Record<AmenityKey, (p: IconProps) => React.JSX.Element> = {
   changingTable: ChangingTableIcon,
   highChairs: HighChairIcon,
   playCorner: PlayCornerIcon,
   kidsMenu: KidsMenuIcon,
+  playground: PlaygroundIcon,
 };
 
 export const TYPE_LABEL: Record<PlaceType, string> = {
   restaurant: "Restaurant",
-  bar: "Bar",
+  bar: "Koffiebar",
   cafe: "Café",
 };
 
 export const TYPE_EMOJI: Record<PlaceType, string> = {
   restaurant: "🍽️",
-  bar: "🍹",
-  cafe: "☕",
+  cafe: "🍻",
+  bar: "☕",
 };
 
 export function LogoMark({ size = 32 }: { size?: number }) {

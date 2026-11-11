@@ -73,7 +73,7 @@ export function AppShell() {
 
     const local: SearchHit[] = places
       .filter((place) =>
-        `${place.name} ${place.address}`.toLowerCase().includes(trimmed.toLowerCase()),
+        place.name.toLowerCase().includes(trimmed.toLowerCase()),
       )
       .map((place) => ({
         key: `local-${place.id}`,
@@ -88,7 +88,7 @@ export function AppShell() {
     if (trimmed.length < 3) return;
 
     const timer = window.setTimeout(() => {
-      void fetch(`/api/geocode?q=${encodeURIComponent(trimmed)}`)
+      void fetch(`/api/geocode?venues=1&q=${encodeURIComponent(trimmed)}`)
         .then((response) => (response.ok ? response.json() : []))
         .then((remote: Venue[]) => {
           const extra: SearchHit[] = remote
@@ -187,7 +187,7 @@ export function AppShell() {
             <input
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              placeholder="Zoek een restaurant, café of straat"
+              placeholder="Zoek een restaurant, café of koffiebar"
               aria-label="Zoeken"
               enterKeyHint="search"
             />

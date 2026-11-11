@@ -6,15 +6,16 @@ import { NOMINATIM_HEADERS, shortAddress, type NominatimResult } from "@/lib/osm
 export const runtime = "nodejs";
 
 // OpenStreetMap-categorieën die we als horeca beschouwen.
+// OSM "cafe" = koffiezaak → koffiebar ("bar"); OSM bar/pub = Belgisch café ("cafe").
 const VENUE_TYPES: Record<string, PlaceType> = {
   restaurant: "restaurant",
   fast_food: "restaurant",
   food_court: "restaurant",
-  cafe: "cafe",
-  ice_cream: "cafe",
-  bar: "bar",
-  pub: "bar",
-  biergarten: "bar",
+  cafe: "bar",
+  ice_cream: "bar",
+  bar: "cafe",
+  pub: "cafe",
+  biergarten: "cafe",
 };
 
 export async function GET(request: Request) {

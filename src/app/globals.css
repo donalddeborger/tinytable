@@ -26,6 +26,8 @@
   --sky-soft: #ddeeff;
   --butter: #c48b0c;
   --butter-soft: #fff1c7;
+  --lilac: #8a64d6;
+  --lilac-soft: #efe7ff;
   --radius: 18px;
   --radius-lg: 26px;
   --shadow-sm: 0 1px 2px rgba(23, 23, 31, 0.06), 0 2px 8px rgba(23, 23, 31, 0.06);
@@ -42,6 +44,7 @@
 .am-highChairs { --am: var(--mint); --am-soft: var(--mint-soft); }
 .am-playCorner { --am: var(--sky); --am-soft: var(--sky-soft); }
 .am-kidsMenu { --am: var(--butter); --am-soft: var(--butter-soft); }
+.am-playground { --am: var(--lilac); --am-soft: var(--lilac-soft); }
 
 html,
 body {
@@ -832,6 +835,11 @@ h3 {
   min-width: 0;
 }
 
+/* Vijfde voorziening: laatste tegel over de volle breedte */
+.amenity-grid > .amenity-tile:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .amenity-tile strong {
   display: block;
   font-size: 0.84rem;
@@ -1319,4 +1327,18 @@ h3 {
   width: 1px;
   height: 1px;
   overflow: hidden;
+}
+
+.venue.locked {
+  margin-top: 0;
+}
+
+.lock-note {
+  flex: none;
+  background: var(--surface);
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 4px 9px;
+  font-size: 0.72rem;
+  font-weight: 700;
 }

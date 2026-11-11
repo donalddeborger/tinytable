@@ -1,10 +1,12 @@
+// "cafe" = Belgisch café; "bar" = koffiebar (zo opgeslagen in de database).
 export type PlaceType = "restaurant" | "bar" | "cafe";
 
 export type AmenityKey =
   | "changingTable"
   | "highChairs"
   | "playCorner"
-  | "kidsMenu";
+  | "kidsMenu"
+  | "playground";
 
 export type AmenityValue = boolean | null;
 

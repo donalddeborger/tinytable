@@ -57,8 +57,11 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
     setEditing(true);
   }
 
+  // Zaken die via de zoekfunctie zijn toegevoegd: naam en adres liggen vast.
+  const locked = Boolean(place.osmId);
+
   async function save() {
-    if (!name.trim()) {
+    if (!locked && !name.trim()) {
       setError("Geef de plek een naam");
       return;
     }
@@ -68,8 +71,8 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
       const next = await sendJson<Place>(`/api/places/${place.id}`, "PATCH", {
         amenities,
         note,
-        name,
-        address,
+        // Opgezochte zaken: naam en adres liggen vast.
+        ...(locked ? {} : { name, address }),
         type,
         website: trap,
       });
@@ -113,14 +116,29 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
       {editing ? (
         <div className="edit-block">
           <h3>Gegevens</h3>
-          <label className="field">
-            <span>Naam</span>
-            <input value={name} onChange={(event) => setName(event.target.value)} />
-          </label>
-          <label className="field">
-            <span>Adres</span>
-            <input value={address} onChange={(event) => setAddress(event.target.value)} />
-          </label>
+          {locked ? (
+            <div className="venue picked locked">
+              <span className={`type-tile small type-${type}`} aria-hidden>
+                {TYPE_EMOJI[type]}
+              </span>
+              <span className="venue-body">
+                <strong>{place.name}</strong>
+                <small>{place.address}</small>
+              </span>
+              <span className="lock-note">Vast</span>
+            </div>
+          ) : (
+            <>
+              <label className="field">
+                <span>Naam</span>
+                <input value={name} onChange={(event) => setName(event.target.value)} />
+              </label>
+              <label className="field">
+                <span>Adres</span>
+                <input value={address} onChange={(event) => setAddress(event.target.value)} />
+              </label>
+            </>
+          )}
           <TypePicker value={type} onChange={setType} />
 
           <h3>Wat is er voor kinderen?</h3>
@@ -345,7 +363,7 @@ export function AddPlaceModal({
         {!venue ? (
           <>
             <p className="muted small step-hint">
-              Zoek de zaak op. Naam en adres komen uit OpenStreetMap, zo kloppen ze altijd.
+              Zoek de zaak op naam en kies ze uit de lijst.
             </p>
             <div className="search search-inline">
               <SearchIcon size={18} />

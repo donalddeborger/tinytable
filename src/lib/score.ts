@@ -30,37 +30,23 @@ export const AMENITIES: {
     short: "Menu",
     hint: "Aangepast kindermenu of kindergerechten",
   },
+  {
+    key: "playground",
+    label: "Buiten\u00ADspeeltuin",
+    short: "Speeltuin",
+    hint: "Een speeltuin buiten, bij of vlak naast de zaak",
+  },
 ];
 
-const WEIGHTS: Record<AmenityKey, number> = {
-  changingTable: 3,
-  highChairs: 3,
-  playCorner: 2,
-  kidsMenu: 2,
-};
-
-export function kidScore(
+// Score op 5: elk aanwezige voorziening is één hartje.
+export function kidRating(
   amenities: Partial<Amenities> | null | undefined,
 ): number | null {
   if (!amenities) return null;
   // Zolang niets ingevuld is (alles "?"), is er nog geen score.
-  const known = AMENITIES.filter(
-    (item) => typeof amenities[item.key] === "boolean",
-  );
+  const known = AMENITIES.filter((item) => typeof amenities[item.key] === "boolean");
   if (known.length === 0) return null;
-  return AMENITIES.reduce(
-    (sum, item) => sum + (amenities[item.key] === true ? WEIGHTS[item.key] : 0),
-    0,
-  );
-}
-
-// Score op 5 (in halve stappen), afgeleid van de punten op 10.
-export function kidRating(
-  amenities: Partial<Amenities> | null | undefined,
-): number | null {
-  const points = kidScore(amenities);
-  if (points === null) return null;
-  return Math.round(points) / 2;
+  return AMENITIES.filter((item) => amenities[item.key] === true).length;
 }
 
 export function scoreLabel(rating: number | null): string {
@@ -82,6 +68,7 @@ export function emptyAmenities(): Amenities {
     highChairs: null,
     playCorner: null,
     kidsMenu: null,
+    playground: null,
   };
 }
 

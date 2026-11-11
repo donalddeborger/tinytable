@@ -248,3 +248,28 @@ create index if not exists place_edits_place on private.place_edits (place_id, c
 -- schrijven naar public.places en loggen in private.place_edits.
 -- add_place_v3 aanvaardt enkel locaties in Antwerpen.
 -- (Volledige definities: zie Supabase, migratie van 10 nov 2026.)
+
+-- ---------------------------------------------------------------
+-- 11 nov 2026: vijfde voorziening "playground" (buitenspeeltuin) in
+-- public.clean_amenities. Type "bar" betekent voortaan koffiebar;
+-- "cafe" is een Belgisch café.
+-- ---------------------------------------------------------------
+create or replace function public.clean_amenities(input jsonb)
+returns jsonb
+language sql
+immutable
+set search_path = ''
+as $$
+  select jsonb_build_object(
+    'changingTable', case when jsonb_typeof(input->'changingTable') = 'boolean' then input->'changingTable' else 'null'::jsonb end,
+    'highChairs',    case when jsonb_typeof(input->'highChairs')    = 'boolean' then input->'highChairs'    else 'null'::jsonb end,
+    'playCorner',    case when jsonb_typeof(input->'playCorner')    = 'boolean' then input->'playCorner'    else 'null'::jsonb end,
+    'kidsMenu',      case when jsonb_typeof(input->'kidsMenu')      = 'boolean' then input->'kidsMenu'      else 'null'::jsonb end,
+    'playground',    case when jsonb_typeof(input->'playground')    = 'boolean' then input->'playground'    else 'null'::jsonb end
+  );
+$$;
+comment on column public.places.type is 'restaurant | cafe (Belgisch café) | bar (= koffiebar)';
+
+-- 11 nov 2026: update_place_v3 laat naam en adres ongemoeid voor zaken met
+-- een osm_id (opgezocht via de zoekfunctie); alleen zaken zonder osm_id
+-- kunnen nog van naam/adres veranderen.
