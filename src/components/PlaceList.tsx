@@ -24,7 +24,11 @@ export function sortPlaces(
   sort: SortMode,
   origin: LatLng | null,
 ): Place[] {
-  const list = [...places];
+  // "Dichtbij": alleen zaken met minstens 1 hartje.
+  const list =
+    sort === "distance" && origin
+      ? places.filter((place) => (kidRating(place.amenities) ?? 0) >= 1)
+      : [...places];
   if (sort === "distance" && origin) {
     list.sort((a, b) => distanceKm(origin, a) - distanceKm(origin, b));
   } else {
@@ -75,8 +79,8 @@ export function PlaceList({
     <div className="place-list">
       <div className="list-head">
         <p className="list-count">
-          <strong>{places.length}</strong>{" "}
-          {places.length === 1 ? t.place : t.places}
+          <strong>{sorted.length}</strong>{" "}
+          {sorted.length === 1 ? t.place : t.places}
         </p>
         <div className="segmented small" role="group" aria-label={t.sort}>
           <button
