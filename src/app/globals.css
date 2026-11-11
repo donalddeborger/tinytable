@@ -373,7 +373,7 @@ h3 {
 }
 
 .result-icon.result-local {
-  background: transparent;
+  background: #ffe8ef;
 }
 
 .chips {
@@ -1530,4 +1530,107 @@ h3 {
 
 .result-manual strong {
   color: var(--brand-ink);
+}
+
+/* ---------- Hoofding: woordmerk in twee tinten ---------- */
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  color: var(--ink);
+}
+
+.wordmark {
+  display: flex;
+  align-items: baseline;
+  font-family: var(--display);
+  font-size: 1.75rem;
+  letter-spacing: 0.05em;
+  line-height: 1;
+}
+
+.wm-tiny {
+  font-weight: 400;
+  color: var(--brand);
+}
+
+.wm-table {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.brand small {
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.brand-row {
+  align-items: flex-start;
+}
+
+.lang-switch {
+  align-items: center;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+}
+
+.lang-switch button {
+  min-width: 0;
+  padding: 6px 6px;
+  color: #8a8096;
+  background: transparent;
+}
+
+.lang-switch button.on {
+  background: transparent;
+  color: var(--ink);
+}
+
+.lang-sep {
+  width: 1px;
+  height: 14px;
+  background: #d9d1c4;
+}
+
+.search {
+  border-radius: 16px;
+  border: 1.5px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+
+.search > svg {
+  color: var(--brand);
+}
+
+.chip.chip-all.on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #ffffff;
+}
+
+.brand-row {
+  position: relative;
+}
+
+.brand-actions {
+  position: absolute;
+  top: -2px;
+  right: 0;
+  gap: 8px;
+}
+
+.btn.btn-compact {
+  min-height: 0;
+  height: 32px;
+  padding: 0 12px;
+  font-size: 0.82rem;
+  gap: 4px;
 }

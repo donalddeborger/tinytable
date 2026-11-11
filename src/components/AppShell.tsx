@@ -9,7 +9,6 @@ import {
   CloseIcon,
   ListIcon,
   LocateIcon,
-  LogoMark,
   MapIcon,
   PinIcon,
   PlusIcon,
@@ -46,6 +45,18 @@ export function AppShell() {
   );
 }
 
+// Klein hartje voor zaken die al in TinyTable staan (zoekresultaten).
+function HeartTile() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"
+        fill="var(--heart)"
+      />
+    </svg>
+  );
+}
+
 function LangSwitch() {
   const { lang, setLang, t } = useI18n();
   return (
@@ -53,6 +64,7 @@ function LangSwitch() {
       <button className={lang === "nl" ? "on" : ""} onClick={() => { setLang("nl"); track("Taal", { taal: "nl" }); }} lang="nl">
         NL
       </button>
+      <span className="lang-sep" aria-hidden="true" />
       <button className={lang === "en" ? "on" : ""} onClick={() => { setLang("en"); track("Taal", { taal: "en" }); }} lang="en">
         EN
       </button>
@@ -205,15 +217,15 @@ function Shell() {
         <div className="panel-top">
           <div className="brand-row">
             <a className="brand" href="/" aria-label="TinyTable">
-              <LogoMark size={34} />
-              <span>
-                <strong>TinyTable</strong>
-                <small>{t.tagline}</small>
+              <span className="wordmark" aria-hidden="true">
+                <span className="wm-tiny">TINY</span>
+                <span className="wm-table">TABLE</span>
               </span>
+              <small>{t.tagline}</small>
             </a>
             <div className="brand-actions">
-              <button className="btn btn-primary desktop-only" onClick={() => startAdding()}>
-                <PlusIcon size={18} /> {t.add}
+              <button className="btn btn-primary btn-compact desktop-only" onClick={() => startAdding()}>
+                <PlusIcon size={16} /> {t.add}
               </button>
               <LangSwitch />
             </div>
@@ -256,7 +268,7 @@ function Shell() {
                     }}
                   >
                     <span className={`result-icon result-${hit.source}`}>
-                      {hit.source === "local" ? <LogoMark size={22} /> : <PinIcon size={18} />}
+                      {hit.source === "local" ? <HeartTile /> : <PinIcon size={18} />}
                     </span>
                     <span>
                       <strong>{hit.name}</strong>
@@ -298,7 +310,7 @@ function Shell() {
 
           <div className="chips" role="group" aria-label={t.filterLabel}>
             <button
-              className={`chip ${filter === "all" ? "on" : ""}`}
+              className={`chip chip-all ${filter === "all" ? "on" : ""}`}
               onClick={() => setFilter("all")}
             >
               {t.all}
