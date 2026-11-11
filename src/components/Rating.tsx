@@ -47,26 +47,27 @@ export function Hearts({
   );
 }
 
-// Label "Kindvriendelijk" / "Family friendly" (vanaf 3 hartjes).
-export function WelcomeBadge({ large = false }: { large?: boolean }) {
+// Label "Kindvriendelijk" (4 hartjes) of "Super kindvriendelijk" (5 hartjes).
+export function WelcomeBadge({ large = false, isSuper = false }: { large?: boolean; isSuper?: boolean }) {
   const { t } = useI18n();
+  const label = isSuper ? t.superWelcome : t.welcome;
   if (large) {
     return (
-      <div className="welcome-banner">
+      <div className={`welcome-banner${isSuper ? " is-super" : ""}`}>
         <span className="welcome-mark">
           <ChairMark size={40} chair="var(--ink)" />
         </span>
         <span>
-          <strong>{t.welcome}</strong>
-          <small>{t.welcomeRule(WELCOME_MIN)}</small>
+          <strong>{label}</strong>
+          <small>{isSuper ? t.superRule : t.welcomeRule(WELCOME_MIN)}</small>
         </span>
       </div>
     );
   }
   return (
-    <span className="welcome-badge">
+    <span className={`welcome-badge${isSuper ? " is-super" : ""}`}>
       <ChairMark size={15} chair="var(--ink)" />
-      {t.welcome}
+      {label}
     </span>
   );
 }

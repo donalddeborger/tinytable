@@ -1,6 +1,6 @@
 "use client";
 
-import { AMENITIES, isWelcome, kidRating } from "@/lib/score";
+import { AMENITIES, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { useI18n } from "@/lib/i18n";
 import { distanceKm, type LatLng } from "@/lib/geo";
 import type { Place } from "@/lib/types";
@@ -118,7 +118,7 @@ export function PlaceList({
                     <span className="card-title">{place.name}</span>
                     <span className="card-rating">
                       <Hearts rating={rating} size={16} />
-                      {isWelcome(place.amenities) ? <WelcomeBadge /> : null}
+                      {isWelcome(place.amenities) ? <WelcomeBadge isSuper={isSuperWelcome(place.amenities)} /> : null}
                     </span>
                     <span className="card-meta">
                       {typeLabel(place.type)}

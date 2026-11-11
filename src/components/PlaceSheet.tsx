@@ -5,7 +5,7 @@ import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
 import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI } from "@/components/Icons";
 import { useI18n } from "@/lib/i18n";
-import { emptyAmenities, isWelcome, kidRating } from "@/lib/score";
+import { emptyAmenities, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
 import { isProvincePostcode } from "@/lib/antwerp";
@@ -109,7 +109,7 @@ export function PlaceSheet({ place, origin, onClose, onSaved }: Props) {
         </div>
       </div>
 
-      {isWelcome(place.amenities) ? <WelcomeBadge large /> : null}
+      {isWelcome(place.amenities) ? <WelcomeBadge large isSuper={isSuperWelcome(place.amenities)} /> : null}
 
       {editing ? (
         <div className="edit-block">
