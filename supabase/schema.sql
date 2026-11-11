@@ -292,3 +292,6 @@ comment on column public.places.type is 'restaurant | cafe (Belgisch café) | ba
 --   places: source ('user'|'osm'), confirm_count, last_confirmed_at, opening_hours
 --   confirm_place_v1(p_token, p_client, p_id): "Klopt dit nog?" → Ja
 --   update_place_v3: telt ook als bevestiging (confirm_count + 1)
+
+-- 11 nov 2026: opgeruimd (lege tabel en ongebruikte oude functies verwijderd)
+--   drop table public.places_oud; drop function add_place, update_place, add_place_v2, update_place_v2

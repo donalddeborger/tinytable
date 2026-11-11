@@ -45,7 +45,6 @@ const nl = {
   showOnMap: "Toon op de kaart",
   filterLabel: "Filter op voorziening",
   all: "Alles",
-  openNow: "Nu open",
   openNowState: "Nu open",
   closedNow: "Nu gesloten",
   hoursLabel: "Openingsuren",
@@ -79,7 +78,6 @@ const nl = {
   dontKnow: "Weet ik niet",
   close: "Sluiten",
   helpParents: "Help andere ouders en vul in wat er is",
-  basedOnParents: "op basis van wat ouders invulden",
   details: "Gegevens",
   locked: "Vast",
   name: "Naam",
@@ -119,13 +117,8 @@ const nl = {
   lookingUp: "Adres opzoeken…",
   change: "Wijzig",
   kidFriendliness: "Kindvriendelijkheid",
-  notRated: "Nog niet beoordeeld",
   notRatedLower: "nog niet beoordeeld",
   outOf5: (r: string) => `${r} op 5`,
-  scoreGreat: "Heel kindvriendelijk",
-  scoreGood: "Redelijk kindvriendelijk",
-  scoreFair: "Beperkt kindvriendelijk",
-  scoreLow: "Weinig voorzieningen",
   switchTo: "Switch to English",
   notFoundQ: "Zaak niet gevonden?",
   addManually: "Voeg ze zelf toe",
@@ -156,7 +149,6 @@ const en: Dict = {
   showOnMap: "Show on map",
   filterLabel: "Filter by facility",
   all: "All",
-  openNow: "Open now",
   openNowState: "Open now",
   closedNow: "Closed now",
   hoursLabel: "Opening hours",
@@ -190,7 +182,6 @@ const en: Dict = {
   dontKnow: "Don't know",
   close: "Close",
   helpParents: "Help other parents and fill in what's there",
-  basedOnParents: "based on what parents reported",
   details: "Details",
   locked: "Fixed",
   name: "Name",
@@ -230,13 +221,8 @@ const en: Dict = {
   lookingUp: "Looking up address…",
   change: "Change",
   kidFriendliness: "Kid-friendliness",
-  notRated: "Not rated yet",
   notRatedLower: "not rated yet",
   outOf5: (r: string) => `${r} out of 5`,
-  scoreGreat: "Very kid-friendly",
-  scoreGood: "Fairly kid-friendly",
-  scoreFair: "Somewhat kid-friendly",
-  scoreLow: "Few facilities",
   switchTo: "Overschakelen naar Nederlands",
   notFoundQ: "Can't find the place?",
   addManually: "Add it yourself",
@@ -278,7 +264,6 @@ export type I18n = {
   t: Dict;
   amenity: (key: AmenityKey) => AmenityText;
   typeLabel: (type: PlaceType) => string;
-  scoreLabel: (rating: number | null) => string;
   ratingText: (rating: number | null) => string;
   formatDistance: (km: number) => string;
   formatDate: (iso: string) => string;
@@ -295,13 +280,6 @@ function build(lang: Lang, setLang: (lang: Lang) => void): I18n {
     t,
     amenity: (key) => AMENITY_TEXT[lang][key],
     typeLabel: (type) => TYPE_TEXT[lang][type],
-    scoreLabel: (rating) => {
-      if (rating === null) return t.notRated;
-      if (rating >= 4) return t.scoreGreat;
-      if (rating >= 2.5) return t.scoreGood;
-      if (rating >= 1.5) return t.scoreFair;
-      return t.scoreLow;
-    },
     ratingText: (rating) =>
       rating === null ? t.notRatedLower : t.outOf5(Number.isInteger(rating) ? String(rating) : decimal(rating, 1)),
     formatDistance: (km) =>

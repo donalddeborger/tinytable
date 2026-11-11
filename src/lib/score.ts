@@ -1,47 +1,13 @@
 import type { Amenities, AmenityKey } from "./types";
 
-export const AMENITIES: {
-  key: AmenityKey;
-  label: string;
-  short: string;
-  hint: string;
-}[] = [
-  {
-    key: "changingTable",
-    label: "Verschonings\u00ADtafel",
-    short: "Verschonen",
-    hint: "Een tafel of kamer om de baby te verschonen",
-  },
-  {
-    key: "highChairs",
-    label: "Kinder\u00ADstoelen",
-    short: "Stoelen",
-    hint: "Hoogstoelen of kinderstoelen aan tafel",
-  },
-  {
-    key: "playCorner",
-    label: "Speelhoek",
-    short: "Spelen",
-    hint: "Een hoekje of speelgoed voor kinderen",
-  },
-  {
-    key: "kidsMenu",
-    label: "Kinder\u00ADmenu",
-    short: "Menu",
-    hint: "Aangepast kindermenu of kindergerechten",
-  },
-  {
-    key: "playground",
-    label: "Buiten\u00ADspeeltuin",
-    short: "Speeltuin",
-    hint: "Een speeltuin buiten, bij of vlak naast de zaak",
-  },
-  {
-    key: "stroller",
-    label: "Kinderwagen\u00ADvriendelijk",
-    short: "Kinderwagen",
-    hint: "Vlot binnen en genoeg plaats voor een kinderwagen",
-  },
+// De zes voorzieningen, in vaste volgorde (teksten staan in i18n.tsx).
+export const AMENITIES: { key: AmenityKey }[] = [
+  { key: "changingTable" },
+  { key: "highChairs" },
+  { key: "playCorner" },
+  { key: "kidsMenu" },
+  { key: "playground" },
+  { key: "stroller" },
 ];
 
 // Gewicht per voorziening: de vier basisvoorzieningen tellen voor een heel
@@ -67,19 +33,6 @@ export function kidRating(
     (sum, item) => sum + (amenities[item.key] === true ? AMENITY_WEIGHT[item.key] : 0),
     0,
   );
-}
-
-export function scoreLabel(rating: number | null): string {
-  if (rating === null) return "Nog niet beoordeeld";
-  if (rating >= 4) return "Heel kindvriendelijk";
-  if (rating >= 2.5) return "Redelijk kindvriendelijk";
-  if (rating >= 1.5) return "Beperkt kindvriendelijk";
-  return "Weinig voorzieningen";
-}
-
-export function ratingText(rating: number | null): string {
-  if (rating === null) return "nog niet beoordeeld";
-  return `${String(rating).replace(".", ",")} op 5`;
 }
 
 export function emptyAmenities(): Amenities {

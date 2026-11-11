@@ -83,12 +83,6 @@ export const PinIcon = (p: IconProps) => (
   </Svg>
 );
 
-export const CheckIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <path d="m5 12.5 4.5 4.5L19 7.5" />
-  </Svg>
-);
-
 export const EditIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4 20h4L19 9l-4-4L4 16v4Z" />
@@ -138,13 +132,6 @@ export const PlaygroundIcon = (p: IconProps) => (
   </Svg>
 );
 
-export const ClockIcon = (p: IconProps) => (
-  <Svg {...p}>
-    <circle cx="12" cy="12" r="8.5" />
-    <path d="M12 7.5V12l3 2" />
-  </Svg>
-);
-
 export const StrollerIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M4 5h3l2 9h9l2-6H8" />
@@ -161,12 +148,6 @@ export const AMENITY_ICON: Record<AmenityKey, (p: IconProps) => React.JSX.Elemen
   kidsMenu: KidsMenuIcon,
   playground: PlaygroundIcon,
   stroller: StrollerIcon,
-};
-
-export const TYPE_LABEL: Record<PlaceType, string> = {
-  restaurant: "Restaurant",
-  bar: "Koffiebar",
-  cafe: "Café",
 };
 
 export const TYPE_EMOJI: Record<PlaceType, string> = {
@@ -197,16 +178,3 @@ export function ChairMark({
   );
 }
 
-export function LogoMark({ size = 32 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 120 120" aria-hidden="true">
-      <rect width="120" height="120" rx="36" fill="var(--brand)" />
-      <g transform="translate(14 12) scale(0.77)">
-        <rect x="33" y="8" width="54" height="48" rx="16" fill="#ffffff" />
-        <path d="M60 42s-9.5-5.8-11.8-11.6c-1.7-4.2 1-8.6 5.5-8.6 2.5 0 4.5 1.4 6.3 3.7 1.8-2.3 3.8-3.7 6.3-3.7 4.5 0 7.2 4.4 5.5 8.6C69.5 36.2 60 42 60 42Z" fill="var(--heart)" />
-        <rect x="20" y="58" width="80" height="12" rx="6" fill="var(--sun)" />
-        <path d="M38 70 30 110M82 70l8 40M34 92h52" stroke="#ffffff" strokeWidth="9" strokeLinecap="round" fill="none" />
-      </g>
-    </svg>
-  );
-}
