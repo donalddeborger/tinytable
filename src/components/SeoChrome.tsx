@@ -31,8 +31,8 @@ export async function SeoFooter() {
   return (
     <footer className="seo-footer">
       {townList.length ? (
-        <nav aria-label="Per gemeente">
-          <h2>Per gemeente</h2>
+        <nav aria-label="Per district/gemeente">
+          <h2>Per district/gemeente</h2>
           <ul>
             {townList.map((t) => (
               <li key={t.slug}>
