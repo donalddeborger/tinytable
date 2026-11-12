@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { track } from "@vercel/analytics";
 import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
-import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI } from "@/components/Icons";
+import { CloseIcon, EditIcon, RouteIcon, SearchIcon, ShareIcon, TYPE_EMOJI } from "@/components/Icons";
 import { useI18n } from "@/lib/i18n";
 import { formatHours, todayHours } from "@/lib/hours";
 import { emptyAmenities, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
@@ -104,6 +105,7 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfir
   return (
     <aside className="sheet" aria-label={place.name}>
       <div className="grabber" aria-hidden />
+      <ShareButton name={place.name} pageHref={pageHref} />
       <button className="icon-btn close" onClick={onClose} aria-label={t.close}>
         <CloseIcon size={18} />
       </button>
@@ -231,6 +233,31 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfir
         </>
       )}
     </aside>
+  );
+}
+
+// Deel-icoon, alleen op gsm (daar opent het deelmenu: WhatsApp, Messenger, sms…).
+function ShareButton({ name, pageHref }: { name: string; pageHref: string }) {
+  const { t } = useI18n();
+  const [canShare, setCanShare] = useState(false);
+  useEffect(() => {
+    const ua = navigator.userAgent;
+    const mobile = /Android|iPhone|iPad|iPod|Mobi/i.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+    setCanShare(mobile && typeof navigator.share === "function");
+  }, []);
+  if (!canShare) return null;
+  const share = async () => {
+    track("Gedeeld", { zaak: name });
+    try {
+      await navigator.share({ title: `${name} | TinyTable`, text: t.shareText(name), url: new URL(pageHref, window.location.origin).toString() });
+    } catch {
+      /* geannuleerd */
+    }
+  };
+  return (
+    <button className="icon-btn share" onClick={share} aria-label={t.share}>
+      <ShareIcon size={18} />
+    </button>
   );
 }
 

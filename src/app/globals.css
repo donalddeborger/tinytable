@@ -806,6 +806,16 @@ h3 {
   background: var(--unknown-soft);
 }
 
+.sheet .share {
+  position: absolute;
+  top: 14px;
+  right: 58px;
+  width: 36px;
+  height: 36px;
+  background: var(--brand-soft);
+  color: var(--brand-ink);
+}
+
 .sheet-head {
   padding-right: 40px;
 }
