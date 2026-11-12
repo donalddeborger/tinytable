@@ -5,7 +5,7 @@ import { AmenityEditor, AmenityGlance } from "@/components/AmenityEditor";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
 import { CloseIcon, EditIcon, RouteIcon, SearchIcon, TYPE_EMOJI } from "@/components/Icons";
 import { useI18n } from "@/lib/i18n";
-import { isOpenAt } from "@/lib/hours";
+import { formatHours, todayHours } from "@/lib/hours";
 import { emptyAmenities, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
@@ -235,17 +235,36 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfir
 }
 
 function OpenState({ hours }: { hours: string }) {
-  const { t } = useI18n();
-  const open = isOpenAt(hours, new Date());
+  const { t, lang } = useI18n();
+  const now = new Date();
+  const today = todayHours(hours, now);
+  if (!today) {
+    return (
+      <p className="open-state small">
+        <span className="muted">
+          {t.hoursLabel}: {formatHours(hours, lang)}
+        </span>
+      </p>
+    );
+  }
+  const time = (v: string) => (v === "24:00" ? t.midnight : v);
+  let line: string;
+  if (today.lateUntil && today.open) line = t.openUntil(time(today.lateUntil));
+  else if (today.spans.length === 0) line = t.todayClosed;
+  else if (today.spans.length === 1 && today.spans[0][0] === "00:00" && today.spans[0][1] === "24:00") line = t.allDay;
+  else line = t.todayOpen(today.spans.map(([a, b]) => t.hourRange(time(a), time(b))).join(t.rangeAnd));
+  const title = `${t.hoursLabel}: ${formatHours(hours, lang)}`;
+  if (!today.open && today.spans.length === 0) {
+    return (
+      <p className="open-state small" title={title}>
+        <strong className="is-closed">{t.todayClosed}</strong>
+      </p>
+    );
+  }
   return (
-    <p className="open-state small">
-      {open === null ? null : (
-        <strong className={open ? "is-open" : "is-closed"}>{open ? t.openNowState : t.closedNow}</strong>
-      )}
-      <span className="muted" title={hours}>
-        {open === null ? "" : " · "}
-        {t.hoursLabel}: {hours}
-      </span>
+    <p className="open-state small" title={title}>
+      <strong className={today.open ? "is-open" : "is-closed"}>{today.open ? t.openNowState : t.closedNow}</strong>
+      <span className="muted"> · {line}</span>
     </p>
   );
 }

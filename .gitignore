@@ -9,3 +9,6 @@ out
 *.tsbuildinfo
 .vscode/
 public/maplibre/
+
+# Bestanden die Claude in de chat zette (video's, screenshots)
+Claude outputs/

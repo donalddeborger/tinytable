@@ -5,6 +5,7 @@ import { listPlaces } from "@/lib/store";
 import { placeSlugs, placeTown, SITE_URL, slugify } from "@/lib/slug";
 import { isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { routeUrl } from "@/lib/geo";
+import { formatHours } from "@/lib/hours";
 import { SeoFooter } from "@/components/SeoChrome";
 import { HeartRow, nlRatingLabel } from "@/components/HeartRow";
 import type { AmenityKey, Place } from "@/lib/types";
@@ -125,7 +126,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
         </p>
         <h1>{place.name}</h1>
         <p className="muted">{place.address}</p>
-        {place.openingHours ? <p className="muted small">Openingsuren: {place.openingHours}</p> : null}
+        {place.openingHours ? <p className="muted small">Openingsuren: {formatHours(place.openingHours)}</p> : null}
 
         <div className="zaak-score">
           <p className="zaak-hearts">
