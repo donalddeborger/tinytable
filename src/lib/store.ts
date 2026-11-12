@@ -42,7 +42,7 @@ function apiToken(): string {
 function toWriteError(error: { code?: string; message?: string }): Error {
   switch (error.code) {
     case "23505":
-      return new WriteError("Deze zaak staat al in TinyTable", 409);
+      return new WriteError("Deze horecazaak staat al in TinyTable", 409);
     case "TT400":
     case "22023":
       return new WriteError(error.message ?? "Ongeldige gegevens", 400);

@@ -16,7 +16,7 @@ import {
   PlusIcon,
   SearchIcon,
 } from "@/components/Icons";
-import { AMENITIES, isWelcome } from "@/lib/score";
+import { AMENITIES } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
 import { placeSlugs } from "@/lib/slug";
 import { track } from "@vercel/analytics";
@@ -117,6 +117,65 @@ function InstallHelp({ mode, onClose }: { mode: InstallMode; onClose: () => void
   );
 }
 
+// Welkomstvenster: alleen bij het allereerste bezoek.
+const WELCOME_KEY = "tinytable-welcome";
+
+function WelcomeIntro() {
+  const { t } = useI18n();
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    try {
+      // Niet tonen als iemand via een gedeelde link meteen een horecazaak opent.
+      if (new URLSearchParams(window.location.search).get("zaak")) return;
+      if (!localStorage.getItem(WELCOME_KEY)) setShow(true);
+    } catch {
+      /* geen opslag: dan niet tonen */
+    }
+  }, []);
+  const close = () => {
+    try {
+      localStorage.setItem(WELCOME_KEY, "1");
+    } catch {
+      /* ok */
+    }
+    setShow(false);
+  };
+  useEffect(() => {
+    if (!show) return;
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && close();
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [show]);
+  if (!show) return null;
+  return createPortal(
+    <div className="install-backdrop welcome-backdrop" role="presentation" onClick={close}>
+      <div
+        className="install-help welcome-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="welcome-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="welcome-title">{t.welcomeTitle}</h2>
+        <ol className="welcome-steps">
+          {t.welcomeSteps.map(([lead, rest], i) => (
+            <li key={lead}>
+              <span className={`welcome-num n${i + 1}`}>{i + 1}</span>
+              <p>
+                <b>{lead}</b> {rest}
+              </p>
+            </li>
+          ))}
+        </ol>
+        <button className="btn btn-primary" onClick={close}>
+          {t.welcomeStart}
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
 // Menu rechtsboven: over-pagina, uitleg, contact en privacy.
 function SiteMenu() {
   const { t } = useI18n();
@@ -205,7 +264,8 @@ function Shell() {
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
   const [selected, setSelected] = useState<Place | null>(null);
-  const [filter, setFilter] = useState<AmenityKey | "all" | "welcome">("all");
+  // Meerdere voorzieningen tegelijk: een zaak moet ze allemaal hebben.
+  const [filters, setFilters] = useState<AmenityKey[]>([]);
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
@@ -298,12 +358,8 @@ function Shell() {
   }, [query, places]);
 
   const filtered = useMemo(() => {
-    return places.filter(
-      (place) =>
-        filter === "all" ||
-        (filter === "welcome" ? isWelcome(place.amenities) : place.amenities[filter] === true),
-    );
-  }, [places, filter]);
+    return places.filter((place) => filters.every((key) => place.amenities[key] === true));
+  }, [places, filters]);
 
   const slugs = useMemo(() => placeSlugs(places), [places]);
 
@@ -364,6 +420,7 @@ function Shell() {
             <div className="brand-actions">
               <LangSwitch />
               <SiteMenu />
+              <WelcomeIntro />
             </div>
           </div>
 
@@ -446,8 +503,9 @@ function Shell() {
 
           <div className="chips" role="group" aria-label={t.filterLabel}>
             <button
-              className={`chip chip-all ${filter === "all" ? "on" : ""}`}
-              onClick={() => setFilter("all")}
+              className={`chip chip-all ${filters.length === 0 ? "on" : ""}`}
+              aria-pressed={filters.length === 0}
+              onClick={() => setFilters([])}
             >
               {t.all}
             </button>
@@ -456,10 +514,12 @@ function Shell() {
               return (
                 <button
                   key={item.key}
-                  className={`chip am-${item.key} ${filter === item.key ? "on" : ""}`}
+                  className={`chip am-${item.key} ${filters.includes(item.key) ? "on" : ""}`}
+                  aria-pressed={filters.includes(item.key)}
                   onClick={() => {
-                    if (filter !== item.key) track("Filter", { filter: item.key });
-                    setFilter(filter === item.key ? "all" : item.key);
+                    const on = filters.includes(item.key);
+                    if (!on) track("Filter", { filter: item.key });
+                    setFilters(on ? filters.filter((k) => k !== item.key) : [...filters, item.key]);
                   }}
                 >
                   <Icon size={16} /> {amenity(item.key).label}

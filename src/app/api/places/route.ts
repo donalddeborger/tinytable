@@ -12,7 +12,7 @@ export async function GET() {
   } catch (error) {
     console.error("Plekken ophalen mislukt:", error);
     return NextResponse.json(
-      { error: "Plekken konden niet worden geladen" },
+      { error: "Locaties konden niet worden geladen" },
       { status: 500 },
     );
   }
@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     }
     console.error("Plek toevoegen mislukt:", error);
     return NextResponse.json(
-      { error: "De plek kon niet worden bewaard" },
+      { error: "De horecazaak kon niet worden bewaard" },
       { status: 500 },
     );
   }

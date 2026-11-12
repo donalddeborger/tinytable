@@ -27,7 +27,7 @@ export async function GET(
   } catch (error) {
     console.error("Plek ophalen mislukt:", error);
     return NextResponse.json(
-      { error: "De plek kon niet worden geladen" },
+      { error: "De locatie kon niet worden geladen" },
       { status: 500 },
     );
   }

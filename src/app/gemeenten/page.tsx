@@ -6,7 +6,7 @@ import { SITE_URL } from "@/lib/slug";
 
 export const revalidate = 3600;
 
-const title = "Kindvriendelijke zaken per gemeente | TinyTable";
+const title = "Kindvriendelijke horecazaken per gemeente | TinyTable";
 const description =
   "Alle gemeenten in de provincie Antwerpen met kindvriendelijke restaurants, cafés en koffiebars op TinyTable.";
 
@@ -29,14 +29,14 @@ export default async function TownsPage() {
       <SeoHeader />
       <article className="zaak-card">
         <h1>Per gemeente</h1>
-        <p className="muted">Kies een gemeente om alle kindvriendelijke zaken daar te zien.</p>
+        <p className="muted">Kies een gemeente om alle kindvriendelijke horecazaken daar te zien.</p>
         <ul className="town-list">
           {list.map((t) => (
             <li key={t.slug}>
               <Link href={`/kindvriendelijk/${t.slug}`} className="seo-card town-card">
                 <strong>{t.name}</strong>
                 <span className="muted small">
-                  {t.count} {t.count === 1 ? "zaak" : "zaken"}
+                  {t.count} {t.count === 1 ? "locatie" : "locaties"}
                 </span>
               </Link>
             </li>

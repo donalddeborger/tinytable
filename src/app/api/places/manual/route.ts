@@ -30,7 +30,7 @@ export async function POST(request: Request) {
   const amenities = parseAmenities(body.amenities);
   const type = TYPES.includes(body.type as PlaceType) ? (body.type as PlaceType) : "restaurant";
 
-  if (name.length < 2) return NextResponse.json({ error: "Geef de plek een naam" }, { status: 400 });
+  if (name.length < 2) return NextResponse.json({ error: "Geef de horecazaak een naam" }, { status: 400 });
   if (!/\d/.test(street) || !isProvincePostcode(postcode)) {
     return NextResponse.json({ error: "Vul straat en huisnummer in" }, { status: 400 });
   }
@@ -71,6 +71,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     console.error("Handmatig toevoegen mislukt:", error);
-    return NextResponse.json({ error: "De plek kon niet worden bewaard" }, { status: 500 });
+    return NextResponse.json({ error: "De horecazaak kon niet worden bewaard" }, { status: 500 });
   }
 }

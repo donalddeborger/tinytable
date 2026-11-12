@@ -20,22 +20,22 @@ export default function AboutPage() {
         <p>
           TinyTable helpt ouders met jonge kinderen om snel een restaurant, café of koffiebar te vinden waar kleine gasten
           welkom zijn. Je ziet in één oogopslag of er een verschoningstafel, kinderstoelen, een speelhoek, een kindermenu, een
-          buitenspeeltuin is en of de zaak kinderwagenvriendelijk is. We starten in Antwerpen; de rest van de provincie volgt.
+          buitenspeeltuin is en of de horecazaak kinderwagenvriendelijk is. We starten in Antwerpen; de rest van de provincie volgt.
         </p>
 
         <h2>Wie vult de info in?</h2>
         <p>
-          Ouders zoals jij. Iedereen kan een zaak toevoegen of aanvullen, zonder account. Een deel van de zaken komt uit{" "}
+          Ouders zoals jij. Iedereen kan een horecazaak toevoegen of aanvullen, zonder account. Een deel van de locaties komt uit{" "}
           <a href="https://www.openstreetmap.org" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>, een open kaart die
-          door vrijwilligers wordt bijgehouden; die zaken staan als &ldquo;nog niet bevestigd&rdquo; tot een ouder de info bevestigt.
-          Zaken die niet in de zoekfunctie staan, worden eerst nagekeken voor ze op de kaart verschijnen.
+          door vrijwilligers wordt bijgehouden; die locaties staan als &ldquo;nog niet bevestigd&rdquo; tot een ouder de info bevestigt.
+          Horecazaken die niet in de zoekfunctie staan, worden eerst nagekeken voor ze op de kaart verschijnen.
         </p>
 
         <h2 id="hartjes">Hoe werken de hartjes?</h2>
         <ul>
           <li>Verschoningstafel, kinderstoelen, speelhoek en kindermenu: elk 1 hartje.</li>
           <li>Buitenspeeltuin en kinderwagenvriendelijk: elk een half hartje.</li>
-          <li>Met 3 hartjes krijgt een zaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
+          <li>Met 3 hartjes krijgt een horecazaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
         </ul>
 
         <h2 id="contact">Contact</h2>

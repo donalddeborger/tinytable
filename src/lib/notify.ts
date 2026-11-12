@@ -39,7 +39,7 @@ export async function notifyManualPlace(place: {
   const editor = "https://supabase.com/dashboard/project/rcthoxizcfdkhssmwxcq/editor";
 
   const html = `
-    <h2>Nieuwe zaak wacht op goedkeuring</h2>
+    <h2>Nieuwe horecazaak wacht op goedkeuring</h2>
     <p><strong>${escape(place.name)}</strong> (${TYPE_NL[place.type] ?? place.type})<br>${escape(place.address)}</p>
     <ul>${rows}</ul>
     ${place.note ? `<p>Toelichting: ${escape(place.note)}</p>` : ""}
@@ -53,7 +53,7 @@ export async function notifyManualPlace(place: {
       body: JSON.stringify({
         from: process.env.NOTIFY_FROM ?? "TinyTable <onboarding@resend.dev>",
         to: [to],
-        subject: `TinyTable: nieuwe zaak "${place.name}" wacht op goedkeuring`,
+        subject: `TinyTable: nieuwe horecazaak "${place.name}" wacht op goedkeuring`,
         html,
       }),
       signal: AbortSignal.timeout(5000),

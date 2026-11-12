@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: { params: Promise<{ gemeente:
   const data = await load(gemeente);
   if (!data) return { title: "Niet gevonden | TinyTable" };
   const title = `Kindvriendelijke restaurants en cafés in ${data.town.name} | TinyTable`;
-  const description = `${data.places.length} zaken in ${data.town.name} met info over verschoningstafel, kinderstoelen, speelhoek, kindermenu en meer. Ingevuld door ouders.`;
+  const description = `${data.places.length} locaties in ${data.town.name} met info over verschoningstafel, kinderstoelen, speelhoek, kindermenu en meer. Ingevuld door ouders.`;
   const url = `${SITE_URL}/kindvriendelijk/${gemeente}`;
   return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "TinyTable", locale: "nl_BE" } };
 }
@@ -33,7 +33,7 @@ export default async function TownPage({ params }: { params: Promise<{ gemeente:
       <article className="zaak-card">
         <h1>Kindvriendelijk eten en drinken in {data.town.name}</h1>
         <p>
-          Restaurants, cafés en koffiebars in {data.town.name}, gesorteerd op hoe kindvriendelijk ze zijn. Per zaak zie je of
+          Restaurants, cafés en koffiebars in {data.town.name}, gesorteerd op hoe kindvriendelijk ze zijn. Per horecazaak zie je of
           er een verschoningstafel, kinderstoelen, een speelhoek, een kindermenu, een buitenspeeltuin is en of je er vlot
           binnen kunt met een kinderwagen. De info komt van ouders.
         </p>

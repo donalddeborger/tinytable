@@ -11,7 +11,7 @@ export async function generateMetadata({ params }: { params: Promise<{ voorzieni
   const page = AMENITY_PAGES.find((a) => a.slug === voorziening);
   if (!page) return { title: "Niet gevonden | TinyTable" };
   const title = `Restaurants en cafés ${page.title} in Antwerpen | TinyTable`;
-  const description = `Overzicht van kindvriendelijke zaken in Antwerpen ${page.title}, ingevuld door ouders.`;
+  const description = `Overzicht van kindvriendelijke horecazaken in Antwerpen ${page.title}, ingevuld door ouders.`;
   const url = `${SITE_URL}/met/${voorziening}`;
   return { title, description, alternates: { canonical: url }, openGraph: { title, description, url, siteName: "TinyTable", locale: "nl_BE" } };
 }
@@ -28,8 +28,8 @@ export default async function AmenityPage({ params }: { params: Promise<{ voorzi
         <h1>Restaurants en cafés {page.title}</h1>
         <p>
           {places.length === 0
-            ? "Nog geen zaken gevonden. Ken jij er een? Voeg ze toe via de kaart."
-            : `${places.length} ${places.length === 1 ? "zaak" : "zaken"} in Antwerpen ${page.title}, volgens ouders en OpenStreetMap.`}
+            ? "Nog geen locaties gevonden. Ken jij een leuke plek? Voeg ze toe via de kaart."
+            : `${places.length} ${places.length === 1 ? "locatie" : "locaties"} in Antwerpen ${page.title}, volgens ouders en OpenStreetMap.`}
         </p>
         <PlaceCards places={places} />
       </article>

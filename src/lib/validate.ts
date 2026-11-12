@@ -51,7 +51,7 @@ export function parsePlaceInput(
   const b = body as Record<string, unknown>;
 
   const name = text(b.name, 120);
-  if (!name) return { ok: false, error: "Geef de plek een naam" };
+  if (!name) return { ok: false, error: "Geef de horecazaak een naam" };
 
   const type = TYPES.includes(b.type as PlaceType)
     ? (b.type as PlaceType)

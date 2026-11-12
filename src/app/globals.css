@@ -2149,3 +2149,50 @@ h3 {
 .install-help .btn {
   width: 100%;
 }
+
+/* ---------- Welkomstvenster ---------- */
+.welcome-backdrop {
+  align-items: center;
+}
+
+.welcome-card {
+  padding: 24px 22px 20px;
+}
+
+.welcome-card h2 {
+  font-size: 1.35rem;
+  margin-bottom: 4px;
+}
+
+.welcome-steps {
+  list-style: none;
+  padding: 0 !important;
+  margin: 14px 0 20px !important;
+  gap: 14px !important;
+}
+
+.welcome-steps li {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.welcome-steps p {
+  margin: 0;
+  line-height: 1.45;
+}
+
+.welcome-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 0.9rem;
+}
+
+.welcome-num.n1 { background: #e8e4ff; color: #5a4bd6; }
+.welcome-num.n2 { background: #ffe1ea; color: #d94a77; }
+.welcome-num.n3 { background: #d9f4ea; color: #1f8a63; }

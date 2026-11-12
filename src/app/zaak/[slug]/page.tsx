@@ -46,7 +46,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const found = await findPlace(slug);
-  if (!found) return { title: "Zaak niet gevonden | TinyTable" };
+  if (!found) return { title: "Locatie niet gevonden | TinyTable" };
   const { place } = found;
   const town = placeTown(place);
   const type = TYPE_NL[place.type];
@@ -169,7 +169,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
             : "Klopt er iets niet? Pas de info aan via de kaart. TinyTable wordt ingevuld door ouders."}
         </p>
         <p className="small">
-          <Link href={`/kindvriendelijk/${slugify(town)}`}>Meer kindvriendelijke zaken in {town}</Link>
+          <Link href={`/kindvriendelijk/${slugify(town)}`}>Meer kindvriendelijke horecazaken in {town}</Link>
         </p>
         <p className="muted small">
           Is dit jouw zaak? <Link href={`/zaak/${slug}/sticker`}>Druk je TinyTable-sticker met QR-code af</Link>.
