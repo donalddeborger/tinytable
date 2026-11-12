@@ -49,9 +49,9 @@ export function AppShell() {
 }
 
 // Klein hartje voor zaken die al in TinyTable staan (zoekresultaten).
-function HeartTile() {
+function HeartTile({ size = 18 }: { size?: number }) {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
       <path
         d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.4 4.5 7 4.5c2 0 3.6 1.1 5 2.9 1.4-1.8 3-2.9 5-2.9 3.6 0 5.6 3.5 4.3 6.8-1.8 4.6-9.3 9.2-9.3 9.2Z"
         fill="var(--heart)"
@@ -157,16 +157,18 @@ function WelcomeIntro() {
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="welcome-title">{t.welcomeTitle}</h2>
-        <ol className="welcome-steps">
-          {t.welcomeSteps.map(([lead, rest], i) => (
-            <li key={lead}>
-              <span className={`welcome-num n${i + 1}`}>{i + 1}</span>
-              <p>
-                <b>{lead}</b> {rest}
-              </p>
+        <p className="welcome-sub">{t.welcomeSub}</p>
+        <ul className="welcome-tiles">
+          {t.welcomeTiles.map(([title, text], i) => (
+            <li key={title} className={`welcome-tile w${i + 1}`}>
+              <span className="welcome-icon" aria-hidden="true">
+                {i === 0 ? <SearchIcon size={26} /> : i === 1 ? <HeartTile size={26} /> : <PlusIcon size={26} />}
+              </span>
+              <b>{title}</b>
+              <small>{text}</small>
             </li>
           ))}
-        </ol>
+        </ul>
         <button className="btn btn-primary" onClick={close}>
           {t.welcomeStart}
         </button>
