@@ -65,8 +65,8 @@ export const TONE_COLOR: Record<ScoreTone, string> = {
   none: "#B9B2C4",
 };
 
-// Labels: "Kindvriendelijk" bij 3 hartjes, "Super kindvriendelijk" vanaf 4 hartjes.
-export const WELCOME_MIN = 3;
+// Labels: "Kindvriendelijk" vanaf 2 hartjes, "Super kindvriendelijk" vanaf 4 hartjes.
+export const WELCOME_MIN = 2;
 export const SUPER_MIN = 4;
 
 export function isWelcome(amenities: Partial<Amenities> | null | undefined): boolean {

@@ -140,14 +140,14 @@ const nl = {
   noChange: "Nee, aanpassen",
   thanksConfirm: "Dank je wel! 💕",
   confirmedToast: "Dank je wel! 💕 Zo blijft de info juist voor andere ouders.",
-  goalText: (n: number, goal: number) => `${n} van de ${goal} plekjes verzameld`,
+  goalText: (n: number, goal: number) => `${n} van de ${goal} kindvriendelijke plekjes`,
   goalCta: "Voeg toe",
   goalLabel: "Help ons de 100 kindvriendelijkste plekjes van Antwerpen te verzamelen",
   thanksTitle: "Dank je wel! 💕",
   thanksAdded: (n: number, goal: number) =>
     n >= goal
-      ? `Dankzij jou staan er nu ${n} plekjes op de kaart. Het doel van ${goal} is bereikt, en we gaan gewoon door!`
-      : `Dankzij jou staan er nu ${n} van de ${goal} plekjes op de kaart. Nog ${goal - n} te gaan!`,
+      ? `Je tip staat op de kaart! We hebben nu ${n} kindvriendelijke plekjes. Het doel van ${goal} is bereikt, en we gaan gewoon door!`
+      : `Je tip staat op de kaart! We hebben nu ${n} van de ${goal} kindvriendelijke plekjes. Nog ${goal - n} te gaan!`,
   thanksSubmitted: "We kijken het even na; daarna verschijnt het op de kaart. Samen gaan we voor 100 plekjes!",
   thanksShare: "Vraag je vriendinnen om mee te helpen",
   thanksShareText: "Help mee de 100 kindvriendelijkste plekjes van Antwerpen te verzamelen 💕 Wat is jouw favoriete plekje met de kids?",
@@ -291,14 +291,14 @@ const en: Dict = {
   noChange: "No, edit",
   thanksConfirm: "Thank you! 💕",
   confirmedToast: "Thank you! 💕 This keeps the info right for other parents.",
-  goalText: (n: number, goal: number) => `${n} of ${goal} spots collected`,
+  goalText: (n: number, goal: number) => `${n} of ${goal} family-friendly spots`,
   goalCta: "Add",
   goalLabel: "Help us collect the 100 most family-friendly spots in Antwerp",
   thanksTitle: "Thank you! 💕",
   thanksAdded: (n: number, goal: number) =>
     n >= goal
-      ? `Thanks to you there are now ${n} spots on the map. We reached our goal of ${goal}, and we keep going!`
-      : `Thanks to you there are now ${n} of ${goal} spots on the map. ${goal - n} to go!`,
+      ? `Your tip is on the map! We now have ${n} family-friendly spots. We reached our goal of ${goal}, and we keep going!`
+      : `Your tip is on the map! We now have ${n} of ${goal} family-friendly spots. ${goal - n} to go!`,
   thanksSubmitted: "We'll have a quick look; after that it appears on the map. Together we're going for 100 spots!",
   thanksShare: "Ask your friends to help out",
   thanksShareText: "Help collect the 100 most family-friendly spots in Antwerp 💕 What's your favourite spot with the kids?",

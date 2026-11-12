@@ -35,7 +35,7 @@ export default function AboutPage() {
         <ul>
           <li>Verschoningstafel, kinderstoelen, speelhoek en kindermenu: elk 1 hartje.</li>
           <li>Buitenspeeltuin en kinderwagenvriendelijk: elk een half hartje.</li>
-          <li>Met 3 hartjes krijgt een horecazaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
+          <li>Vanaf 2 hartjes krijgt een horecazaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
         </ul>
 
         <h2 id="contact">Contact</h2>

@@ -17,7 +17,7 @@ import {
   SearchIcon,
   ShareIcon,
 } from "@/components/Icons";
-import { AMENITIES } from "@/lib/score";
+import { AMENITIES, isWelcome } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
 import { placeSlugs } from "@/lib/slug";
 import { shareLink, useCanShare } from "@/lib/share";
@@ -348,6 +348,8 @@ function LangSwitch() {
 function Shell() {
   const { t, amenity } = useI18n();
   const [places, setPlaces] = useState<Place[]>([]);
+  // Teller: enkel locaties met het label Kindvriendelijk (vanaf 2 hartjes).
+  const welcomeCount = places.filter((p) => isWelcome(p.amenities)).length;
   const [loaded, setLoaded] = useState(false);
   const [query, setQuery] = useState("");
   const [hits, setHits] = useState<SearchHit[]>([]);
@@ -625,7 +627,7 @@ function Shell() {
               );
             })}
           </div>
-          {loaded ? <GoalBar count={places.length} onAdd={() => startAdding()} /> : null}
+          {loaded ? <GoalBar count={welcomeCount} onAdd={() => startAdding()} /> : null}
         </div>
 
         <div className="panel-list">
@@ -742,7 +744,7 @@ function Shell() {
       {thanks ? (
         <ThanksDialog
           kind={thanks}
-          count={places.length}
+          count={welcomeCount}
           onClose={() => setThanks(null)}
           onMore={() => {
             setThanks(null);
