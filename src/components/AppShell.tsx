@@ -15,6 +15,7 @@ import {
   PinIcon,
   PlusIcon,
   SearchIcon,
+  ShareIcon,
 } from "@/components/Icons";
 import { AMENITIES } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
@@ -127,7 +128,8 @@ function WelcomeIntro() {
   useEffect(() => {
     try {
       // Niet tonen als iemand via een gedeelde link meteen een horecazaak opent.
-      if (new URLSearchParams(window.location.search).get("zaak")) return;
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("zaak") || params.has("toevoegen")) return;
       if (!localStorage.getItem(WELCOME_KEY)) setShow(true);
     } catch {
       /* geen opslag: dan niet tonen */
@@ -172,6 +174,77 @@ function WelcomeIntro() {
         </ul>
         <button className="btn btn-primary" onClick={close}>
           {t.welcomeStart}
+        </button>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// Doel: samen 100 plekjes verzamelen.
+const GOAL = 100;
+
+function GoalBar({ count, onAdd }: { count: number; onAdd: () => void }) {
+  const { t } = useI18n();
+  const pct = Math.min(100, Math.round((count / GOAL) * 100));
+  return (
+    <div className="goal-bar" title={t.goalLabel}>
+      <div className="goal-main">
+        <span className="goal-text">
+          <HeartTile size={16} /> {t.goalText(count, GOAL)}
+        </span>
+        <span className="goal-track" aria-hidden="true">
+          <span className="goal-fill" style={{ width: `${pct}%` }} />
+        </span>
+      </div>
+      <button className="goal-cta" onClick={onAdd}>
+        <PlusIcon size={15} /> {t.goalCta}
+      </button>
+    </div>
+  );
+}
+
+function ThanksDialog({
+  kind,
+  count,
+  onClose,
+  onMore,
+}: {
+  kind: "added" | "submitted";
+  count: number;
+  onClose: () => void;
+  onMore: () => void;
+}) {
+  const { t } = useI18n();
+  const canShare = useCanShare();
+  return createPortal(
+    <div className="install-backdrop welcome-backdrop" role="presentation" onClick={onClose}>
+      <div
+        className="install-help thanks-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="thanks-title"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <h2 id="thanks-title">{t.thanksTitle}</h2>
+        <p className="thanks-text">{kind === "added" ? t.thanksAdded(count, GOAL) : t.thanksSubmitted}</p>
+        <div className="goal-track big" aria-hidden="true">
+          <span className="goal-fill" style={{ width: `${Math.min(100, (count / GOAL) * 100)}%` }} />
+        </div>
+        <p className="thanks-count">{t.goalText(count, GOAL)}</p>
+        {canShare ? (
+          <button
+            className="btn btn-primary"
+            onClick={() => shareLink({ title: "TinyTable", text: t.thanksShareText, path: "/?toevoegen" }, "Site gedeeld", { waar: "bedankt" })}
+          >
+            <ShareIcon size={18} /> {t.thanksShare}
+          </button>
+        ) : null}
+        <button className={canShare ? "btn btn-soft" : "btn btn-primary"} onClick={onMore}>
+          <PlusIcon size={18} /> {t.thanksMore}
+        </button>
+        <button className="thanks-close" onClick={onClose}>
+          {t.close}
         </button>
       </div>
     </div>,
@@ -288,6 +361,16 @@ function Shell() {
   const [adding, setAdding] = useState<{ venue: Venue | null; manualName?: string } | null>(null);
   const [searchedFor, setSearchedFor] = useState("");
   const [toast, setToast] = useState<string | null>(null);
+  const [thanks, setThanks] = useState<"added" | "submitted" | null>(null);
+
+  // Link met ?toevoegen (bv. vanuit een advertentie): meteen het toevoegscherm openen.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.has("toevoegen")) {
+      setAdding({ venue: null });
+      track("Toevoegen via link", { bron: params.get("utm_source") ?? "direct" });
+    }
+  }, []);
 
   useEffect(() => {
     void fetch("/api/places")
@@ -542,6 +625,7 @@ function Shell() {
               );
             })}
           </div>
+          {loaded ? <GoalBar count={places.length} onAdd={() => startAdding()} /> : null}
         </div>
 
         <div className="panel-list">
@@ -607,6 +691,7 @@ function Shell() {
             onClose={() => setSelected(null)}
             onConfirmed={(place) => {
               setPlaces((current) => current.map((item) => (item.id === place.id ? place : item)));
+              setToast(t.confirmedToast);
               track("Info bevestigd", { zaak: place.name });
             }}
             onSaved={(place) => {
@@ -640,7 +725,7 @@ function Shell() {
           onClose={() => setAdding(null)}
           onSubmitted={() => {
             setAdding(null);
-            setToast(t.submitted);
+            setThanks("submitted");
             track("Zaak ingestuurd (handmatig)");
           }}
           onSaved={(place) => {
@@ -648,8 +733,20 @@ function Shell() {
             setAdding(null);
             setSelected(place);
             setFlyTo({ lat: place.lat, lng: place.lng });
-            setToast(t.added);
+            setThanks("added");
             track("Zaak toegevoegd", { zaak: place.name });
+          }}
+        />
+      ) : null}
+
+      {thanks ? (
+        <ThanksDialog
+          kind={thanks}
+          count={places.length}
+          onClose={() => setThanks(null)}
+          onMore={() => {
+            setThanks(null);
+            startAdding();
           }}
         />
       ) : null}

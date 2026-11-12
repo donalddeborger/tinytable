@@ -2241,3 +2241,112 @@ h3 {
 .welcome-tile.w2 { background: #ffe9f0; color: #d94a77; }
 .welcome-tile.w3 { background: #dff5ec; color: #1f8a63; }
 .welcome-tile b { color: var(--ink); }
+
+/* ---------- Doel: 100 plekjes ---------- */
+.goal-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding: 8px 8px 8px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: var(--shadow-sm);
+}
+
+.goal-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.goal-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.goal-track {
+  display: block;
+  height: 6px;
+  border-radius: 999px;
+  background: #efe8f3;
+  overflow: hidden;
+}
+
+.goal-track.big {
+  height: 10px;
+  margin: 16px 0 6px;
+}
+
+.goal-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff7aa2, #7b6cf6);
+}
+
+.goal-cta {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  border-radius: 999px;
+  padding: 8px 14px;
+  background: #7b6cf6;
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.thanks-card {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 22px 18px;
+}
+
+.thanks-card h2 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.thanks-text {
+  margin: 4px 0 0;
+  line-height: 1.5;
+}
+
+.thanks-count {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.thanks-card .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.thanks-close {
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-weight: 600;
+  padding: 8px;
+  cursor: pointer;
+}
