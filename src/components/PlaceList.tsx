@@ -4,7 +4,8 @@ import { AMENITIES, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
 import { useI18n } from "@/lib/i18n";
 import { distanceKm, type LatLng } from "@/lib/geo";
 import type { Place } from "@/lib/types";
-import { AMENITY_ICON, LocateIcon, TYPE_EMOJI } from "@/components/Icons";
+import { AMENITY_ICON, LocateIcon, ShareIcon, TYPE_EMOJI } from "@/components/Icons";
+import { shareLink, useCanShare } from "@/lib/share";
 import { Hearts, WelcomeBadge } from "@/components/Rating";
 
 export type SortMode = "score" | "distance";
@@ -74,6 +75,7 @@ export function PlaceList({
 }: Props) {
   const sorted = sortPlaces(places, sort, origin);
   const { t, typeLabel, formatDistance } = useI18n();
+  const canShare = useCanShare();
 
   return (
     <div className="place-list">
@@ -138,6 +140,17 @@ export function PlaceList({
           })}
         </ul>
       )}
+      {canShare ? (
+        <div className="list-share">
+          <p>{t.shareSiteAsk}</p>
+          <button
+            className="btn btn-soft"
+            onClick={() => shareLink({ title: "TinyTable", text: t.shareSiteText, path: "/" }, "Site gedeeld", { waar: "lijst" })}
+          >
+            <ShareIcon size={16} /> {t.shareSite}
+          </button>
+        </div>
+      ) : null}
       <p className="list-footer">
         <a href="/over">{t.aboutLink}</a>
       </p>

@@ -19,6 +19,7 @@ import {
 import { AMENITIES } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
 import { placeSlugs } from "@/lib/slug";
+import { shareLink, useCanShare } from "@/lib/share";
 import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
 import type { LatLng } from "@/lib/geo";
@@ -183,6 +184,7 @@ function SiteMenu() {
   const { t } = useI18n();
   const [open, setOpen] = useState(false);
   const installMode = useInstallMode();
+  const canShare = useCanShare();
   const [showHelp, setShowHelp] = useState(false);
 
   const install = async () => {
@@ -232,6 +234,17 @@ function SiteMenu() {
           <a href="/over#hartjes">{t.menuHearts}</a>
           <a href="/over#contact">{t.menuContact}</a>
           <a href="/over#privacy">{t.menuPrivacy}</a>
+          {canShare ? (
+            <button
+              className="menu-install"
+              onClick={() => {
+                setOpen(false);
+                void shareLink({ title: "TinyTable", text: t.shareSiteText, path: "/" }, "Site gedeeld", { waar: "menu" });
+              }}
+            >
+              {t.shareSite}
+            </button>
+          ) : null}
           {installMode !== "hidden" ? (
             <button className="menu-install" onClick={install}>
               {t.menuInstall}

@@ -2022,6 +2022,26 @@ h3 {
   }
 }
 
+.list-share {
+  margin: 22px 4px 4px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--brand-soft);
+  text-align: center;
+}
+
+.list-share p {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.list-share .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+}
+
 .list-footer {
   margin: 18px 0 8px;
   text-align: center;
