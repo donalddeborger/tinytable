@@ -19,7 +19,7 @@ export default function AboutPage() {
         <h1>Over TinyTable</h1>
         <p>
           TinyTable helpt ouders met jonge kinderen om snel een restaurant, café of koffiebar te vinden waar kleine gasten
-          welkom zijn. Je ziet in één oogopslag of er een verschoningstafel, kinderstoelen, een speelhoek, een kindermenu, een
+          welkom zijn. Je ziet in één oogopslag of er een verschoningstafel, kinderstoelen, een speelhoek, een kinderaanbod, een
           buitenspeeltuin is en of de horecazaak kinderwagenvriendelijk is. We starten in Antwerpen; de rest van de provincie volgt.
         </p>
 
@@ -33,7 +33,7 @@ export default function AboutPage() {
 
         <h2 id="hartjes">Hoe werken de hartjes?</h2>
         <ul>
-          <li>Verschoningstafel, kinderstoelen, speelhoek en kindermenu: elk 1 hartje.</li>
+          <li>Verschoningstafel, kinderstoelen, speelhoek en kinderaanbod (kindermenu, kinderportie, babyccino…): elk 1 hartje.</li>
           <li>Buitenspeeltuin en kinderwagenvriendelijk: elk een half hartje.</li>
           <li>Vanaf 2 hartjes krijgt een horecazaak het label <strong>Kindvriendelijk</strong>, met 4 of 5 hartjes <strong>Super kindvriendelijk</strong>.</li>
         </ul>

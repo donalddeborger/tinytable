@@ -6,6 +6,10 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/zaak/[slug]/opengraph-image": ["./src/assets/og-fonts/**/*"],
   },
+  // "Kindermenu" heet nu "Kinderaanbod": oude link blijft werken.
+  async redirects() {
+    return [{ source: "/met/kindermenu", destination: "/met/kinderaanbod", permanent: true }];
+  },
 };
 
 export default nextConfig;

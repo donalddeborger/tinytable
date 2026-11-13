@@ -118,8 +118,9 @@ export const PlayCornerIcon = (p: IconProps) => (
 
 export const KidsMenuIcon = (p: IconProps) => (
   <Svg {...p}>
-    <path d="M7 3v7a2 2 0 0 0 4 0V3M9 10v11" />
-    <path d="M17 21V3c-2 1.5-3 4-3 7h3" />
+    <path d="M4 3v5a2 2 0 0 0 4 0V3M6 10v11" />
+    <path d="M12 10h8l-1.2 11h-5.6Z" />
+    <path d="M17 10l1.5-6H21" />
   </Svg>
 );
 

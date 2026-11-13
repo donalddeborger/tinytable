@@ -7,7 +7,7 @@ export const AMENITY_PAGES: { key: AmenityKey; slug: string; label: string; titl
   { key: "changingTable", slug: "verschoningstafel", label: "Verschoningstafel", title: "met verschoningstafel" },
   { key: "highChairs", slug: "kinderstoelen", label: "Kinderstoelen", title: "met kinderstoelen" },
   { key: "playCorner", slug: "speelhoek", label: "Speelhoek", title: "met speelhoek" },
-  { key: "kidsMenu", slug: "kindermenu", label: "Kindermenu", title: "met kindermenu" },
+  { key: "kidsMenu", slug: "kinderaanbod", label: "Kinderaanbod", title: "met kinderaanbod" },
   { key: "playground", slug: "buitenspeeltuin", label: "Buitenspeeltuin", title: "met buitenspeeltuin" },
   { key: "stroller", slug: "kinderwagenvriendelijk", label: "Kinderwagenvriendelijk", title: "die kinderwagenvriendelijk zijn" },
 ];

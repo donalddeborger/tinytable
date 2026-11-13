@@ -7,13 +7,13 @@ import { Analytics } from "@vercel/analytics/next";
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.tinytable.be"),
   description:
-    "Kindvriendelijke restaurants, cafés en koffiebars in Antwerpen en de provincie. Zie in één oogopslag of er een verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin is.",
+    "Kindvriendelijke restaurants, cafés en koffiebars in Antwerpen en de provincie. Zie in één oogopslag of er een verschoningstafel, kinderstoelen, speelhoek, kinderaanbod of speeltuin is.",
   alternates: { canonical: "/" },
   appleWebApp: { capable: true, title: "TinyTable", statusBarStyle: "default" },
   openGraph: {
     title: "TinyTable – kindvriendelijk eten & drinken in Antwerpen",
     description:
-      "Vind restaurants, cafés en koffiebars met verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin.",
+      "Vind restaurants, cafés en koffiebars met verschoningstafel, kinderstoelen, speelhoek, kinderaanbod of speeltuin.",
     url: "https://www.tinytable.be",
     siteName: "TinyTable",
     locale: "nl_BE",

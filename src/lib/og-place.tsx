@@ -41,7 +41,7 @@ const AM: Record<AmenityKey, { label: string; color: string; soft: string }> = {
   changingTable: { label: "Verschoningstafel", color: "#e8794a", soft: "#ffe7da" },
   highChairs: { label: "Kinderstoelen", color: "#2a9d78", soft: "#d9f4e8" },
   playCorner: { label: "Speelhoek", color: "#3b86c9", soft: "#ddeeff" },
-  kidsMenu: { label: "Kindermenu", color: "#c48b0c", soft: "#fff1c7" },
+  kidsMenu: { label: "Kinderaanbod", color: "#c48b0c", soft: "#fff1c7" },
   playground: { label: "Speeltuin", color: "#8a64d6", soft: "#efe7ff" },
   stroller: { label: "Kinderwagen", color: "#d1527f", soft: "#ffe4ee" },
 };

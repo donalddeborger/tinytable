@@ -17,7 +17,7 @@ const AMENITY_NL: { key: AmenityKey; label: string; schema: string }[] = [
   { key: "changingTable", label: "Verschoningstafel", schema: "Verschoningstafel" },
   { key: "highChairs", label: "Kinderstoelen", schema: "Kinderstoelen" },
   { key: "playCorner", label: "Speelhoek", schema: "Speelhoek" },
-  { key: "kidsMenu", label: "Kindermenu", schema: "Kindermenu" },
+  { key: "kidsMenu", label: "Kinderaanbod", schema: "Kinderaanbod" },
   { key: "playground", label: "Buitenspeeltuin", schema: "Buitenspeeltuin" },
   { key: "stroller", label: "Kinderwagenvriendelijk", schema: "Kinderwagenvriendelijk" },
 ];

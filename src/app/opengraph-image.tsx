@@ -30,7 +30,7 @@ export default function OpengraphImage() {
           KINDVRIENDELIJK ETEN &amp; DRINKEN · ANTWERPEN
         </div>
         <div style={{ marginTop: 48, fontSize: 34, color: "#2b2238", maxWidth: 900 }}>
-          Verschoningstafel, kinderstoelen, speelhoek, kindermenu of speeltuin? Zie het in één oogopslag.
+          Verschoningstafel, kinderstoelen, speelhoek, kinderaanbod of speeltuin? Zie het in één oogopslag.
         </div>
       </div>
     ),
