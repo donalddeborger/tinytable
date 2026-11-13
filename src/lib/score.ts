@@ -50,9 +50,11 @@ export type ScoreTone = "great" | "good" | "fair" | "low" | "none";
 
 export function scoreTone(rating: number | null): ScoreTone {
   if (rating === null) return "none";
+  // Zelfde grenzen als de labels: groen = Super kindvriendelijk (4+),
+  // geel = Kindvriendelijk (2+), oranje = 1 hartje, rood = minder.
   if (rating >= 4) return "great";
-  if (rating >= 2.5) return "good";
-  if (rating >= 1.5) return "fair";
+  if (rating >= 2) return "good";
+  if (rating >= 1) return "fair";
   return "low";
 }
 
@@ -71,6 +73,19 @@ export const SUPER_MIN = 4;
 
 export function isWelcome(amenities: Partial<Amenities> | null | undefined): boolean {
   return (kidRating(amenities) ?? 0) >= WELCOME_MIN;
+}
+
+// Hoeveel voorzieningen nog onbekend zijn ("?"). Vanaf 3 onbekende tonen we
+// "Nog aan te vullen", zodat weinig hartjes niet als "niet kindvriendelijk" leest.
+export const NEEDS_INFO_MIN = 3;
+
+export function knownCount(amenities: Partial<Amenities> | null | undefined): number {
+  if (!amenities) return 0;
+  return AMENITIES.filter((item) => typeof amenities[item.key] === "boolean").length;
+}
+
+export function needsInfo(amenities: Partial<Amenities> | null | undefined): boolean {
+  return AMENITIES.length - knownCount(amenities) >= NEEDS_INFO_MIN;
 }
 
 export function isSuperWelcome(amenities: Partial<Amenities> | null | undefined): boolean {
