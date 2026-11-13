@@ -1,11 +1,11 @@
-// Stuurt Donald een e-mail bij een nieuwe handmatige inzending (via Resend).
+// Stuurt Donald een e-mail bij een nieuwe locatie of handmatige inzending (via Resend).
 // Nodig in Vercel: RESEND_API_KEY en NOTIFY_EMAIL. Ontbreken ze, dan gebeurt er niets.
 
 const AMENITY_NL: Record<string, string> = {
   changingTable: "Verschoningstafel",
   highChairs: "Kinderstoelen",
   playCorner: "Speelhoek",
-  kidsMenu: "Kindermenu",
+  kidsMenu: "Kinderaanbod",
   playground: "Buitenspeeltuin",
   stroller: "Kinderwagenvriendelijk",
 };
@@ -25,10 +25,6 @@ export async function notifyManualPlace(place: {
   amenities: Record<string, boolean | null>;
   note?: string;
 }): Promise<void> {
-  const key = process.env.RESEND_API_KEY;
-  const to = process.env.NOTIFY_EMAIL;
-  if (!key || !to) return;
-
   const rows = Object.entries(AMENITY_NL)
     .map(([k, label]) => {
       const v = place.amenities[k];
@@ -46,6 +42,32 @@ export async function notifyManualPlace(place: {
     <p><a href="${map}">Bekijk de locatie op de kaart</a></p>
     <p>Goedkeuren: open <a href="${editor}">Supabase</a> → tabel <em>places</em> → zet <em>approved</em> op true. Of vraag het aan Claude.</p>`;
 
+  await sendMail(`TinyTable: nieuwe horecazaak "${place.name}" wacht op goedkeuring`, html);
+}
+
+// Korte melding wanneer iemand een horecazaak toevoegt die meteen op de kaart komt.
+export async function notifyAddedPlace(place: {
+  name: string;
+  address: string;
+  type: string;
+  amenities: Record<string, boolean | null>;
+}): Promise<void> {
+  const weights: Record<string, number> = { changingTable: 1, highChairs: 1, playCorner: 1, kidsMenu: 1, playground: 0.5, stroller: 0.5 };
+  const hearts = Object.entries(weights).reduce((sum, [k, w]) => sum + (place.amenities[k] === true ? w : 0), 0);
+  const yes = Object.entries(AMENITY_NL)
+    .filter(([k]) => place.amenities[k] === true)
+    .map(([, label]) => label);
+  const html = `
+    <p><strong>${escape(place.name)}</strong> (${TYPE_NL[place.type] ?? place.type}) staat nu op TinyTable.</p>
+    <p>${escape(place.address)}<br>${hearts} hartje${hearts === 1 ? "" : "s"}${yes.length ? ` · ${yes.join(", ")}` : ""}</p>
+    <p><a href="https://www.tinytable.be">Bekijk op tinytable.be</a></p>`;
+  await sendMail(`TinyTable: "${place.name}" toegevoegd`, html);
+}
+
+async function sendMail(subject: string, html: string): Promise<void> {
+  const key = process.env.RESEND_API_KEY;
+  const to = process.env.NOTIFY_EMAIL;
+  if (!key || !to) return;
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -53,7 +75,7 @@ export async function notifyManualPlace(place: {
       body: JSON.stringify({
         from: process.env.NOTIFY_FROM ?? "TinyTable <onboarding@resend.dev>",
         to: [to],
-        subject: `TinyTable: nieuwe horecazaak "${place.name}" wacht op goedkeuring`,
+        subject,
         html,
       }),
       signal: AbortSignal.timeout(5000),

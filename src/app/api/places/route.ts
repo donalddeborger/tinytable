@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { addPlace, listPlaces, WriteError } from "@/lib/store";
 import { clientId, isBot } from "@/lib/client";
 import { parsePlaceInput } from "@/lib/validate";
+import { notifyAddedPlace } from "@/lib/notify";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,6 +31,7 @@ export async function POST(request: Request) {
 
   try {
     const place = await addPlace(parsed.value, clientId(request));
+    await notifyAddedPlace(parsed.value);
     return NextResponse.json(place, { status: 201 });
   } catch (error) {
     if (error instanceof WriteError) {
