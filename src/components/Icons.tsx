@@ -116,11 +116,17 @@ export const PlayCornerIcon = (p: IconProps) => (
   </Svg>
 );
 
+// Kinderaanbod: peutervorkje met breed handvat + tuitbeker met twee oortjes.
 export const KidsMenuIcon = (p: IconProps) => (
   <Svg {...p}>
-    <path d="M4 3v5a2 2 0 0 0 4 0V3M6 10v11" />
-    <path d="M12 10h8l-1.2 11h-5.6Z" />
-    <path d="M17 10l1.5-6H21" />
+    <path d="M3.5 3.5v3a2.5 2.5 0 0 0 5 0v-3M6 3.5v2.5" />
+    <path d="M6 9v2" />
+    <rect x="4" y="11.5" width="4" height="9.5" rx="2" fill={typeof p.stroke === "string" ? p.stroke : "currentColor"} />
+    <rect x="13.5" y="11" width="7" height="10" rx="2.5" />
+    <path d="M13.5 11c0-1.3.9-2.2 2.2-2.2h2.6c1.3 0 2.2.9 2.2 2.2" />
+    <path d="M16.3 8.8 16.6 5.4h.8l.3 3.4" />
+    <path d="M13.5 13H12.6a1.3 1.3 0 0 0 0 2.6h.9" />
+    <path d="M20.5 13h.9a1.3 1.3 0 0 1 0 2.6h-.9" />
   </Svg>
 );
 
