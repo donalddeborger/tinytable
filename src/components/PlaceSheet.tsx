@@ -7,7 +7,7 @@ import { Hearts, WelcomeBadge } from "@/components/Rating";
 import { CloseIcon, EditIcon, RouteIcon, SearchIcon, ShareIcon, TYPE_EMOJI } from "@/components/Icons";
 import { useI18n } from "@/lib/i18n";
 import { formatHours, todayHours } from "@/lib/hours";
-import { emptyAmenities, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
+import { emptyAmenities, isSuperWelcome, isWelcome, kidRating, knownCount, needsInfo } from "@/lib/score";
 import { distanceKm, routeUrl, type LatLng } from "@/lib/geo";
 import type { Amenities, Place, PlaceType, Venue } from "@/lib/types";
 import { isProvincePostcode } from "@/lib/antwerp";
@@ -134,7 +134,13 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfir
         </div>
       </div>
 
-      {isWelcome(place.amenities) ? <WelcomeBadge large isSuper={isSuperWelcome(place.amenities)} /> : null}
+      {isWelcome(place.amenities) ? (
+        <WelcomeBadge large isSuper={isSuperWelcome(place.amenities)} />
+      ) : needsInfo(place.amenities) && knownCount(place.amenities) > 0 ? (
+        <p className="info-banner">
+          <strong>{t.needsInfo}</strong> · {t.needsInfoTitle(knownCount(place.amenities))}
+        </p>
+      ) : null}
 
       {editing ? (
         <div className="edit-block">

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { AMENITY_PAGES, seoPlaces, towns } from "@/lib/seo";
-import { isSuperWelcome, isWelcome } from "@/lib/score";
+import { isSuperWelcome, isWelcome, knownCount, needsInfo } from "@/lib/score";
 import type { SeoPlace } from "@/lib/seo";
 import { HeartRow, nlRatingLabel } from "@/components/HeartRow";
 import { AMENITY_ICON } from "@/components/Icons";
@@ -75,6 +75,10 @@ export function PlaceCards({ places }: { places: SeoPlace[] }) {
                 <span className="welcome-badge is-super">Super kindvriendelijk</span>
               ) : isWelcome(p.amenities) ? (
                 <span className="welcome-badge">Kindvriendelijk</span>
+              ) : needsInfo(p.amenities) ? (
+                <span className="info-badge" title={`${knownCount(p.amenities)} van de 6 voorzieningen ingevuld`}>
+                  Nog aan te vullen
+                </span>
               ) : null}
             </span>
             <span className="amenity-dots">

@@ -1,12 +1,12 @@
 "use client";
 
-import { AMENITIES, isSuperWelcome, isWelcome, kidRating } from "@/lib/score";
+import { AMENITIES, isSuperWelcome, isWelcome, kidRating, needsInfo } from "@/lib/score";
 import { useI18n } from "@/lib/i18n";
 import { distanceKm, type LatLng } from "@/lib/geo";
 import type { Place } from "@/lib/types";
 import { AMENITY_ICON, LocateIcon, ShareIcon, TYPE_EMOJI } from "@/components/Icons";
 import { shareLink, useCanShare } from "@/lib/share";
-import { Hearts, WelcomeBadge } from "@/components/Rating";
+import { Hearts, InfoBadge, WelcomeBadge } from "@/components/Rating";
 
 export type SortMode = "score" | "distance";
 
@@ -124,7 +124,11 @@ export function PlaceList({
                     <span className="card-title">{place.name}</span>
                     <span className="card-rating">
                       <Hearts rating={rating} size={16} />
-                      {isWelcome(place.amenities) ? <WelcomeBadge isSuper={isSuperWelcome(place.amenities)} /> : null}
+                      {isWelcome(place.amenities) ? (
+                        <WelcomeBadge isSuper={isSuperWelcome(place.amenities)} />
+                      ) : needsInfo(place.amenities) ? (
+                        <InfoBadge amenities={place.amenities} />
+                      ) : null}
                     </span>
                     <span className="card-meta">
                       {typeLabel(place.type)}
