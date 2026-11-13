@@ -18,7 +18,7 @@ import {
   SearchIcon,
   ShareIcon,
 } from "@/components/Icons";
-import { AMENITIES, isWelcome } from "@/lib/score";
+import { AMENITIES, isWelcome, kidRating } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
 import { placeSlugs } from "@/lib/slug";
 import { isOpenAt } from "@/lib/hours";
@@ -469,11 +469,27 @@ function Shell() {
       return;
     }
 
+    // Zoeken zonder accenten ("desire" vindt "Désiré"); begin van de naam eerst,
+    // dan begin van een woord, dan ergens in de naam; bij gelijkspel meeste hartjes.
+    const norm = (text: string) =>
+      text.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const q = norm(trimmed);
+    const rank = (name: string) => {
+      const n = norm(name);
+      if (n.startsWith(q)) return 0;
+      if (n.split(/[\s\-'’(]+/).some((word) => word.startsWith(q))) return 1;
+      return n.includes(q) ? 2 : -1;
+    };
     const local: SearchHit[] = places
-      .filter((place) =>
-        place.name.toLowerCase().includes(trimmed.toLowerCase()),
+      .map((place) => ({ place, r: rank(place.name) }))
+      .filter((item) => item.r >= 0)
+      .sort(
+        (a, b) =>
+          a.r - b.r ||
+          (kidRating(b.place.amenities) ?? 0) - (kidRating(a.place.amenities) ?? 0) ||
+          a.place.name.localeCompare(b.place.name, "nl"),
       )
-      .map((place) => ({
+      .map(({ place }) => ({
         key: `local-${place.id}`,
         name: place.name,
         address: place.address,
