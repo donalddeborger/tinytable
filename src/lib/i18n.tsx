@@ -16,7 +16,7 @@ const AMENITY_TEXT: Record<Lang, Record<AmenityKey, AmenityText>> = {
     playCorner: { label: "Speelhoek", hint: "Een hoekje of speelgoed voor kinderen" },
     kidsMenu: { label: "Kinder­aanbod", hint: "Kindermenu, kinderportie, babyccino of kinderdrankje" },
     playground: { label: "Buiten­speeltuin", hint: "Een speeltuin buiten, bij of vlak naast de horecazaak" },
-    stroller: { label: "Kinderwagen­vriendelijk", hint: "Vlot binnen en genoeg plaats voor een kinderwagen" },
+    stroller: { label: "Kinderwagen­toegankelijk", hint: "Vlot binnen met de kinderwagen en genoeg plaats om hem kwijt te kunnen" },
   },
   en: {
     changingTable: { label: "Changing table", hint: "A table or room to change the baby" },
@@ -24,7 +24,7 @@ const AMENITY_TEXT: Record<Lang, Record<AmenityKey, AmenityText>> = {
     playCorner: { label: "Play corner", hint: "A corner or toys for children" },
     kidsMenu: { label: "Kids' options", hint: "Kids' menu, kids' portions, babyccino or kids' drinks" },
     playground: { label: "Outdoor play­ground", hint: "A playground outside, at or right next to the venue" },
-    stroller: { label: "Pram-friendly", hint: "Easy to get in, with room for a pram or buggy" },
+    stroller: { label: "Pram-accessible", hint: "Easy to get in with a pram, and room to park it" },
   },
 };
 

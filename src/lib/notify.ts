@@ -7,7 +7,7 @@ const AMENITY_NL: Record<string, string> = {
   playCorner: "Speelhoek",
   kidsMenu: "Kinderaanbod",
   playground: "Buitenspeeltuin",
-  stroller: "Kinderwagenvriendelijk",
+  stroller: "Kinderwagentoegankelijk",
 };
 
 const TYPE_NL: Record<string, string> = { restaurant: "Restaurant", cafe: "Café", bar: "Koffiebar" };

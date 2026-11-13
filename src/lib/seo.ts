@@ -9,7 +9,7 @@ export const AMENITY_PAGES: { key: AmenityKey; slug: string; label: string; titl
   { key: "playCorner", slug: "speelhoek", label: "Speelhoek", title: "met speelhoek" },
   { key: "kidsMenu", slug: "kinderaanbod", label: "Kinderaanbod", title: "met kinderaanbod" },
   { key: "playground", slug: "buitenspeeltuin", label: "Buitenspeeltuin", title: "met buitenspeeltuin" },
-  { key: "stroller", slug: "kinderwagenvriendelijk", label: "Kinderwagenvriendelijk", title: "die kinderwagenvriendelijk zijn" },
+  { key: "stroller", slug: "kinderwagentoegankelijk", label: "Kinderwagentoegankelijk", title: "die kinderwagentoegankelijk zijn" },
 ];
 
 export type SeoPlace = Place & { slug: string; town: string; townSlug: string; rating: number | null };

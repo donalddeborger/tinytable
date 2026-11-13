@@ -8,7 +8,10 @@ const nextConfig: NextConfig = {
   },
   // "Kindermenu" heet nu "Kinderaanbod": oude link blijft werken.
   async redirects() {
-    return [{ source: "/met/kindermenu", destination: "/met/kinderaanbod", permanent: true }];
+    return [
+      { source: "/met/kindermenu", destination: "/met/kinderaanbod", permanent: true },
+      { source: "/met/kinderwagenvriendelijk", destination: "/met/kinderwagentoegankelijk", permanent: true },
+    ];
   },
 };
 

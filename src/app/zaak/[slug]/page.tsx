@@ -19,7 +19,7 @@ const AMENITY_NL: { key: AmenityKey; label: string; schema: string }[] = [
   { key: "playCorner", label: "Speelhoek", schema: "Speelhoek" },
   { key: "kidsMenu", label: "Kinderaanbod", schema: "Kinderaanbod" },
   { key: "playground", label: "Buitenspeeltuin", schema: "Buitenspeeltuin" },
-  { key: "stroller", label: "Kinderwagenvriendelijk", schema: "Kinderwagenvriendelijk" },
+  { key: "stroller", label: "Kinderwagentoegankelijk", schema: "Kinderwagentoegankelijk" },
 ];
 
 const TYPE_NL: Record<Place["type"], { label: string; lower: string; this: string; schema: string }> = {
