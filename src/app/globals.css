@@ -717,17 +717,34 @@ h3 {
   box-shadow: 0 3px 7px rgba(23, 23, 31, 0.22);
 }
 
-.pin-s.pin-welcome::after {
-  width: 9px;
-  height: 9px;
-  top: -3px;
-  right: -3px;
-  border-width: 1.5px;
+/* Sterretje voor locaties met 5 hartjes */
+.pin-top::after {
+  content: "";
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: rotate(45deg);
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23ffc22e' stroke='%23e8a400' stroke-width='1' d='M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4 6.1 20.5l1.2-6.5L2.5 9.4l6.6-.9z'/%3E%3C/svg%3E") center / 13px no-repeat;
+  box-shadow: 0 1px 3px rgba(23, 23, 31, 0.25);
 }
 
-.pin-m.pin-welcome::after {
-  width: 11px;
-  height: 11px;
+.pin-m.pin-top::after {
+  width: 16px;
+  height: 16px;
+  top: -7px;
+  right: -7px;
+  background-size: 10px;
+}
+
+.pin-s.pin-top::after {
+  width: 13px;
+  height: 13px;
+  top: -5px;
+  right: -5px;
+  background-size: 8px;
 }
 
 .pin-dot {
@@ -1446,17 +1463,6 @@ h3 {
   font-size: 0.8rem;
 }
 
-.pin-welcome::after {
-  content: "";
-  position: absolute;
-  top: -4px;
-  right: -4px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--sun);
-  border: 2px solid #ffffff;
-}
 
 /* ---------- Taalknop NL / EN ---------- */
 
@@ -1659,10 +1665,7 @@ h3 {
   color: var(--ink);
 }
 
-.pin-super::after {
-  background: #ffd34d;
-  box-shadow: 0 0 0 2px #ff7aa2;
-}
+
 
 /* ---------- Pagina per zaak (/zaak/…) ---------- */
 

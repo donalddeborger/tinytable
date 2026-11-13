@@ -10,7 +10,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { ANTWERP } from "@/lib/antwerp";
-import { isSuperWelcome, isWelcome, kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
+import { isWelcome, kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
 import type { AmenityKey, Place } from "@/lib/types";
 import "leaflet/dist/leaflet.css";
 import "maplibre-gl/dist/maplibre-gl.css";
@@ -70,8 +70,8 @@ function markerIcon(place: Place, selected: boolean, zoom: number) {
     "pin",
     `pin-${size}`,
     selected ? "pin-selected" : "",
-    isWelcome(place.amenities) ? "pin-welcome" : "",
-    isSuperWelcome(place.amenities) ? "pin-super" : "",
+    // Sterretje enkel bij de volle 5 hartjes; de kleur toont al Kindvriendelijk/Super.
+    (rating ?? 0) >= 5 ? "pin-top" : "",
   ]
     .filter(Boolean)
     .join(" ");
