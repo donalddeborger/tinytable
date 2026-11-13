@@ -56,7 +56,8 @@ export async function POST(request: Request) {
       name,
       type,
       // Het adres zoals ingevuld (met huisnummer), de locatie van de kaart.
-      address: `${street}, ${postcode} ${found.city}`,
+      // Bij een verbeterde schrijfwijze (tikfout in de straat) het juiste adres bewaren.
+      address: `${found.corrected ? found.address : street}, ${postcode} ${found.city}`,
       city: found.city,
       lat: found.lat,
       lng: found.lng,

@@ -101,7 +101,7 @@ export function photonToPlace(feature: PhotonFeature): {
 export async function geocodeAddress(
   street: string,
   postcode: string,
-): Promise<{ lat: number; lng: number; address: string; city: string; postcode?: string } | null> {
+): Promise<{ lat: number; lng: number; address: string; city: string; postcode?: string; corrected?: boolean } | null> {
   const url = new URL("https://nominatim.openstreetmap.org/search");
   url.searchParams.set("format", "jsonv2");
   url.searchParams.set("street", street);
@@ -118,7 +118,9 @@ export async function geocodeAddress(
   });
   if (!response.ok) throw new Error(`Nominatim ${response.status}`);
   const [item] = (await response.json()) as NominatimResult[];
-  if (!item) return null;
+  // Niets gevonden (bv. een tikfout: "Schrijnwerkerstraat")? Dan Photon proberen,
+  // dat ook een straatnaam met kleine fouten herkent.
+  if (!item) return geocodeAddressFuzzy(street, postcode);
   const { address, city } = shortAddress(item);
   return {
     lat: Number(item.lat),
@@ -127,4 +129,43 @@ export async function geocodeAddress(
     city,
     postcode: item.address?.postcode,
   };
+}
+
+// Reserve: Photon zoekt "straat huisnummer postcode" met tolerantie voor tikfouten.
+// Geeft de juiste schrijfwijze van de straat terug (corrected: true).
+async function geocodeAddressFuzzy(
+  street: string,
+  postcode: string,
+): Promise<{ lat: number; lng: number; address: string; city: string; postcode?: string; corrected?: boolean } | null> {
+  const url = new URL("https://photon.komoot.io/api/");
+  url.searchParams.set("q", `${street} ${postcode}`);
+  url.searchParams.set("lat", "51.2194");
+  url.searchParams.set("lon", "4.4025");
+  url.searchParams.set("limit", "10");
+  url.searchParams.set("lang", "default"); // lokale namen: "Antwerpen", niet "Antwerp"
+  try {
+    const response = await fetch(url, { headers: NOMINATIM_HEADERS, signal: AbortSignal.timeout(5000) });
+    if (!response.ok) return null;
+    const data = (await response.json()) as { features?: PhotonFeature[] };
+    const number = (street.match(/\d+\s*[a-zA-Z]?/g) ?? []).pop()?.replace(/\s+/g, "").toLowerCase();
+    const candidates = (data.features ?? []).filter(
+      (f) =>
+        f.properties?.postcode === postcode &&
+        (f.properties as { countrycode?: string }).countrycode === "BE" &&
+        f.geometry?.coordinates,
+    );
+    // Liefst exact het huisnummer, anders de straat zelf.
+    const best =
+      candidates.find((f) => number && f.properties?.housenumber?.toLowerCase() === number) ??
+      candidates.find((f) => f.properties?.osm_key === "highway" || f.properties?.street) ??
+      candidates[0];
+    if (!best) return null;
+    const p = best.properties ?? {};
+    const [lng, lat] = best.geometry!.coordinates!;
+    const streetName = p.street ?? (p.osm_key === "highway" ? p.name : undefined);
+    const address = streetName ? [streetName, p.housenumber ?? number].filter(Boolean).join(" ") : street;
+    return { lat, lng, address, city: p.city ?? "Antwerpen", postcode: p.postcode, corrected: Boolean(streetName) };
+  } catch {
+    return null;
+  }
 }
