@@ -160,7 +160,7 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
             Bekijk op de kaart
           </Link>
           <a className="btn btn-soft" href={routeUrl(place)} target="_blank" rel="noopener noreferrer">
-            Route
+            Wandelroute
           </a>
         </div>
         <p className="muted small">
@@ -172,7 +172,8 @@ export default async function PlacePage({ params }: { params: Promise<{ slug: st
           <Link href={`/kindvriendelijk/${slugify(town)}`}>Meer kindvriendelijke horecazaken in {town}</Link>
         </p>
         <p className="muted small">
-          Is dit jouw zaak? <Link href={`/zaak/${slug}/sticker`}>Druk je TinyTable-sticker met QR-code af</Link>.
+          Is dit jouw zaak? <Link href={`/zaak/${slug}/sticker`}>Druk je TinyTable-sticker met QR-code af</Link> of lees{" "}
+          <Link href="/voor-horeca">alles voor horecazaken</Link>.
         </p>
       </article>
       <SeoFooter />

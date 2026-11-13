@@ -2403,3 +2403,25 @@ h3 {
   line-height: 1;
   color: #e2568a;
 }
+
+/* ---------- Filter "Nu open" ---------- */
+.chip.chip-open svg { color: #2a9d78; }
+.chip.chip-open.on {
+  background: #2a9d78;
+  border-color: #2a9d78;
+  color: #ffffff;
+}
+.chip.chip-open.on svg { color: #ffffff; }
+
+/* ---------- Pagina "Voor horecazaken" ---------- */
+.zaak-card .lead { font-size: 1.05rem; line-height: 1.55; }
+.owner-benefits, .owner-steps { padding-left: 1.2rem; line-height: 1.55; }
+.owner-benefits li, .owner-steps li { margin: 0 0 8px; }
+.owner-list {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 6px 16px;
+}

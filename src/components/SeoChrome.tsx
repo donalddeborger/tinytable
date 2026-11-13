@@ -53,7 +53,8 @@ export async function SeoFooter() {
         </ul>
       </nav>
       <p>
-        <Link href="/">Naar de kaart</Link> · <Link href="/over">Over TinyTable, contact &amp; privacy</Link>
+        <Link href="/">Naar de kaart</Link> · <Link href="/over">Over TinyTable, contact &amp; privacy</Link> ·{" "}
+        <Link href="/voor-horeca">Voor horecazaken</Link>
       </p>
     </footer>
   );

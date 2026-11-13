@@ -20,5 +20,5 @@ export function formatDistance(km: number): string {
 
 export function routeUrl(place: LatLng & { name: string }): string {
   const dest = `${place.lat},${place.lng}`;
-  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=walking`;
 }

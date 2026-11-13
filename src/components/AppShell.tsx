@@ -7,6 +7,7 @@ import { AddPlaceModal, PlaceSheet } from "@/components/PlaceSheet";
 import { PlaceList, type SortMode } from "@/components/PlaceList";
 import {
   AMENITY_ICON,
+  ClockIcon,
   MenuIcon,
   CloseIcon,
   ListIcon,
@@ -20,6 +21,7 @@ import {
 import { AMENITIES, isWelcome } from "@/lib/score";
 import { LangProvider, useI18n } from "@/lib/i18n";
 import { placeSlugs } from "@/lib/slug";
+import { isOpenAt } from "@/lib/hours";
 import { shareLink, useCanShare } from "@/lib/share";
 import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
@@ -360,6 +362,7 @@ function SiteMenu() {
       {open ? (
         <nav className="menu-panel" aria-label={t.menu}>
           <a href="/gemeenten">{t.menuTowns}</a>
+          <a href="/voor-horeca">{t.menuOwners}</a>
           <a href="/over">{t.menuAbout}</a>
           <a href="/over#hartjes">{t.menuHearts}</a>
           <a href="/over#contact">{t.menuContact}</a>
@@ -413,6 +416,7 @@ function Shell() {
   const [selected, setSelected] = useState<Place | null>(null);
   // Meerdere voorzieningen tegelijk: een zaak moet ze allemaal hebben.
   const [filters, setFilters] = useState<AmenityKey[]>([]);
+  const [openNow, setOpenNow] = useState(false);
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
@@ -515,8 +519,13 @@ function Shell() {
   }, [query, places]);
 
   const filtered = useMemo(() => {
-    return places.filter((place) => filters.every((key) => place.amenities[key] === true));
-  }, [places, filters]);
+    const now = new Date();
+    return places.filter(
+      (place) =>
+        filters.every((key) => place.amenities[key] === true) &&
+        (!openNow || isOpenAt(place.openingHours, now) === true),
+    );
+  }, [places, filters, openNow]);
 
   const slugs = useMemo(() => placeSlugs(places), [places]);
 
@@ -660,11 +669,25 @@ function Shell() {
 
           <div className="chips" role="group" aria-label={t.filterLabel}>
             <button
-              className={`chip chip-all ${filters.length === 0 ? "on" : ""}`}
-              aria-pressed={filters.length === 0}
-              onClick={() => setFilters([])}
+              className={`chip chip-all ${filters.length === 0 && !openNow ? "on" : ""}`}
+              aria-pressed={filters.length === 0 && !openNow}
+              onClick={() => {
+                setFilters([]);
+                setOpenNow(false);
+              }}
             >
               {t.all}
+            </button>
+            <button
+              className={`chip chip-open ${openNow ? "on" : ""}`}
+              aria-pressed={openNow}
+              title={t.openNowHint}
+              onClick={() => {
+                if (!openNow) track("Filter", { filter: "nuOpen" });
+                setOpenNow(!openNow);
+              }}
+            >
+              <ClockIcon size={16} /> {t.openNowFilter}
             </button>
             {AMENITIES.map((item) => {
               const Icon = AMENITY_ICON[item.key];
