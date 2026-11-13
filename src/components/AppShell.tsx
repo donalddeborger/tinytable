@@ -122,22 +122,31 @@ function InstallHelp({ mode, onClose }: { mode: InstallMode; onClose: () => void
 // Welkomstvenster: alleen bij het allereerste bezoek.
 const WELCOME_KEY = "tinytable-welcome";
 
-function WelcomeIntro() {
+// Actie "100 kindvriendelijke adressen": pop-up en teller tot en met zondag 15/11.
+const CAMPAIGN_KEY = "tinytable-actie100";
+const CAMPAIGN_END = Date.parse("2026-11-15T23:59:59+01:00");
+function campaignActive(): boolean {
+  return Date.now() < CAMPAIGN_END;
+}
+
+function WelcomeIntro({ count, onAdd }: { count: number | null; onAdd: () => void }) {
   const { t } = useI18n();
   const [show, setShow] = useState(false);
+  const [campaign] = useState(() => typeof window !== "undefined" && campaignActive());
+  const storageKey = campaign ? CAMPAIGN_KEY : WELCOME_KEY;
   useEffect(() => {
     try {
       // Niet tonen als iemand via een gedeelde link meteen een horecazaak opent.
       const params = new URLSearchParams(window.location.search);
       if (params.get("zaak") || params.has("toevoegen")) return;
-      if (!localStorage.getItem(WELCOME_KEY)) setShow(true);
+      if (!localStorage.getItem(storageKey)) setShow(true);
     } catch {
       /* geen opslag: dan niet tonen */
     }
-  }, []);
+  }, [storageKey]);
   const close = () => {
     try {
-      localStorage.setItem(WELCOME_KEY, "1");
+      localStorage.setItem(storageKey, "1");
     } catch {
       /* ok */
     }
@@ -150,6 +159,41 @@ function WelcomeIntro() {
     return () => document.removeEventListener("keydown", onKey);
   }, [show]);
   if (!show) return null;
+  // Tijdens de actie: oproep om een adres toe te voegen (wacht op de teller).
+  if (campaign) {
+    if (count === null) return null;
+    return createPortal(
+      <div className="install-backdrop welcome-backdrop" role="presentation" onClick={close}>
+        <div
+          className="install-help welcome-card campaign-card"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="campaign-title"
+          onClick={(event) => event.stopPropagation()}
+        >
+          <h2 id="campaign-title">{t.campaignTitle}</h2>
+          <p className="welcome-sub">{t.campaignText}</p>
+          <p className="campaign-count" aria-label={t.goalText(count, GOAL)}>
+            {count} / {GOAL}
+          </p>
+          <button
+            className="btn btn-primary"
+            onClick={() => {
+              close();
+              track("Actie pop-up: toevoegen");
+              onAdd();
+            }}
+          >
+            <PlusIcon size={18} /> {t.campaignCta}
+          </button>
+          <button className="thanks-close" onClick={close}>
+            {t.campaignLater}
+          </button>
+        </div>
+      </div>,
+      document.body,
+    );
+  }
   return createPortal(
     <div className="install-backdrop welcome-backdrop" role="presentation" onClick={close}>
       <div
@@ -181,7 +225,7 @@ function WelcomeIntro() {
   );
 }
 
-// Doel: samen 100 plekjes verzamelen.
+// Doel: samen 100 plekjes verzamelen (enkel tijdens de actie).
 const GOAL = 100;
 
 function GoalBar({ count, onAdd }: { count: number; onAdd: () => void }) {
@@ -217,6 +261,7 @@ function ThanksDialog({
 }) {
   const { t } = useI18n();
   const canShare = useCanShare();
+  const campaign = campaignActive();
   return createPortal(
     <div className="install-backdrop welcome-backdrop" role="presentation" onClick={onClose}>
       <div
@@ -227,11 +272,23 @@ function ThanksDialog({
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id="thanks-title">{t.thanksTitle}</h2>
-        <p className="thanks-text">{kind === "added" ? t.thanksAdded(count, GOAL) : t.thanksSubmitted}</p>
-        <div className="goal-track big" aria-hidden="true">
-          <span className="goal-fill" style={{ width: `${Math.min(100, (count / GOAL) * 100)}%` }} />
-        </div>
-        <p className="thanks-count">{t.goalText(count, GOAL)}</p>
+        <p className="thanks-text">
+          {kind === "added"
+            ? campaign
+              ? t.thanksAdded(count, GOAL)
+              : t.thanksAddedPlain
+            : campaign
+              ? t.thanksSubmitted
+              : t.thanksSubmittedPlain}
+        </p>
+        {campaign ? (
+          <>
+            <div className="goal-track big" aria-hidden="true">
+              <span className="goal-fill" style={{ width: `${Math.min(100, (count / GOAL) * 100)}%` }} />
+            </div>
+            <p className="thanks-count">{t.goalText(count, GOAL)}</p>
+          </>
+        ) : null}
         {canShare ? (
           <button
             className="btn btn-primary"
@@ -520,7 +577,7 @@ function Shell() {
             <div className="brand-actions">
               <LangSwitch />
               <SiteMenu />
-              <WelcomeIntro />
+              <WelcomeIntro count={loaded ? welcomeCount : null} onAdd={() => startAdding()} />
             </div>
           </div>
 
@@ -627,7 +684,7 @@ function Shell() {
               );
             })}
           </div>
-          {loaded ? <GoalBar count={welcomeCount} onAdd={() => startAdding()} /> : null}
+          {loaded && campaignActive() ? <GoalBar count={welcomeCount} onAdd={() => startAdding()} /> : null}
         </div>
 
         <div className="panel-list">
