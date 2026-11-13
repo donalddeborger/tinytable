@@ -24,6 +24,7 @@ export async function notifyManualPlace(place: {
   lng: number;
   amenities: Record<string, boolean | null>;
   note?: string;
+  addressFound?: boolean;
 }): Promise<void> {
   const rows = Object.entries(AMENITY_NL)
     .map(([k, label]) => {
@@ -36,13 +37,15 @@ export async function notifyManualPlace(place: {
 
   const html = `
     <h2>Nieuwe horecazaak wacht op goedkeuring</h2>
+    ${place.addressFound === false ? `<p style="color:#b42318"><strong>⚠️ Adres niet gevonden.</strong> De locatie staat voorlopig op het centrum van Antwerpen. Zoek het juiste adres op vóór je goedkeurt (of vraag het aan Claude).</p>` : ""}
     <p><strong>${escape(place.name)}</strong> (${TYPE_NL[place.type] ?? place.type})<br>${escape(place.address)}</p>
     <ul>${rows}</ul>
     ${place.note ? `<p>Toelichting: ${escape(place.note)}</p>` : ""}
     <p><a href="${map}">Bekijk de locatie op de kaart</a></p>
     <p>Goedkeuren: open <a href="${editor}">Supabase</a> → tabel <em>places</em> → zet <em>approved</em> op true. Of vraag het aan Claude.</p>`;
 
-  await sendMail(`TinyTable: nieuwe horecazaak "${place.name}" wacht op goedkeuring`, html);
+  const flag = place.addressFound === false ? " (adres controleren)" : "";
+  await sendMail(`TinyTable: nieuwe horecazaak "${place.name}" wacht op goedkeuring${flag}`, html);
 }
 
 // Korte melding wanneer iemand een horecazaak toevoegt die meteen op de kaart komt.

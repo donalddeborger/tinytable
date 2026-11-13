@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { isAntwerpAddress, isInAntwerp, isProvincePostcode } from "@/lib/antwerp";
+import { ANTWERP, isAntwerpAddress, isInAntwerp, isProvincePostcode } from "@/lib/antwerp";
 import { clientId, isBot } from "@/lib/client";
 import { geocodeAddress } from "@/lib/osm";
 import { addManualPlace, WriteError } from "@/lib/store";
@@ -36,19 +36,18 @@ export async function POST(request: Request) {
   }
   if (!amenities) return NextResponse.json({ error: "Geen voorzieningen" }, { status: 400 });
 
-  let found;
+  let found: Awaited<ReturnType<typeof geocodeAddress>> = null;
   try {
     found = await geocodeAddress(street, postcode);
   } catch (error) {
     console.error("Adres opzoeken mislukt:", error);
-    return NextResponse.json({ error: "Adres niet gevonden" }, { status: 502 });
   }
-  if (
-    !found ||
-    !isInAntwerp(found.lat, found.lng) ||
-    !isAntwerpAddress(found.postcode, found.lat, found.lng)
-  ) {
-    return NextResponse.json({ error: "Adres niet gevonden" }, { status: 400 });
+  // Adres niet gevonden? Niet blokkeren: de inzending wordt toch eerst nagekeken.
+  // We bewaren ze voorlopig op het centrum van Antwerpen en melden het in de e-mail.
+  const addressFound =
+    !!found && isInAntwerp(found.lat, found.lng) && isAntwerpAddress(found.postcode, found.lat, found.lng);
+  if (!found || !addressFound) {
+    found = { lat: ANTWERP.lat, lng: ANTWERP.lng, address: street, city: "Antwerpen", postcode };
   }
 
   try {
@@ -65,7 +64,7 @@ export async function POST(request: Request) {
       note: parseNote(body.note),
     };
     await addManualPlace(input, clientId(request));
-    await notifyManualPlace(input);
+    await notifyManualPlace({ ...input, addressFound });
     return NextResponse.json({ ok: true }, { status: 201 });
   } catch (error) {
     if (error instanceof WriteError) {

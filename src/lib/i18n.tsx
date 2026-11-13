@@ -190,7 +190,7 @@ const nl = {
   sending: "Insturen…",
   submitted: "Bedankt! We kijken de horecazaak na; na goedkeuring verschijnt ze op de kaart.",
   needStreet: "Vul straat en huisnummer in",
-  needPostcode: "Geef een postcode uit de provincie Antwerpen (2000–2999)",
+  needPostcode: "TinyTable werkt voorlopig alleen in de provincie Antwerpen. Andere gebieden volgen later!",
 };
 
 export type Dict = typeof nl;
@@ -352,7 +352,7 @@ const en: Dict = {
   sending: "Submitting…",
   submitted: "Thanks! We'll review the place; once approved it will appear on the map.",
   needStreet: "Fill in the street and house number",
-  needPostcode: "Enter a postcode in the province of Antwerp (2000–2999)",
+  needPostcode: "For now, TinyTable only covers the province of Antwerp. Other areas will follow later!",
 };
 
 const DICTS: Record<Lang, Dict> = { nl, en };
