@@ -1,4 +1,4 @@
-import { knownCount, WELCOME_MIN } from "@/lib/score";
+import { knownCount } from "@/lib/score";
 import type { Amenities } from "@/lib/types";
 import { useI18n } from "@/lib/i18n";
 import { ChairMark } from "@/components/Icons";
@@ -38,7 +38,6 @@ export function WelcomeBadge({ large = false, isSuper = false }: { large?: boole
         </span>
         <span>
           <strong>{label}</strong>
-          <small>{isSuper ? t.superRule : t.welcomeRule(WELCOME_MIN)}</small>
         </span>
       </div>
     );
