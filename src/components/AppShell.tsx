@@ -420,7 +420,7 @@ function Shell() {
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
-  const [flyTo, setFlyTo] = useState<LatLng | null>(null);
+  const [flyTo, setFlyTo] = useState<(LatLng & { zoomIn?: boolean }) | null>(null);
   const [adding, setAdding] = useState<{ venue: Venue | null; manualName?: string } | null>(null);
   const [searchedFor, setSearchedFor] = useState("");
   const [toast, setToast] = useState<string | null>(null);
@@ -786,7 +786,11 @@ function Shell() {
             place={selectedPlace}
             pageHref={`/zaak/${slugs.get(selectedPlace.id) ?? ""}`}
             origin={userLocation}
-            onClose={() => setSelected(null)}
+            onClose={() => {
+              // Kaart zacht verschuiven (en iets inzoomen) zodat de pin weer in het midden staat.
+              setFlyTo({ lat: selectedPlace.lat, lng: selectedPlace.lng, zoomIn: true });
+              setSelected(null);
+            }}
             onConfirmed={(place) => {
               setPlaces((current) => current.map((item) => (item.id === place.id ? place : item)));
               setToast(t.confirmedToast);

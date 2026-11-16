@@ -22,7 +22,7 @@ type Props = {
   places: Place[];
   selectedId: string | null;
   userLocation: { lat: number; lng: number } | null;
-  flyTo: { lat: number; lng: number } | null;
+  flyTo: { lat: number; lng: number; zoomIn?: boolean } | null;
   picking: boolean;
   filter: AmenityKey | "all";
   onSelect: (place: Place) => void;
@@ -130,28 +130,58 @@ function BaseMap() {
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 900;
 
-// Op gsm: hoogte van zoekbalk + filters bovenaan, en van een pin (in px).
-const MOBILE_TOP_BAR = 185;
+// Hoogte van een pin (punt onderaan): we centreren het midden van de pin, niet de punt.
 const PIN_HEIGHT = 44;
-// Moet gelijk zijn aan max-height van .sheet op gsm (globals.css).
-const MOBILE_SHEET_SHARE = 0.65;
 
-function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
+/**
+ * Midden van het stuk kaart dat niet bedekt is (in px binnen de kaart).
+ * Fiche open: op gsm de strook boven de fiche, op desktop het deel links van de fiche.
+ * Fiche dicht: op gsm tussen zoekbalk/filters en de knoppen onderaan, op desktop de hele kaart.
+ */
+function visibleCenter(map: L.Map): L.Point {
+  const box = map.getContainer().getBoundingClientRect();
+  let left = 0;
+  let right = box.width;
+  let top = 0;
+  let bottom = box.height;
+
+  const sheet = document.querySelector<HTMLElement>(".sheet");
+  if (sheet) {
+    if (isMobile()) {
+      // offsetHeight negeert de schuif-animatie van de fiche.
+      bottom = Math.min(bottom, box.height - sheet.offsetHeight);
+    } else {
+      right = Math.min(right, sheet.getBoundingClientRect().left - box.left);
+    }
+  } else if (isMobile()) {
+    const bar = document.querySelector(".panel-top")?.getBoundingClientRect();
+    if (bar && bar.height > 0) top = Math.max(top, bar.bottom - box.top);
+    const toggle = document.querySelector(".view-toggle")?.getBoundingClientRect();
+    if (toggle && toggle.height > 0) bottom = Math.min(bottom, toggle.top - box.top);
+  }
+
+  return L.point((left + right) / 2, (top + bottom) / 2);
+}
+
+function FlyTo({
+  target,
+}: {
+  target: { lat: number; lng: number; zoomIn?: boolean } | null;
+}) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;
-    const zoom = Math.max(map.getZoom(), 15);
-    let center = L.latLng(target.lat, target.lng);
-    if (isMobile()) {
-      // Op gsm bedekt de fiche het onderste deel. Zet de pin tussen de zoekbalk en
-      // de fiche, zodat hij zichtbaar blijft als de fiche sluit (de kaart beweegt dan niet).
-      const height = map.getSize().y;
-      const sheetTop = height * (1 - MOBILE_SHEET_SHARE);
-      const pinY = Math.min((MOBILE_TOP_BAR + PIN_HEIGHT + sheetTop) / 2, sheetTop - 8);
-      const point = map.project(center, zoom).add([0, height / 2 - pinY]);
-      center = map.unproject(point, zoom);
-    }
-    map.flyTo(center, zoom, { duration: 0.7 });
+    const zoom = target.zoomIn
+      ? Math.min(map.getZoom() + 1, 18)
+      : Math.max(map.getZoom(), 15);
+    // Zet de kaart zo dat de pin in het midden van het zichtbare stuk kaart staat.
+    const wanted = visibleCenter(map).add([0, PIN_HEIGHT / 2]);
+    const shift = wanted.subtract(map.getSize().divideBy(2));
+    const center = map.unproject(
+      map.project(L.latLng(target.lat, target.lng), zoom).subtract(shift),
+      zoom,
+    );
+    map.flyTo(center, zoom, { duration: target.zoomIn ? 0.8 : 0.7 });
   }, [map, target]);
   return null;
 }
