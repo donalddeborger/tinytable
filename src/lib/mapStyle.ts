@@ -7,8 +7,13 @@ export const BASE_STYLE_URL = "https://tiles.openfreemap.org/styles/positron";
 export const MAP_ATTRIBUTION =
   '© <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
-// Lagen die we niet tonen.
-const HIDDEN = new Set(["building"]);
+// Lagen die we niet tonen: gebouwen en wegnummers (N1, R1, A12, E19 …).
+const HIDDEN = new Set([
+  "building",
+  "highway-shield-non-us",
+  "highway-shield-us-interstate",
+  "road_shield_us",
+]);
 
 // Kleuren per laag (id uit de Positron-stijl).
 const COLORS: Record<string, Record<string, string>> = {
