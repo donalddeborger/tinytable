@@ -22,7 +22,7 @@ type Props = {
   places: Place[];
   selectedId: string | null;
   userLocation: { lat: number; lng: number } | null;
-  flyTo: { lat: number; lng: number; centered?: boolean } | null;
+  flyTo: { lat: number; lng: number } | null;
   picking: boolean;
   filter: AmenityKey | "all";
   onSelect: (place: Place) => void;
@@ -130,24 +130,25 @@ function BaseMap() {
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 900;
 
-function FlyTo({
-  target,
-}: {
-  target: { lat: number; lng: number; centered?: boolean } | null;
-}) {
+// Op gsm: hoogte van zoekbalk + filters bovenaan, en van een pin (in px).
+const MOBILE_TOP_BAR = 185;
+const PIN_HEIGHT = 44;
+// Moet gelijk zijn aan max-height van .sheet op gsm (globals.css).
+const MOBILE_SHEET_SHARE = 0.65;
+
+function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;
-    let center = L.latLng(target.lat, target.lng);
-    if (target.centered) {
-      // Fiche gesloten: pin zacht terug naar het midden, zonder in te zoomen.
-      map.panTo(center, { duration: 0.4 });
-      return;
-    }
     const zoom = Math.max(map.getZoom(), 15);
+    let center = L.latLng(target.lat, target.lng);
     if (isMobile()) {
-      // Op gsm bedekt de fiche het onderste deel: zet de pin hoger in beeld.
-      const point = map.project(center, zoom).add([0, map.getSize().y * 0.3]);
+      // Op gsm bedekt de fiche het onderste deel. Zet de pin tussen de zoekbalk en
+      // de fiche, zodat hij zichtbaar blijft als de fiche sluit (de kaart beweegt dan niet).
+      const height = map.getSize().y;
+      const sheetTop = height * (1 - MOBILE_SHEET_SHARE);
+      const pinY = Math.min((MOBILE_TOP_BAR + PIN_HEIGHT + sheetTop) / 2, sheetTop - 8);
+      const point = map.project(center, zoom).add([0, height / 2 - pinY]);
       center = map.unproject(point, zoom);
     }
     map.flyTo(center, zoom, { duration: 0.7 });

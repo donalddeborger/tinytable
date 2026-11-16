@@ -420,7 +420,7 @@ function Shell() {
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
-  const [flyTo, setFlyTo] = useState<(LatLng & { centered?: boolean }) | null>(null);
+  const [flyTo, setFlyTo] = useState<LatLng | null>(null);
   const [adding, setAdding] = useState<{ venue: Venue | null; manualName?: string } | null>(null);
   const [searchedFor, setSearchedFor] = useState("");
   const [toast, setToast] = useState<string | null>(null);
@@ -786,11 +786,7 @@ function Shell() {
             place={selectedPlace}
             pageHref={`/zaak/${slugs.get(selectedPlace.id) ?? ""}`}
             origin={userLocation}
-            onClose={() => {
-              // Pin terug in het midden van de kaart zetten (op gsm stond hij hoger door de fiche).
-              setFlyTo({ lat: selectedPlace.lat, lng: selectedPlace.lng, centered: true });
-              setSelected(null);
-            }}
+            onClose={() => setSelected(null)}
             onConfirmed={(place) => {
               setPlaces((current) => current.map((item) => (item.id === place.id ? place : item)));
               setToast(t.confirmedToast);
