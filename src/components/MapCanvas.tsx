@@ -22,7 +22,7 @@ type Props = {
   places: Place[];
   selectedId: string | null;
   userLocation: { lat: number; lng: number } | null;
-  flyTo: { lat: number; lng: number } | null;
+  flyTo: { lat: number; lng: number; centered?: boolean } | null;
   picking: boolean;
   filter: AmenityKey | "all";
   onSelect: (place: Place) => void;
@@ -130,12 +130,21 @@ function BaseMap() {
 
 const isMobile = () => typeof window !== "undefined" && window.innerWidth < 900;
 
-function FlyTo({ target }: { target: { lat: number; lng: number } | null }) {
+function FlyTo({
+  target,
+}: {
+  target: { lat: number; lng: number; centered?: boolean } | null;
+}) {
   const map = useMap();
   useEffect(() => {
     if (!target) return;
-    const zoom = Math.max(map.getZoom(), 15);
     let center = L.latLng(target.lat, target.lng);
+    if (target.centered) {
+      // Fiche gesloten: pin zacht terug naar het midden, zonder in te zoomen.
+      map.panTo(center, { duration: 0.4 });
+      return;
+    }
+    const zoom = Math.max(map.getZoom(), 15);
     if (isMobile()) {
       // Op gsm bedekt de fiche het onderste deel: zet de pin hoger in beeld.
       const point = map.project(center, zoom).add([0, map.getSize().y * 0.3]);
