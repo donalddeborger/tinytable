@@ -128,7 +128,7 @@ export function PlaceSheet({ place, pageHref, origin, onClose, onSaved, onConfir
               ? t.helpParents
               : place.source === "osm" && !place.confirmCount
                 ? `${ratingText(rating)} · ${t.fromOsm}`
-                : `${ratingText(rating)} · ${t.confirmedBy(place.confirmCount ?? 1)}`}
+                : `${ratingText(rating)} · ${t.confirmedBy(place.confirmCount || 1)}`}
             {place.lastConfirmedAt && place.confirmCount ? ` · ${formatDate(place.lastConfirmedAt)}` : ""}
           </p>
         </div>
