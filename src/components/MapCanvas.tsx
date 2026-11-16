@@ -10,6 +10,7 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import { ANTWERP } from "@/lib/antwerp";
+import type { MapTarget } from "@/lib/geo";
 import { isWelcome, kidRating, scoreTone, TONE_COLOR } from "@/lib/score";
 import type { AmenityKey, Place } from "@/lib/types";
 import "leaflet/dist/leaflet.css";
@@ -22,7 +23,7 @@ type Props = {
   places: Place[];
   selectedId: string | null;
   userLocation: { lat: number; lng: number } | null;
-  flyTo: { lat: number; lng: number; zoomIn?: boolean } | null;
+  flyTo: MapTarget | null;
   picking: boolean;
   filter: AmenityKey | "all";
   onSelect: (place: Place) => void;
@@ -163,42 +164,44 @@ function visibleCenter(map: L.Map): L.Point {
   return L.point((left + right) / 2, (top + bottom) / 2);
 }
 
-function FlyTo({
-  target,
-}: {
-  target: { lat: number; lng: number; zoomIn?: boolean } | null;
-}) {
+const MAX_ZOOM = 18;
+
+function FlyTo({ target }: { target: MapTarget | null }) {
   const map = useMap();
+  // Zoomniveau van vóór het openen van een fiche, om bij sluiten naar terug te keren.
+  const baseZoom = useRef<number | null>(null);
+
   useEffect(() => {
     if (!target) return;
-    const zoom = target.zoomIn
-      ? Math.min(map.getZoom() + 1, 18)
-      : Math.max(map.getZoom(), 15);
+    const here = L.latLng(target.lat, target.lng);
+
+    if (target.kind === "start") {
+      // Startweergave: vaste schaal, zonder animatie.
+      baseZoom.current = null;
+      map.setView(here, ANTWERP.zoom, { animate: false });
+      return;
+    }
+
+    let zoom: number;
+    if (target.kind === "select") {
+      // Pin gekozen: een beetje inzoomen (één stap, minstens tot 15).
+      if (baseZoom.current === null) baseZoom.current = map.getZoom();
+      zoom = Math.min(MAX_ZOOM, Math.max(baseZoom.current + 1, 15));
+    } else if (target.kind === "close") {
+      // Fiche gesloten: terug naar het zoomniveau van ervoor.
+      zoom = baseZoom.current ?? map.getZoom();
+      baseZoom.current = null;
+    } else {
+      baseZoom.current = null;
+      zoom = Math.max(map.getZoom(), 15);
+    }
+
     // Zet de kaart zo dat de pin in het midden van het zichtbare stuk kaart staat.
     const wanted = visibleCenter(map).add([0, PIN_HEIGHT / 2]);
     const shift = wanted.subtract(map.getSize().divideBy(2));
-    const center = map.unproject(
-      map.project(L.latLng(target.lat, target.lng), zoom).subtract(shift),
-      zoom,
-    );
-    map.flyTo(center, zoom, { duration: target.zoomIn ? 0.8 : 0.7 });
+    const center = map.unproject(map.project(here, zoom).subtract(shift), zoom);
+    map.flyTo(center, zoom, { duration: 0.7 });
   }, [map, target]);
-  return null;
-}
-
-function FitToPlaces({ places }: { places: Place[] }) {
-  const map = useMap();
-  const done = useRef(false);
-  useEffect(() => {
-    if (done.current || places.length === 0) return;
-    done.current = true;
-    const bounds = L.latLngBounds(places.map((p) => [p.lat, p.lng] as [number, number]));
-    map.fitBounds(bounds, {
-      paddingTopLeft: isMobile() ? [40, 250] : [80, 80],
-      paddingBottomRight: isMobile() ? [40, 110] : [80, 80],
-      maxZoom: 15,
-    });
-  }, [map, places]);
   return null;
 }
 
@@ -260,7 +263,6 @@ export function MapCanvas({
       <BaseMap />
       <ZoomControl position="bottomright" />
       <FlyTo target={flyTo} />
-      <FitToPlaces places={places} />
       <ClickCatcher enabled={picking} onPick={onPick} />
       <ZoomWatcher onZoom={setZoom} />
       {visible

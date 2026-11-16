@@ -1,5 +1,9 @@
 export type LatLng = { lat: number; lng: number };
 
+// Waar de kaart naartoe moet. "select" = pin gekozen (iets inzoomen),
+// "close" = fiche gesloten (terug uitzoomen), "start" = startweergave (vaste schaal).
+export type MapTarget = LatLng & { kind?: "select" | "close" | "start" };
+
 // Afstand in km tussen twee punten (haversine).
 export function distanceKm(a: LatLng, b: LatLng): number {
   const R = 6371;

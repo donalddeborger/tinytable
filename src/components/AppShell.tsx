@@ -25,7 +25,7 @@ import { isOpenAt } from "@/lib/hours";
 import { shareLink, useCanShare } from "@/lib/share";
 import { track } from "@vercel/analytics";
 import { ANTWERP, isInAntwerp } from "@/lib/antwerp";
-import type { LatLng } from "@/lib/geo";
+import type { LatLng, MapTarget } from "@/lib/geo";
 import type { AmenityKey, Place, Venue } from "@/lib/types";
 
 const MapCanvas = dynamic(
@@ -420,11 +420,40 @@ function Shell() {
   const [sort, setSort] = useState<SortMode>("score");
   const [view, setView] = useState<"map" | "list">("map");
   const [userLocation, setUserLocation] = useState<LatLng | null>(null);
-  const [flyTo, setFlyTo] = useState<(LatLng & { zoomIn?: boolean }) | null>(null);
+  const [flyTo, setFlyTo] = useState<MapTarget | null>(null);
   const [adding, setAdding] = useState<{ venue: Venue | null; manualName?: string } | null>(null);
   const [searchedFor, setSearchedFor] = useState("");
   const [toast, setToast] = useState<string | null>(null);
   const [thanks, setThanks] = useState<"added" | "submitted" | null>(null);
+
+  // Startweergave: als de bezoeker al toestemming gaf voor locatie, centreren op die
+  // locatie (zelfde vaste schaal). Geen toestemming vragen bij het openen.
+  useEffect(() => {
+    if (!navigator.geolocation || !navigator.permissions?.query) return;
+    let cancelled = false;
+    navigator.permissions
+      .query({ name: "geolocation" })
+      .then((status) => {
+        if (status.state !== "granted" || cancelled) return;
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            if (cancelled) return;
+            const here = { lat: position.coords.latitude, lng: position.coords.longitude };
+            setUserLocation(here);
+            // Niet verspringen als de bezoeker intussen al een locatie opende.
+            if (isInAntwerp(here.lat, here.lng) && !new URLSearchParams(window.location.search).has("zaak")) {
+              setFlyTo((current) => current ?? { ...here, kind: "start" });
+            }
+          },
+          () => undefined,
+          { timeout: 5000, maximumAge: 300000 },
+        );
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // Link met ?toevoegen (bv. vanuit een advertentie): meteen het toevoegscherm openen.
   useEffect(() => {
@@ -447,7 +476,7 @@ function Shell() {
           const match = data.find((p) => slugs.get(p.id) === wanted);
           if (match) {
             setSelected(match);
-            setFlyTo({ lat: match.lat, lng: match.lng });
+            setFlyTo({ lat: match.lat, lng: match.lng, kind: "select" });
           }
         }
       })
@@ -576,7 +605,7 @@ function Shell() {
     track("Zaak bekeken", { zaak: place.name });
     setSelected(place);
     setAdding(null);
-    setFlyTo({ lat: place.lat, lng: place.lng });
+    setFlyTo({ lat: place.lat, lng: place.lng, kind: "select" });
     setView("map");
   }
 
@@ -787,8 +816,8 @@ function Shell() {
             pageHref={`/zaak/${slugs.get(selectedPlace.id) ?? ""}`}
             origin={userLocation}
             onClose={() => {
-              // Kaart zacht verschuiven (en iets inzoomen) zodat de pin weer in het midden staat.
-              setFlyTo({ lat: selectedPlace.lat, lng: selectedPlace.lng, zoomIn: true });
+              // Kaart zacht verschuiven (en terug uitzoomen) zodat de pin weer in het midden staat.
+              setFlyTo({ lat: selectedPlace.lat, lng: selectedPlace.lng, kind: "close" });
               setSelected(null);
             }}
             onConfirmed={(place) => {
@@ -834,7 +863,7 @@ function Shell() {
             setPlaces((current) => [...current, place]);
             setAdding(null);
             setSelected(place);
-            setFlyTo({ lat: place.lat, lng: place.lng });
+            setFlyTo({ lat: place.lat, lng: place.lng, kind: "select" });
             setThanks("added");
             track("Zaak toegevoegd", { zaak: place.name });
           }}
