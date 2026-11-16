@@ -101,6 +101,8 @@ function BaseMap() {
   useEffect(() => {
     let layer: L.Layer | null = null;
     let cancelled = false;
+    // Bronvermelding zo kort mogelijk: zonder "Leaflet" en vlaggetje.
+    map.attributionControl?.setPrefix(false);
 
     function fallback() {
       if (cancelled) return;
@@ -115,15 +117,17 @@ function BaseMap() {
       .then((response) => (response.ok ? response.json() : Promise.reject()))
       .then((style) => {
         if (cancelled) return;
-        layer = maplibreGL({ style: pastelize(style) }).addTo(map);
-        map.attributionControl?.addAttribution(MAP_ATTRIBUTION);
+        // Eigen korte bronvermelding i.p.v. de lange tekst uit de kaartstijl.
+        layer = maplibreGL({
+          style: pastelize(style),
+          attributionControl: { customAttribution: MAP_ATTRIBUTION },
+        }).addTo(map);
       })
       .catch(fallback);
 
     return () => {
       cancelled = true;
       layer?.remove();
-      map.attributionControl?.removeAttribution(MAP_ATTRIBUTION);
     };
   }, [map]);
   return null;
@@ -165,6 +169,8 @@ function visibleCenter(map: L.Map): L.Point {
 }
 
 const MAX_ZOOM = 18;
+// De kaart opent iets verder uitgezoomd en zoomt dan in tot ANTWERP.zoom.
+const START_ZOOM = ANTWERP.zoom - 1;
 
 function FlyTo({ target }: { target: MapTarget | null }) {
   const map = useMap();
@@ -176,10 +182,13 @@ function FlyTo({ target }: { target: MapTarget | null }) {
     const here = L.latLng(target.lat, target.lng);
 
     if (target.kind === "start") {
-      // Startweergave: vaste schaal, zonder animatie.
+      // Startanimatie: vanuit START_ZOOM zacht inzoomen tot de vaste schaal.
       baseZoom.current = null;
-      map.setView(here, ANTWERP.zoom, { animate: false });
-      return;
+      const timer = window.setTimeout(
+        () => map.flyTo(here, ANTWERP.zoom, { duration: 1.4 }),
+        300,
+      );
+      return () => window.clearTimeout(timer);
     }
 
     let zoom: number;
@@ -239,7 +248,7 @@ export function MapCanvas({
     [places, filter],
   );
 
-  const [zoom, setZoom] = useState<number>(ANTWERP.zoom);
+  const [zoom, setZoom] = useState<number>(START_ZOOM);
 
   const userIcon = useMemo(
     () =>
@@ -256,7 +265,7 @@ export function MapCanvas({
     <MapContainer
       className="map"
       center={[ANTWERP.lat, ANTWERP.lng]}
-      zoom={ANTWERP.zoom}
+      zoom={START_ZOOM}
       scrollWheelZoom
       zoomControl={false}
     >

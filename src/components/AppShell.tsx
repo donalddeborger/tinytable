@@ -426,32 +426,44 @@ function Shell() {
   const [toast, setToast] = useState<string | null>(null);
   const [thanks, setThanks] = useState<"added" | "submitted" | null>(null);
 
-  // Startweergave: als de bezoeker al toestemming gaf voor locatie, centreren op die
-  // locatie (zelfde vaste schaal). Geen toestemming vragen bij het openen.
+  // Startanimatie: de kaart opent iets uitgezoomd en zoomt dan zacht in op het centrum
+  // van Antwerpen, of op de locatie van de bezoeker als die al eerder toestemming gaf.
+  // Geen toestemming vragen bij het openen.
   useEffect(() => {
-    if (!navigator.geolocation || !navigator.permissions?.query) return;
+    if (new URLSearchParams(window.location.search).has("zaak")) return;
     let cancelled = false;
-    navigator.permissions
-      .query({ name: "geolocation" })
-      .then((status) => {
-        if (status.state !== "granted" || cancelled) return;
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            if (cancelled) return;
-            const here = { lat: position.coords.latitude, lng: position.coords.longitude };
-            setUserLocation(here);
-            // Niet verspringen als de bezoeker intussen al een locatie opende.
-            if (isInAntwerp(here.lat, here.lng) && !new URLSearchParams(window.location.search).has("zaak")) {
-              setFlyTo((current) => current ?? { ...here, kind: "start" });
-            }
-          },
-          () => undefined,
-          { timeout: 5000, maximumAge: 300000 },
-        );
-      })
-      .catch(() => undefined);
+    let started = false;
+    // Niet meer bewegen als de bezoeker intussen al iets aanklikte.
+    const start = (spot: LatLng) => {
+      if (cancelled || started) return;
+      started = true;
+      setFlyTo((current) => current ?? { ...spot, kind: "start" });
+    };
+    const fallback = window.setTimeout(() => start(ANTWERP), 1500);
+
+    if (navigator.geolocation && navigator.permissions?.query) {
+      navigator.permissions
+        .query({ name: "geolocation" })
+        .then((status) => {
+          if (status.state !== "granted") return start(ANTWERP);
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const here = { lat: position.coords.latitude, lng: position.coords.longitude };
+              if (!cancelled) setUserLocation(here);
+              start(isInAntwerp(here.lat, here.lng) ? here : ANTWERP);
+            },
+            () => start(ANTWERP),
+            { timeout: 1200, maximumAge: 300000 },
+          );
+        })
+        .catch(() => start(ANTWERP));
+    } else {
+      start(ANTWERP);
+    }
+
     return () => {
       cancelled = true;
+      window.clearTimeout(fallback);
     };
   }, []);
 
