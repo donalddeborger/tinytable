@@ -1,7 +1,7 @@
-// Startpunt van de kaart: Antwerpen-stad.
+// Startpunt van de kaart: het Stadspark in Antwerpen (2000).
 export const ANTWERP = {
-  lat: 51.2194,
-  lng: 4.4025,
+  lat: 51.2125,
+  lng: 4.4145,
   zoom: 14,
 };
 
